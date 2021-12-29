@@ -44,8 +44,13 @@ class GameActivity : AppCompatActivity() {
             statusText.text = "Spieler " + currentPlayer + " ist an der Reihe"
             checkWinner()
         }
-        else if (phase.equals("win")){
+        if (!phase.equals("playing")) {
             resetGame()
+            return
+        }
+        if (fields.all { it.text.isNotEmpty() }) {
+            phase = "draw"
+            statusText.text = "Unentschieden"
         }
     }
 
@@ -69,14 +74,16 @@ class GameActivity : AppCompatActivity() {
         if (fields[2].text.equals(fields[4].text) and fields[4].text.equals(fields[6].text)
         ) winner += fields[4].text.toString()
 
-        if (!winner.isEmpty()) {
+        if (winner.isNotEmpty()) {
             statusText.text = "Spieler " + winner + " hat gewonnen"
             phase = "win"
         }
     }
-    private fun resetGame(){
+
+
+    private fun resetGame() {
         phase = "playing"
-        for (i in 0..8){
+        for (i in 0..8) {
             fields[i].text = ""
         }
         statusText.text = "Spieler X ist an der Reihe"
