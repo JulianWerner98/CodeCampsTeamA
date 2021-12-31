@@ -13,4 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
-
+/app/codecampsteama-firebase-adminsdk.json
+/app/build
