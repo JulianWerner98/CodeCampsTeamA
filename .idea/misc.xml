@@ -3,9 +3,17 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.5796875" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.2168918918918919" />
+        <entry key="app/src/main/res/layout/activity_firebase_ui.xml" value="0.17291666666666666" />
+        <entry key="app/src/main/res/layout/activity_forgot_password.xml" value="0.5009259259259259" />
         <entry key="app/src/main/res/layout/activity_game.xml" value="0.20641891891891892" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.20641891891891892" />
+        <entry key="app/src/main/res/layout/activity_login.xml" value="0.5009259259259259" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.42265625" />
+        <entry key="app/src/main/res/layout/activity_register.xml" value="0.2828703703703704" />
+        <entry key="app/src/main/res/layout/activity_select_game.xml" value="0.5009259259259259" />
+        <entry key="app/src/main/res/layout/activity_tictactoe.xml" value="0.5009259259259259" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.5152777777777777" />
       </map>
     </option>
   </component>

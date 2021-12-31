@@ -1,20 +1,30 @@
-package de.uniks.ws2122.cc.teamA
+package de.uniks.ws2122.cc.teamA.games
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TextView
-import java.util.*
+import android.widget.Toast
+import androidx.core.view.isVisible
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import de.uniks.ws2122.cc.teamA.MainActivity
+import de.uniks.ws2122.cc.teamA.R
 import kotlin.collections.ArrayList
 
-class GameActivity : AppCompatActivity() {
-    private var currentPlayer = "X"
+class TicTacToeActivity : AppCompatActivity() {
     private var fields: ArrayList<TextView> = ArrayList()
     private lateinit var statusText: TextView
+
+    private var currentPlayer = "X"
     private var phase = "playing"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_game)
+        setContentView(R.layout.activity_tictactoe)
+
         statusText = findViewById(R.id.statusText)
         statusText.text = "Spieler X ist an der Reihe"
 
