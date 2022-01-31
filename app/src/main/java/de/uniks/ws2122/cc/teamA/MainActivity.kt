@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         // Set IDs to Vars
-        loginButton = findViewById(R.id.requestNewPasswordButton)
+        loginButton = findViewById(R.id.loginButton)
         emailField = findViewById(R.id.emailField)
         pwdField = findViewById(R.id.pwdField)
         forgotPwd = findViewById(R.id.forgotPwdText)
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     val intent = Intent(this, ForgotPasswordActivity::class.java).apply { }
                     startActivity(intent)
                 }
-                R.id.requestNewPasswordButton -> {
+                R.id.loginButton -> {
                     userLogin()
                 }
             }
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             return
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            emailField.setError("Please provide valid Email")
+            emailField.error = "Please provide valid Email"
             emailField.requestFocus()
             return
         }

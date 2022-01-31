@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.getValue
 import de.uniks.ws2122.cc.teamA.games.TicTacToeActivity
+import de.uniks.ws2122.cc.teamA.model.User
 
 class SelectGameActivity : AppCompatActivity() {
     private lateinit var startTTTButton: Button

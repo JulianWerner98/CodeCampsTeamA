@@ -12,6 +12,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.R
+import de.uniks.ws2122.cc.teamA.model.Player
+import de.uniks.ws2122.cc.teamA.model.TicTacToe
+import de.uniks.ws2122.cc.teamA.startPhase
 import kotlin.collections.ArrayList
 
 class TicTacToeActivity : AppCompatActivity() {
@@ -90,7 +93,6 @@ class TicTacToeActivity : AppCompatActivity() {
         }
     }
 
-
     private fun resetGame() {
         phase = "playing"
         for (i in 0..8) {
@@ -98,6 +100,14 @@ class TicTacToeActivity : AppCompatActivity() {
         }
         statusText.text = "Spieler X ist an der Reihe"
         currentPlayer = "X"
+    }
+
+    private fun initGame() {
+        /*var ttt = TicTacToe(startPhase)
+        var player = Player()
+        for (i in 0..8) {
+
+        }*/
     }
 
 }
