@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "407577940253",
+    "firebase_url": "https://codecampsteama-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "codecampsteama",
+    "storage_bucket": "codecampsteama.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:407577940253:android:dfc3ea160beadcf98251f4",
+        "android_client_info": {
+          "package_name": "de.uniks.ws2122.cc.teamA"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "407577940253-8lm8pagp9abnn90bgrrli9fb9s3ke8pl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMg3w0UFT4ZC-GfmAS-qE5M0LjhZddqes"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "407577940253-8lm8pagp9abnn90bgrrli9fb9s3ke8pl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
