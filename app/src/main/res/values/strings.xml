@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">CodeCampsTeamA</string>
+    <string name="alt_logo_text">Team A Logo</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="register">Register</string>
 </resources>
