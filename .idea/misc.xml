@@ -3,6 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_friend_list.xml" value="0.33" />
+        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_friend_request.xml" value="0.358695652173913" />
+        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_main.xml" value="0.358695652173913" />
+        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/friend_item.xml" value="0.358695652173913" />
+        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/request_item.xml" value="0.358695652173913" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.23867753623188406" />
       </map>
     </option>
