@@ -10,11 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CCTeamA">
         <activity
-            android:name=".ui.login.RegisterActivity"
-            android:exported="false"
-            android:label="@string/title_activity_register" />
+            android:name=".auth.RegisterActivity"
+            android:exported="false"/>
         <activity
-            android:name=".auth.forgot_password_activity"
+            android:name=".auth.ForgotPasswordActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

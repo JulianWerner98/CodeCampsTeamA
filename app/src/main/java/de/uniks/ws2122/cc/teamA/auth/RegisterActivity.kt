@@ -5,6 +5,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import de.uniks.ws2122.cc.teamA.databinding.ActivityRegisterBinding
 
 class RegisterActivity : AppCompatActivity() {
@@ -27,5 +28,6 @@ class RegisterActivity : AppCompatActivity() {
         registerButton = binding.btnRegister
         spinner = binding.spinner
 
+        spinner.isVisible = false
     }
 }

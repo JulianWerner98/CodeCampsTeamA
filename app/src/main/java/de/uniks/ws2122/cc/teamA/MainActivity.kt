@@ -9,6 +9,8 @@ import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.view.isVisible
+import de.uniks.ws2122.cc.teamA.auth.ForgotPasswordActivity
+import de.uniks.ws2122.cc.teamA.auth.RegisterActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
@@ -41,7 +43,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        TODO("Not yet implemented")
+        if (v != null) {
+            when (v.id) {
+               register.id -> {
+                    val intent = Intent(this, RegisterActivity::class.java).apply { }
+                    startActivity(intent)
+                }
+                forgotPwd.id -> {
+                    val intent = Intent(this, ForgotPasswordActivity::class.java).apply { }
+                    startActivity(intent)
+                }
+                loginButton.id -> {
+                    print("login")
+                }
+            }
+        }
     }
 
 }
