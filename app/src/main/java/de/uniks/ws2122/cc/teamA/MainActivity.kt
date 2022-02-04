@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun changeToGameSelectScreen() {
         println("Already Logged In")
-        TODO("Not yet implemented")
+        // TODO Implement
     }
 
 }
