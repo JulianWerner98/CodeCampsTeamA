@@ -49,14 +49,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (viewModel.isLoggedIn()) {
             changeToGameSelectScreen()
         }
-
-        //var user = User()
-        //user.email = "mail"
-
-        //viewModel.setLiveValueUser(user)
-
-        //initLiveDataObserver()
-
     }
 
     private fun initLiveDataObserver() {
