@@ -7,5 +7,7 @@ object Constant {
     val REGISTER_SUCCESS_MSG = "Register successful"
     val New_PASSWORD_SUCCESS_MSG = "Mail sent successfully"
     //Links
-    val FIREBASE_DATABASE_URL = "https://codecampsteama-default-rtdb.europe-west1.firebasedatabase.app"
+    val FIREBASE_URL = "https://codecampsteama-default-rtdb.europe-west1.firebasedatabase.app"
+    //Path
+    const val USERS_PATH = "Users"
 }
