@@ -8,10 +8,9 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import de.uniks.ws2122.cc.teamA.Constant.SUCCESS_MSG
+import de.uniks.ws2122.cc.teamA.Constant.LOGIN_SUCCESS_MSG
 import de.uniks.ws2122.cc.teamA.auth.ForgotPasswordActivity
 import de.uniks.ws2122.cc.teamA.auth.RegisterActivity
-import de.uniks.ws2122.cc.teamA.controller.AuthController
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMainBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 
@@ -19,7 +18,6 @@ import de.uniks.ws2122.cc.teamA.model.AppViewModel
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: AppViewModel
-    private lateinit var authController: AuthController
 
     private lateinit var loginButton: Button
     private lateinit var emailField: EditText
@@ -29,10 +27,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var spinner: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        authController = AuthController(this)
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
         loginButton = binding.btnLogin
         emailField = binding.editTextEmail
@@ -47,9 +45,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         forgotPwd.setOnClickListener(this)
         loginButton.setOnClickListener(this)
 
-        viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
-        if (authController.isLoggedIn()) {
+        if (viewModel.isLoggedIn()) {
             changeToGameSelectScreen()
         }
 
@@ -69,21 +66,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (v != null) {
-            when (v.id) {
-                register.id -> {
-                    val intent = Intent(this, RegisterActivity::class.java).apply { }
-                    startActivity(intent)
-                }
-                forgotPwd.id -> {
-                    val intent = Intent(this, ForgotPasswordActivity::class.java).apply { }
-                    startActivity(intent)
-                }
-                loginButton.id -> {
-                    loginUser()
-                }
+        when (v!!.id) {
+            register.id -> {
+                val intent = Intent(this, RegisterActivity::class.java).apply { }
+                startActivity(intent)
+            }
+            forgotPwd.id -> {
+                val intent = Intent(this, ForgotPasswordActivity::class.java).apply { }
+                startActivity(intent)
+            }
+            loginButton.id -> {
+                loginUser()
             }
         }
+
     }
 
     private fun loginUser() {
@@ -106,14 +102,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
         spinner.isVisible = true
         loginButton.isEnabled = false
-        authController.loginUser(email, pwd) { statusMsg ->
+        viewModel.loginUser(email, pwd) { statusMsg ->
             Toast.makeText(this, statusMsg, Toast.LENGTH_SHORT).show()
             spinner.isVisible = false
-            if (statusMsg.equals(SUCCESS_MSG)) {
+            if (statusMsg.equals(LOGIN_SUCCESS_MSG)) {
                 changeToGameSelectScreen()
             } else {
                 loginButton.isEnabled = true
-
             }
         }
     }
