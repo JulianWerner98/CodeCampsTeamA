@@ -11,4 +11,8 @@ object Constant {
     val FIREBASE_URL = "https://codecampsteama-default-rtdb.europe-west1.firebasedatabase.app"
     //Path
     const val USERS_PATH = "Users"
+    const val FRIENDS_PATH = "Friends"
+    const val FRIEND_REQUEST_PATH = "Friendrequest"
+    const val SEND_PATH = "send"
+    const val RECEIVED_PATH = "received"
 }

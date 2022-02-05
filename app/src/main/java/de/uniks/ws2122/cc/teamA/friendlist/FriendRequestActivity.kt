@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import de.uniks.ws2122.cc.teamA.Constants
+import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendRequestBinding
 import de.uniks.ws2122.cc.teamA.model.Friend
@@ -27,7 +27,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
         binding = ActivityFriendRequestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        dbref = FirebaseDatabase.getInstance(Constants.FIREBASE_URL).reference
+        dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
         binding.RecyclerViewRequestList.layoutManager = LinearLayoutManager(this)
         binding.RecyclerViewRequestList.setHasFixedSize(true)
@@ -49,7 +49,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     }
 
     private fun getCurrentUserName() {
-        dbref.child(Constants.USERS_PATH)
+        dbref.child(Constant.USERS_PATH)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
@@ -65,7 +65,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     }
 
     private fun fetchFriendRequest() {
-        dbref.child(Constants.FRIEND_REQUEST_PATH).child(Constants.RECEIVED_PATH)
+        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(currentUser.uid)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -90,16 +90,16 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     override fun onAcceptClick(position: Int) {
         val friend = requestList[position]
         // Set friends between users
-        dbref.child(Constants.USERS_PATH).child(currentUser.uid).child(Constants.FRIENDS_PATH)
-            .child(friend.id.toString()).setValue(User(friend.email, friend.nickname))
-        dbref.child(Constants.USERS_PATH).child(friend.id.toString()).child(Constants.FRIENDS_PATH)
-            .child(currentUser.uid).setValue(User(currentUser.email, currentUserName))
+        dbref.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
+            .child(friend.id.toString()).setValue(User(friend.email.toString(), friend.nickname.toString()))
+        dbref.child(Constant.USERS_PATH).child(friend.id.toString()).child(Constant.FRIENDS_PATH)
+            .child(currentUser.uid).setValue(User(currentUser.email.toString(), currentUserName))
 
         // Delete friend request in database
-        dbref.child(Constants.FRIEND_REQUEST_PATH).child(Constants.RECEIVED_PATH)
+        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(currentUser.uid)
             .child(friend.id.toString()).removeValue()
-        dbref.child(Constants.FRIEND_REQUEST_PATH).child(Constants.SEND_PATH)
+        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
             .child(friend.id.toString())
             .child(currentUser.uid).removeValue()
 
@@ -113,10 +113,10 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     override fun onDeclineClick(position: Int) {
         val friend = requestList[position]
         // Decline friend request and delete it in database
-        dbref.child(Constants.FRIEND_REQUEST_PATH).child(Constants.RECEIVED_PATH)
+        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(currentUser.uid)
             .child(friend.id.toString()).removeValue()
-        dbref.child(Constants.FRIEND_REQUEST_PATH).child(Constants.SEND_PATH)
+        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
             .child(friend.id.toString())
             .child(currentUser.uid).removeValue()
 

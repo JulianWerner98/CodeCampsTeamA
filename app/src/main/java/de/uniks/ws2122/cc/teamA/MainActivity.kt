@@ -12,6 +12,7 @@ import de.uniks.ws2122.cc.teamA.Constant.LOGIN_SUCCESS_MSG
 import de.uniks.ws2122.cc.teamA.auth.ForgotPasswordActivity
 import de.uniks.ws2122.cc.teamA.auth.RegisterActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMainBinding
+import de.uniks.ws2122.cc.teamA.friendlist.FriendListActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 
 
@@ -98,6 +99,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             Toast.makeText(this, statusMsg, Toast.LENGTH_SHORT).show()
             spinner.isVisible = false
             if (statusMsg.equals(LOGIN_SUCCESS_MSG)) {
+                //startActivity(Intent(this@MainActivity, FriendListActivity::class.java))
                 changeToGameSelectScreen()
             } else {
                 loginButton.isEnabled = true
@@ -108,6 +110,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun changeToGameSelectScreen() {
         println("Already Logged In")
         // TODO Implement
+
     }
 
 }

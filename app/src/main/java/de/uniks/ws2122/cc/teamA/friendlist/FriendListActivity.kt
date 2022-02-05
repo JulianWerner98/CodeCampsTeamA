@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import de.uniks.ws2122.cc.teamA.Constants
+import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendListBinding
 import de.uniks.ws2122.cc.teamA.model.Friend
@@ -31,7 +31,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
 
         friendsList = arrayListOf()
         friendsAdapter = MyFriendsAdapter(friendsList, this)
-        dbref = FirebaseDatabase.getInstance(Constants.FIREBASE_URL).reference
+        dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
         // Get friends from database and show them on the recyclerview
         fetchFriendsList()
@@ -56,27 +56,27 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         dbref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                val friend = snapshot.child(Constants.USERS_PATH).child(friendId)
+                val friend = snapshot.child(Constant.USERS_PATH).child(friendId)
                     .getValue(Friend::class.java)
                 friend!!.id = friendId
-                val user = snapshot.child(Constants.USERS_PATH).child(currentUser.uid)
+                val user = snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
                     .getValue(Friend::class.java)
                 user!!.id = currentUser.uid
                 // Check that you don't send yourself a friend request
                 if (friendId != currentUser.uid) {
                     // Check that you not already friends
-                    if (!snapshot.child(Constants.USERS_PATH).child(currentUser.uid)
-                            .child(Constants.FRIENDS_PATH).exists()
+                    if (!snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
+                            .child(Constant.FRIENDS_PATH).exists()
                     ) {
                         // Check that you don't have a friend request from this user
-                        if (!snapshot.child(Constants.FRIEND_REQUEST_PATH)
-                                .child(Constants.RECEIVED_PATH).child(currentUser.uid)
+                        if (!snapshot.child(Constant.FRIEND_REQUEST_PATH)
+                                .child(Constant.RECEIVED_PATH).child(currentUser.uid)
                                 .child(friendId).exists()
                         ) {
-                            dbref.child(Constants.FRIEND_REQUEST_PATH).child(Constants.SEND_PATH)
+                            dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
                                 .child(currentUser.uid).child(friendId).setValue(friend)
-                            dbref.child(Constants.FRIEND_REQUEST_PATH)
-                                .child(Constants.RECEIVED_PATH).child(friendId)
+                            dbref.child(Constant.FRIEND_REQUEST_PATH)
+                                .child(Constant.RECEIVED_PATH).child(friendId)
                                 .child(currentUser.uid).setValue(user)
                             Toast.makeText(
                                 this@FriendListActivity,
@@ -114,7 +114,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
     }
 
     private fun fetchFriendsList() {
-        dbref.child(Constants.USERS_PATH).child(currentUser.uid).child(Constants.FRIENDS_PATH)
+        dbref.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
             .addValueEventListener(object : ValueEventListener {
 
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -140,9 +140,9 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
     override fun onRemoveClick(position: Int) {
         // Remove friend from your list
         val friend = friendsList[position]
-        dbref.child(Constants.USERS_PATH).child(currentUser.uid).child(Constants.FRIENDS_PATH)
+        dbref.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
             .child(friend.id.toString()).removeValue()
-        dbref.child(Constants.USERS_PATH).child(friend.id.toString()).child(Constants.FRIENDS_PATH)
+        dbref.child(Constant.USERS_PATH).child(friend.id.toString()).child(Constant.FRIENDS_PATH)
             .child(currentUser.uid).removeValue()
         Toast.makeText(this@FriendListActivity, "Unfriend ${friend.nickname}", Toast.LENGTH_SHORT)
             .show()
