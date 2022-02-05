@@ -11,8 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
-import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.Constant.New_PASSWORD_SUCCESS_MSG
+import de.uniks.ws2122.cc.teamA.Constant.NEW_PASSWORD_SUCCESS_MSG
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityForgotPasswordBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
@@ -57,7 +56,7 @@ class ForgotPasswordActivity : AppCompatActivity(), View.OnClickListener {
 
         if (v!!.id == requestNewPasswordBtn.id) {
             viewModel.newPasswordMail(email) { msg ->
-                if (msg.equals(New_PASSWORD_SUCCESS_MSG)) {
+                if (msg.equals(NEW_PASSWORD_SUCCESS_MSG)) {
                     changeToLoginScreen()
                 } else {
                     spinner.isVisible = false

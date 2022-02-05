@@ -4,6 +4,7 @@ import android.provider.ContactsContract
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
 import de.uniks.ws2122.cc.teamA.controller.AuthController
 
 class AppViewModel : ViewModel() {
@@ -38,7 +39,7 @@ class AppViewModel : ViewModel() {
 
     fun registerUser(email: String, pwd: String, nickname: String, callback: (result: User?) -> Unit){
         authController.registerUser(email, pwd, nickname){ user ->
-            if(user != null){
+            if(user != null && !user?.id.equals(NICKNAME_ERROR)){
                 setUser(user)
             }
             callback.invoke(user)

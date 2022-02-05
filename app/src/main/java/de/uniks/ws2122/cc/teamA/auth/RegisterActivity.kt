@@ -15,6 +15,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant.ERROR_MSG
 import de.uniks.ws2122.cc.teamA.Constant.LOGIN_SUCCESS_MSG
+import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
 import de.uniks.ws2122.cc.teamA.Constant.REGISTER_SUCCESS_MSG
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityRegisterBinding
@@ -75,14 +76,25 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
 
         val name = nickname.text.trim().toString()
         viewModel.registerUser(email, pwd, name) { user ->
-            var toastText: String
+            var toastText = ""
             if (user != null) {
-                toastText = REGISTER_SUCCESS_MSG
-                viewModel.loginUser(email, pwd){ msg ->
-                    if (msg.equals(LOGIN_SUCCESS_MSG)) {
-                        changeToGameSelectScreen()
-                    } else {
-                        changeToLoginScreen()
+                if (user.id.equals(NICKNAME_ERROR)) {
+                    toastText = NICKNAME_ERROR
+                    spinner.isVisible = false
+                    emailAddress.isEnabled = true
+                    nickname.isEnabled = true
+                    pwdField.isEnabled = true
+                    registerButton.isEnabled = true
+                    nickname.setText("")
+
+                } else {
+                    toastText = REGISTER_SUCCESS_MSG
+                    viewModel.loginUser(email, pwd) { msg ->
+                        if (msg.equals(LOGIN_SUCCESS_MSG)) {
+                            changeToGameSelectScreen()
+                        } else {
+                            changeToLoginScreen()
+                        }
                     }
                 }
             } else {

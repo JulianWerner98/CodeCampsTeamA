@@ -8,7 +8,8 @@ import com.google.firebase.ktx.Firebase
 import de.uniks.ws2122.cc.teamA.Constant.ERROR_MSG
 import de.uniks.ws2122.cc.teamA.Constant.FIREBASE_URL
 import de.uniks.ws2122.cc.teamA.Constant.LOGIN_SUCCESS_MSG
-import de.uniks.ws2122.cc.teamA.Constant.New_PASSWORD_SUCCESS_MSG
+import de.uniks.ws2122.cc.teamA.Constant.NEW_PASSWORD_SUCCESS_MSG
+import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.model.User
 
@@ -19,7 +20,7 @@ class AuthController {
     }
 
     private var mAuth: FirebaseAuth = Firebase.auth
-    private lateinit var dbref: DatabaseReference
+    private var dbref: DatabaseReference
 
     fun getCurrentUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
@@ -45,31 +46,29 @@ class AuthController {
     }
 
     fun registerUser(
-        email: String,
-        pwd: String,
-        nickname: String,
-        callback: (result: User?) -> Unit
+        email: String, pwd: String, nickname: String, callback: (result: User?) -> Unit
     ) {
         getAllUserNicknames { userStringList ->
             if (nickname in userStringList) {
-                callback.invoke(null)
-            }
-            mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener { it ->
-                if (it.isSuccessful) {
-                    var fbUser = getCurrentUser()
-                    var user = User(nickname, email, fbUser!!.uid)
-                    dbref
-                        .child(USERS_PATH)
-                        .child(fbUser!!.uid)
-                        .setValue(user).addOnCompleteListener { it ->
-                            if (it.isSuccessful) {
-                                callback.invoke(user)
-                            } else {
-                                callback.invoke(null)
+                callback.invoke(User("", "", NICKNAME_ERROR))
+            } else {
+                mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener { it ->
+                    if (it.isSuccessful) {
+                        var fbUser = getCurrentUser()
+                        var user = User(nickname, email, fbUser!!.uid)
+                        dbref
+                            .child(USERS_PATH)
+                            .child(fbUser.uid)
+                            .setValue(user).addOnCompleteListener { it2 ->
+                                if (it2.isSuccessful) {
+                                    callback.invoke(user)
+                                } else {
+                                    callback.invoke(null)
+                                }
                             }
-                        }
-                } else {
-                    callback.invoke(null)
+                    } else {
+                        callback.invoke(null)
+                    }
                 }
             }
         }
@@ -85,7 +84,7 @@ class AuthController {
         FirebaseAuth.getInstance().sendPasswordResetEmail(email)
             .addOnCompleteListener {
                 if (it.isSuccessful) {
-                    callback.invoke(New_PASSWORD_SUCCESS_MSG)
+                    callback.invoke(NEW_PASSWORD_SUCCESS_MSG)
                 } else {
                     callback.invoke(ERROR_MSG)
                 }
@@ -111,6 +110,7 @@ class AuthController {
                     if (user != null) array.add(user)
                 }
                 callback.invoke(array)
+                dbref.child(USERS_PATH).removeEventListener(this)
             }
 
             override fun onCancelled(error: DatabaseError) {
