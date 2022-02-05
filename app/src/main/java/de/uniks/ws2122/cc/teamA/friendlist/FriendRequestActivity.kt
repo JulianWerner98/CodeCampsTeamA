@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -11,6 +12,7 @@ import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendRequestBinding
 import de.uniks.ws2122.cc.teamA.model.Friend
+import de.uniks.ws2122.cc.teamA.model.FriendRequestViewModel
 import de.uniks.ws2122.cc.teamA.model.User
 
 class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickListener {
@@ -21,6 +23,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     private lateinit var requestList: ArrayList<Friend>
     private lateinit var myRequestAdapter: MyRequestAdapter
     private lateinit var currentUserName: String
+    private lateinit var viewModel: FriendRequestViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,6 +34,8 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
 
         binding.RecyclerViewRequestList.layoutManager = LinearLayoutManager(this)
         binding.RecyclerViewRequestList.setHasFixedSize(true)
+
+        viewModel = ViewModelProvider(this).get(FriendRequestViewModel::class.java)
 
         requestList = arrayListOf()
         myRequestAdapter = MyRequestAdapter(requestList, this)

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
@@ -11,6 +12,7 @@ import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendListBinding
 import de.uniks.ws2122.cc.teamA.model.Friend
+import de.uniks.ws2122.cc.teamA.model.FriendListViewModel
 
 class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickListener {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
@@ -19,6 +21,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
     private lateinit var friendsList: ArrayList<Friend>
     private lateinit var friendsAdapter: MyFriendsAdapter
     private lateinit var friendId: String
+    private lateinit var viewModel: FriendListViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +31,8 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
 
         binding.RecyclerViewFriendList.layoutManager = LinearLayoutManager(this)
         binding.RecyclerViewFriendList.setHasFixedSize(true)
+
+        viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
         friendsList = arrayListOf()
         friendsAdapter = MyFriendsAdapter(friendsList, this)
