@@ -5,10 +5,14 @@
       <map>
         <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_friend_list.xml" value="0.33" />
         <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_friend_request.xml" value="0.358695652173913" />
-        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_main.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/friend_item.xml" value="0.358695652173913" />
+        <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/activity_main.xml" value="0.358695652173913" />
         <entry key="..\:/Users/Satiuz/Documents/Uni/CodeCamp/CodeCampsTeamA/app/src/main/res/layout/request_item.xml" value="0.358695652173913" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.23867753623188406" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.5796875" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.5796875" />
+        <entry key="app/src/main/res/layout/activity_register.xml" value="0.12499932844276018" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.5635416666666667" />
+        <entry key="app/src/main/res/layout/auth/activity_forgot_password.xml" value="0.19067028985507245" />
       </map>
     </option>
   </component>
@@ -21,7 +25,7 @@
   <component name="VisualizationToolProject">
     <option name="state">
       <ProjectState>
-        <option name="scale" value="0.23867753623188406" />
+        <option name="scale" value="0.12499932844276018" />
       </ProjectState>
     </option>
   </component>
