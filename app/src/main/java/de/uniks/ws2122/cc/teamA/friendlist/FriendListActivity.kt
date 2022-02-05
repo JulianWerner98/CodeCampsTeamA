@@ -2,10 +2,12 @@ package de.uniks.ws2122.cc.teamA.friendlist
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
@@ -23,14 +25,20 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
     private lateinit var friendId: String
     private lateinit var viewModel: FriendListViewModel
 
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var enterNickNameField : EditText
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendListBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.RecyclerViewFriendList.layoutManager = LinearLayoutManager(this)
-        binding.RecyclerViewFriendList.setHasFixedSize(true)
+        recyclerView = binding.rvFriendList
+        enterNickNameField = binding.editEnterNickName
+
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.setHasFixedSize(true)
 
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
@@ -42,17 +50,17 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         fetchFriendsList()
 
         binding.btnSendFriendRequest.setOnClickListener {
-            if (binding.tvEnterFriendID.text.isNotEmpty()) {
-                friendId = binding.tvEnterFriendID.text.toString()
+            if (enterNickNameField.text.isNotEmpty()) {
+                friendId = enterNickNameField.text.toString()
                 sendFriendRequest()
             }
         }
 
-        binding.btnMainMenu.setOnClickListener {
+        binding.btnBackToMain.setOnClickListener {
             startActivity(Intent(this@FriendListActivity, MainActivity::class.java))
             finish()
         }
-        binding.btnFriendRequestList.setOnClickListener {
+        binding.btnRequestList.setOnClickListener {
             startActivity(Intent(this@FriendListActivity, FriendRequestActivity::class.java))
         }
     }
@@ -133,7 +141,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
                             friendsList.add(friend)
                         }
                     }
-                    binding.RecyclerViewFriendList.adapter = friendsAdapter
+                    recyclerView.adapter = friendsAdapter
                 }
 
                 override fun onCancelled(error: DatabaseError) {

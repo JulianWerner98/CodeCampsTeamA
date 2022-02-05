@@ -4,75 +4,87 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".friendlist.FriendListActivity">
+    android:background="@color/blau_grau">
 
-    <LinearLayout
-        android:id="@+id/upperLinearLayout"
+    <TextView
+        android:id="@+id/tvFriendListInfoText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Enter the Nickname and click on the button to send a friendrequest"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/tvFriendList" />
 
-        <TextView
-            android:id="@+id/tvInfoText"
-            android:layout_width="81dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="4dp"
-            android:text="Enter friend ID here:" />
+    <TextView
+        android:id="@+id/tvFriendList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Friendlist"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/tvEnterFriendID"
-            android:layout_width="79dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="Friend ID"
-            android:inputType="textPersonName"
-            android:padding="4dp" />
+    <EditText
+        android:id="@+id/editEnterNickName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Enter Nickname"
+        android:inputType="textPersonName"
+        android:minHeight="48dp"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textColorHint="@color/material_on_primary_emphasis_high_type"
+        app:layout_constraintEnd_toStartOf="@+id/btnSendFriendRequest"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFriendListInfoText" />
 
-        <Button
-            android:id="@+id/btnSendFriendRequest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Send" />
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnSendFriendRequest"
+        style="@style/Widget.AppCompat.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="50dp"
+        android:text="Send"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFriendListInfoText" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/RecyclerViewFriendList"
-        android:layout_width="match_parent"
-        android:layout_height="530dp"
-        android:layout_below="@id/upperLinearLayout"
+        android:id="@+id/rvFriendList"
+        android:layout_width="409dp"
+        android:layout_height="500dp"
+        android:layout_marginTop="1dp"
         android:clipToPadding="true"
-        android:padding="4dp"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upperLinearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/editEnterNickName"
         tools:listitem="@layout/friend_item"/>
 
     <Button
-        android:id="@+id/btnMainMenu"
+        android:id="@+id/btnBackToMain"
+        style="@style/Widget.AppCompat.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="42dp"
-        android:layout_marginBottom="53dp"
-        android:text="MainMenu"
+        android:layout_marginStart="66dp"
+        android:text="Main Menu"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvFriendList" />
 
     <Button
-        android:id="@+id/btnFriendRequestList"
+        android:id="@+id/btnRequestList"
+        style="@style/Widget.AppCompat.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="63dp"
-        android:layout_marginEnd="33dp"
-        android:layout_marginBottom="53dp"
-        android:text="Friendrequest"
+        android:text="Requestlist"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnMainMenu" />
-
+        app:layout_constraintStart_toEndOf="@+id/btnBackToMain"
+        app:layout_constraintTop_toBottomOf="@+id/rvFriendList" />
 </androidx.constraintlayout.widget.ConstraintLayout>

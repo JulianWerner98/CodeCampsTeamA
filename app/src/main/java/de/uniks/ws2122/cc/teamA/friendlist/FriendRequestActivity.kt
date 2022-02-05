@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
@@ -25,6 +26,9 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     private lateinit var currentUserName: String
     private lateinit var viewModel: FriendRequestViewModel
 
+    private lateinit var recyclerViewRequestList : RecyclerView
+    private lateinit var recyclerViewSendList : RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendRequestBinding.inflate(layoutInflater)
@@ -32,22 +36,14 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
 
         dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
-        binding.RecyclerViewRequestList.layoutManager = LinearLayoutManager(this)
-        binding.RecyclerViewRequestList.setHasFixedSize(true)
+        recyclerViewRequestList.layoutManager = LinearLayoutManager(this)
+        recyclerViewRequestList.setHasFixedSize(true)
 
         viewModel = ViewModelProvider(this).get(FriendRequestViewModel::class.java)
 
         requestList = arrayListOf()
         myRequestAdapter = MyRequestAdapter(requestList, this)
 
-        binding.btnMainMenu.setOnClickListener {
-            startActivity(Intent(this@FriendRequestActivity, MainActivity::class.java))
-            finish()
-        }
-        binding.btnFriendList.setOnClickListener {
-            startActivity(Intent(this@FriendRequestActivity, FriendListActivity::class.java))
-            finish()
-        }
 
         fetchFriendRequest()
         getCurrentUserName()
@@ -82,7 +78,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
                             requestList.add(friendRequest!!)
                         }
                     }
-                    binding.RecyclerViewRequestList.adapter = myRequestAdapter
+                    recyclerViewRequestList.adapter = myRequestAdapter
                 }
 
                 override fun onCancelled(error: DatabaseError) {

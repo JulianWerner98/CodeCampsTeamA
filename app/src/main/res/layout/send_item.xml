@@ -39,5 +39,15 @@
             app:layout_constraintVertical_bias="1.0"
             app:srcCompat="@drawable/ic_baseline_account_circle_24" />
 
+        <Button
+            android:id="@+id/btnDeclineSendRequest"
+            style="@style/Widget.AppCompat.Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="18dp"
+            android:text="Decline"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

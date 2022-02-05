@@ -4,59 +4,115 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".friendlist.FriendRequestActivity">
+    android:background="@color/blau_grau">
 
-    <LinearLayout
-        android:id="@+id/upperLinearLayout"
+    <TextView
+        android:id="@+id/tvSendList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Sendlist"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/tvRequestInfoText"
-            android:layout_width="81dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:padding="4dp"
-            android:text="Accept or decline a friend request" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/tvSendListInfoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Click on the button of the friendrequest to cancel it"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvSendList" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/RecyclerViewRequestList"
-        android:layout_width="match_parent"
-        android:layout_height="530dp"
-        android:layout_below="@id/upperLinearLayout"
+        android:id="@+id/rvSendList"
+        android:layout_width="409dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="1dp"
         android:clipToPadding="true"
-        android:padding="4dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upperLinearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/tvSendListInfoText"
+        tools:listitem="@layout/send_item"/>
+
+    <TextView
+        android:id="@+id/tvRequestList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Requestlist"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="409dp"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvSendList" />
+
+    <TextView
+        android:id="@+id/tvRequestListInfoText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Click on the left button to accept or on the right button to decline a friendrequest"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvRequestList" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvRequestList"
+        android:layout_width="409dp"
+        android:layout_height="250dp"
+        android:layout_marginTop="1dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvRequestListInfoText"
         tools:listitem="@layout/request_item"/>
 
-    <Button
-        android:id="@+id/btnMainMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="42dp"
-        android:layout_marginBottom="53dp"
-        android:text="MainMenu"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="409dp"
+        android:layout_height="2dp"
+        android:layout_marginBottom="1dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/rvSendList"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvSendListInfoText" />
 
-    <Button
-        android:id="@+id/btnFriendList"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="63dp"
-        android:layout_marginEnd="33dp"
-        android:layout_marginBottom="53dp"
-        android:text="Friendlist"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <View
+        android:id="@+id/divider4"
+        android:layout_width="409dp"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnMainMenu" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rvRequestList" />
+
+    <View
+        android:id="@+id/divider5"
+        android:layout_width="409dp"
+        android:layout_height="2dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/rvRequestList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvRequestListInfoText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
