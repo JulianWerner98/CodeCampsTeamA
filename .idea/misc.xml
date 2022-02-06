@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Adrian/Desktop/CodeCampsTeamA/app/src/main/res/layout/activity_forgot_password.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/Adrian/Desktop/CodeCampsTeamA/app/src/main/res/layout/activity_main.xml" value="0.25885416666666666" />
+        <entry key="..\:/Users/Adrian/Desktop/CodeCampsTeamA/app/src/main/res/layout/activity_tic_tac_toe.xml" value="0.24479166666666666" />
         <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.5796875" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.5796875" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.5635416666666667" />
