@@ -13,7 +13,7 @@
         android:background="@color/blau_grau">
 
         <TextView
-            android:id="@+id/tvNickNameTest"
+            android:id="@+id/tvNickName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -47,7 +47,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="8dp"
             android:text="Accept"
-            app:layout_constraintStart_toEndOf="@+id/tvNickNameTest"
+            app:layout_constraintStart_toEndOf="@+id/tvNickName"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button

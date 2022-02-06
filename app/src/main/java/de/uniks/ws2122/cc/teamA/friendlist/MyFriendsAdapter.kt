@@ -5,12 +5,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import de.uniks.ws2122.cc.teamA.R
 import de.uniks.ws2122.cc.teamA.model.Friend
+import de.uniks.ws2122.cc.teamA.model.User
 
 class MyFriendsAdapter(
-    private val userList: ArrayList<Friend>,
+    private val userList: LiveData<List<User>>,
     private val listener: OnItemClickListener
 ) : RecyclerView.Adapter<MyFriendsAdapter.MyViewHolder>() {
 
@@ -24,45 +26,34 @@ class MyFriendsAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        val currentItem = userList[position]
+        val currentItem = userList.value!![position]
         holder.nickname.text = currentItem.nickname
-        holder.id.text = currentItem.id
     }
 
     override fun getItemCount(): Int {
 
-        return userList.size
+        return userList.value!!.size
     }
 
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
 
         val nickname: TextView = itemView.findViewById(R.id.tvNickName)
-        val btnInvite: Button = itemView.findViewById(R.id.btnInviteFriend)
-        val btnRemove: Button = itemView.findViewById(R.id.btnRemoveFriend)
-        val id: TextView = itemView.findViewById(R.id.tvUserId)
 
         init {
-            btnInvite.setOnClickListener(this)
-            btnRemove.setOnClickListener(this)
+            itemView.setOnClickListener(this)
         }
 
 
         override fun onClick(p0: View?) {
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                if (p0 == btnRemove) {
-                    listener.onRemoveClick(position)
-                }
-                if (p0 == btnInvite) {
-                    listener.onInviteClick(position)
-                }
+                listener.onItemClick(position)
             }
         }
     }
 
     interface OnItemClickListener {
-        fun onRemoveClick(position: Int)
-        fun onInviteClick(position: Int)
+        fun onItemClick(position: Int)
     }
 }

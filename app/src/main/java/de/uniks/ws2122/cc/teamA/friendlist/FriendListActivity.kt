@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -42,22 +43,57 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
 
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
-        friendsList = arrayListOf()
-        friendsAdapter = MyFriendsAdapter(friendsList, this)
-        dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
+        friendsAdapter = MyFriendsAdapter(viewModel.getLiveDataFriendList(), this)
 
-        // Get friends from database and show them on the recyclerview
-        fetchFriendsList()
+        viewModel.fetchFriendList()
+
+        viewModel.getLiveDataFriendList().observe(this, Observer {
+            recyclerView.adapter = friendsAdapter
+        })
+
+        dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
         binding.btnSendFriendRequest.setOnClickListener {
             if (enterNickNameField.text.isNotEmpty()) {
-                friendId = enterNickNameField.text.toString()
-                sendFriendRequest()
+                val nickName = enterNickNameField.text.toString()
+                viewModel.getFriendListController().sendFriendRequest(nickName) { result ->
+                    when(result){
+                        "self" -> Toast.makeText(
+                            this@FriendListActivity,
+                            "You can not send yourself a friend request",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        "not_exist" -> Toast.makeText(
+                            this@FriendListActivity,
+                            "This user doesn't exist",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        "friend" -> Toast.makeText(
+                            this@FriendListActivity,
+                            "This user is already your friend",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        "received" -> Toast.makeText(
+                            this@FriendListActivity,
+                            "You have received a friend request from this user",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        "success" -> Toast.makeText(
+                            this@FriendListActivity,
+                            "You have send a friend request",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            } else {
+                enterNickNameField.error = "Please enter a nickname"
+                enterNickNameField.requestFocus()
             }
         }
 
         binding.btnBackToMain.setOnClickListener {
             startActivity(Intent(this@FriendListActivity, MainActivity::class.java))
+            FirebaseAuth.getInstance().signOut()
             finish()
         }
         binding.btnRequestList.setOnClickListener {
@@ -65,107 +101,9 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         }
     }
 
-    private fun sendFriendRequest() {
-        dbref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-
-                val friend = snapshot.child(Constant.USERS_PATH).child(friendId)
-                    .getValue(Friend::class.java)
-                friend!!.id = friendId
-                val user = snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
-                    .getValue(Friend::class.java)
-                user!!.id = currentUser.uid
-                // Check that you don't send yourself a friend request
-                if (friendId != currentUser.uid) {
-                    // Check that you not already friends
-                    if (!snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
-                            .child(Constant.FRIENDS_PATH).exists()
-                    ) {
-                        // Check that you don't have a friend request from this user
-                        if (!snapshot.child(Constant.FRIEND_REQUEST_PATH)
-                                .child(Constant.RECEIVED_PATH).child(currentUser.uid)
-                                .child(friendId).exists()
-                        ) {
-                            dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
-                                .child(currentUser.uid).child(friendId).setValue(friend)
-                            dbref.child(Constant.FRIEND_REQUEST_PATH)
-                                .child(Constant.RECEIVED_PATH).child(friendId)
-                                .child(currentUser.uid).setValue(user)
-                            Toast.makeText(
-                                this@FriendListActivity,
-                                "You have send a friend request",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                this@FriendListActivity,
-                                "You have received a friend request from this user",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    } else {
-                        Toast.makeText(
-                            this@FriendListActivity,
-                            "This user is already your friend",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    Toast.makeText(
-                        this@FriendListActivity,
-                        "You can not send yourself a friend request",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-    }
-
-    private fun fetchFriendsList() {
-        dbref.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
-            .addValueEventListener(object : ValueEventListener {
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    friendsList.clear()
-
-                    if (snapshot.exists()) {
-
-                        snapshot.children.forEach {
-                            val friend = it.getValue(Friend::class.java)
-                            friend!!.id = it.key.toString()
-                            friendsList.add(friend)
-                        }
-                    }
-                    recyclerView.adapter = friendsAdapter
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
-    }
-
-    override fun onRemoveClick(position: Int) {
-        // Remove friend from your list
-        val friend = friendsList[position]
-        dbref.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
-            .child(friend.id.toString()).removeValue()
-        dbref.child(Constant.USERS_PATH).child(friend.id.toString()).child(Constant.FRIENDS_PATH)
-            .child(currentUser.uid).removeValue()
-        Toast.makeText(this@FriendListActivity, "Unfriend ${friend.nickname}", Toast.LENGTH_SHORT)
-            .show()
-    }
-
-    override fun onInviteClick(position: Int) {
-        Toast.makeText(
-            this@FriendListActivity,
-            "You have invited someone to a game...maybe?!",
-            Toast.LENGTH_SHORT
-        ).show()
+    override fun onItemClick(position: Int) {
+        var friend = viewModel.getLiveDataFriendList().value!![position]
+        // TODO: Change activity to friend profile
+        Toast.makeText(this@FriendListActivity, "Next stop friend profile", Toast.LENGTH_SHORT).show()
     }
 }

@@ -13,7 +13,7 @@
         android:background="@color/blau_grau">
 
         <TextView
-            android:id="@+id/tvNickNameTest"
+            android:id="@+id/tvNickName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -40,12 +40,12 @@
             app:srcCompat="@drawable/ic_baseline_account_circle_24" />
 
         <Button
-            android:id="@+id/btnDeclineSendRequest"
+            android:id="@+id/btnCancelSendRequest"
             style="@style/Widget.AppCompat.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="18dp"
-            android:text="Decline"
+            android:text="Cancel"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

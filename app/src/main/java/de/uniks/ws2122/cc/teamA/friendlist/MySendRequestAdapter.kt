@@ -8,18 +8,16 @@ import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import de.uniks.ws2122.cc.teamA.R
-import de.uniks.ws2122.cc.teamA.model.Friend
 import de.uniks.ws2122.cc.teamA.model.User
 
-class MyRequestAdapter(
+class MySendRequestAdapter(
     private val userList: LiveData<List<User>>,
     private val listener: OnItemClickListener
-) : RecyclerView.Adapter<MyRequestAdapter.MyViewHolder>() {
-
+) : RecyclerView.Adapter<MySendRequestAdapter.MyViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
 
         val itemView = LayoutInflater.from(parent.context).inflate(
-            R.layout.request_item, parent,
+            R.layout.send_item, parent,
             false
         )
         return MyViewHolder(itemView)
@@ -39,30 +37,24 @@ class MyRequestAdapter(
         View.OnClickListener {
 
         val nickname: TextView = itemView.findViewById(R.id.tvNickName)
-        val btnAccept: Button = itemView.findViewById(R.id.btnAcceptRequest)
-        val btnDecline: Button = itemView.findViewById(R.id.btnDeclineRequest)
+        val btnCancel: Button = itemView.findViewById(R.id.btnCancelSendRequest)
 
         init {
-            btnAccept.setOnClickListener(this)
-            btnDecline.setOnClickListener(this)
+            btnCancel.setOnClickListener(this)
         }
 
 
         override fun onClick(p0: View?) {
             val position = adapterPosition
             if (position != RecyclerView.NO_POSITION) {
-                if (p0 == btnAccept) {
-                    listener.onRequestAcceptClick(position)
-                }
-                if (p0 == btnDecline) {
-                    listener.onRequestDeclineClick(position)
+                if (p0 == btnCancel) {
+                    listener.onSendCancelClick(position)
                 }
             }
         }
     }
 
     interface OnItemClickListener {
-        fun onRequestAcceptClick(position: Int)
-        fun onRequestDeclineClick(position: Int)
+        fun onSendCancelClick(position: Int)
     }
 }
