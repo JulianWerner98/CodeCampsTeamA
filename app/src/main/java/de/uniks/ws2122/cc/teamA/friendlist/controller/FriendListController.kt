@@ -1,10 +1,8 @@
 package de.uniks.ws2122.cc.teamA.friendlist.controller
 
-import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.model.Friend
 import de.uniks.ws2122.cc.teamA.model.User
 
 class FriendListController {
@@ -34,7 +32,6 @@ class FriendListController {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
             })
     }
@@ -42,51 +39,76 @@ class FriendListController {
     fun sendFriendRequest(nickName: String, callback: (result: String) -> Unit) {
         dbref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-
+                var exists = false
                 val user = snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
                     .getValue(User::class.java)
-                //user!!.id = currentUser.uid
 
                 // Check that you don't send yourself a friend request
-                if (nickName != user!!.nickname){
-                    snapshot.child(Constant.USERS_PATH).children.forEach{
-                        // Check that user exist
-                        if (it.child("nickname").value == nickName){
-                            val friend = it.getValue(User::class.java)
-                            //friend!!.id = it.key.toString()
-
-                            // Check that you not already friends
-                            if (!snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
-                                    .child(Constant.FRIENDS_PATH).child(friend!!.id).exists()) {
-
-                                // Check that you don't have a friend request from this user
-                                if (!snapshot.child(Constant.FRIEND_REQUEST_PATH)
-                                        .child(Constant.RECEIVED_PATH).child(currentUser.uid)
-                                        .child(friend.id).exists()) {
-                                            dbref.child(Constant.FRIEND_REQUEST_PATH)
-                                                .child(Constant.SEND_PATH)
-                                                .child(currentUser.uid).child(friend.id).setValue(friend)
-                                            dbref.child(Constant.FRIEND_REQUEST_PATH)
-                                                .child(Constant.RECEIVED_PATH).child(friend.id)
-                                                .child(currentUser.uid).setValue(user)
-                                    callback.invoke("success")
-                                } else {
-                                    callback.invoke("received")
-                                }
-                            } else{
-                                callback.invoke("friend")
+                if (nickName != user!!.nickname) {
+                    checkUserExist(snapshot, nickName) { friend ->
+                        // Check that you not already friends
+                        exists = true
+                        if (!snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
+                                .child(Constant.FRIENDS_PATH).child(friend!!.id).exists()
+                        ) {
+                            // Check that you don't have a friend request from this user
+                            if (!snapshot.child(Constant.FRIEND_REQUEST_PATH)
+                                    .child(Constant.RECEIVED_PATH).child(currentUser.uid)
+                                    .child(friend.id).exists()
+                            ) {
+                                dbref.child(Constant.FRIEND_REQUEST_PATH)
+                                    .child(Constant.SEND_PATH)
+                                    .child(currentUser.uid).child(friend.id).setValue(friend)
+                                dbref.child(Constant.FRIEND_REQUEST_PATH)
+                                    .child(Constant.RECEIVED_PATH).child(friend.id)
+                                    .child(currentUser.uid).setValue(user)
+                                callback.invoke("You have send a friend request")
+                            } else {
+                                callback.invoke("You have received a friend request from this user")
                             }
+                        } else {
+                            callback.invoke("This user is already your friend")
                         }
                     }
-                    //callback.invoke("not_exist")
+                    if (!exists) {
+                        callback.invoke("User doesn't exist")
+                    }
                 } else {
-                    callback.invoke("self")
+                    callback.invoke("You can't send yourself a friend request")
                 }
             }
+
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
+    }
+
+    private fun checkUserExist(
+        snapshot: DataSnapshot,
+        nickName: String,
+        callback: (result: User) -> Unit
+    ) {
+        snapshot.child(Constant.USERS_PATH).children.forEach {
+            // Check that user exist
+            if (it.child("nickname").value == nickName) {
+                val friend = it.getValue(User::class.java)
+                callback.invoke(friend!!)
+            }
+        }
+    }
+
+    fun removeFriend(friendId: String, callback: (result: Boolean) -> Unit) {
+        dbref.child(Constant.USERS_PATH).child(currentUser.uid)
+            .child(Constant.FRIENDS_PATH).child(friendId).removeValue().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    dbref.child(Constant.USERS_PATH).child(friendId)
+                        .child(Constant.FRIENDS_PATH).child(currentUser.uid).removeValue()
+                    callback.invoke(true)
+                } else {
+                    callback.invoke(false)
+                }
+            }
+
     }
 }

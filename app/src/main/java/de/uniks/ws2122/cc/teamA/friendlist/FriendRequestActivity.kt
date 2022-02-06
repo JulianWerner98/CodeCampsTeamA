@@ -8,41 +8,29 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendRequestBinding
-import de.uniks.ws2122.cc.teamA.model.Friend
 import de.uniks.ws2122.cc.teamA.model.FriendRequestViewModel
-import de.uniks.ws2122.cc.teamA.model.User
 
-class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickListener, MySendRequestAdapter.OnItemClickListener {
-
-    private val currentUser = FirebaseAuth.getInstance().currentUser!!
+class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickListener,
+    MySendRequestAdapter.OnItemClickListener {
     private lateinit var binding: ActivityFriendRequestBinding
-    private lateinit var dbref: DatabaseReference
-    private lateinit var receivedList: ArrayList<Friend>
     private lateinit var myRequestAdapter: MyRequestAdapter
     private lateinit var mySendRequestAdapter: MySendRequestAdapter
-    private lateinit var currentUserName: String
     private lateinit var viewModel: FriendRequestViewModel
 
-    private lateinit var recyclerViewRequestList : RecyclerView
-    private lateinit var recyclerViewSendList : RecyclerView
+    private lateinit var recyclerViewRequestList: RecyclerView
+    private lateinit var recyclerViewSendList: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendRequestBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
         recyclerViewRequestList = binding.rvRequestList
-        recyclerViewSendList = binding.rvSendList
-
         recyclerViewRequestList.layoutManager = LinearLayoutManager(this)
         recyclerViewRequestList.setHasFixedSize(true)
-
+        recyclerViewSendList = binding.rvSendList
         recyclerViewSendList.layoutManager = LinearLayoutManager(this)
         recyclerViewSendList.setHasFixedSize(true)
 
@@ -62,7 +50,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
             recyclerViewSendList.adapter = mySendRequestAdapter
         })
 
-        binding.btnFriendList.setOnClickListener{
+        binding.btnFriendList.setOnClickListener {
             startActivity(Intent(this@FriendRequestActivity, FriendListActivity::class.java))
             finish()
         }

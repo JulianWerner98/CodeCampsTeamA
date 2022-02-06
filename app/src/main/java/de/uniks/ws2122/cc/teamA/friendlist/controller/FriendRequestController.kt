@@ -15,7 +15,7 @@ class FriendRequestController {
         dbref = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
     }
 
-    fun getReceivedList(callback: (result: ArrayList<User>) -> Unit){
+    fun getReceivedList(callback: (result: ArrayList<User>) -> Unit) {
         dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(currentUser.uid)
             .addValueEventListener(object : ValueEventListener {
@@ -32,7 +32,6 @@ class FriendRequestController {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
 
             })
@@ -55,13 +54,12 @@ class FriendRequestController {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
 
             })
     }
 
-    fun getCurrentUser(callback: (result: User) -> Unit){
+    fun getCurrentUser(callback: (result: User) -> Unit) {
         dbref.child(Constant.USERS_PATH)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -72,7 +70,6 @@ class FriendRequestController {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
             })
     }
@@ -81,18 +78,24 @@ class FriendRequestController {
         getCurrentUser { user ->
             // Set friends in database
             dbref.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
-                .child(friend.id).setValue(friend)
-            dbref.child(Constant.USERS_PATH).child(friend.id).child(Constant.FRIENDS_PATH)
-                .child(currentUser.uid).setValue(user)
+                .child(friend.id).setValue(friend).addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        dbref.child(Constant.USERS_PATH).child(friend.id)
+                            .child(Constant.FRIENDS_PATH)
+                            .child(currentUser.uid).setValue(user)
 
-            // Delete friend request in database
-            dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
-                .child(currentUser.uid)
-                .child(friend.id).removeValue()
-            dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
-                .child(friend.id)
-                .child(currentUser.uid).removeValue()
-            callback.invoke("${friend.nickname} is now your friend")
+                        // Delete friend request in database
+                        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
+                            .child(currentUser.uid)
+                            .child(friend.id).removeValue()
+                        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
+                            .child(friend.id)
+                            .child(currentUser.uid).removeValue()
+                        callback.invoke("${friend.nickname} is now your friend")
+                    } else {
+                        callback.invoke(Constant.ERROR_MSG)
+                    }
+                }
         }
 
     }
@@ -101,22 +104,32 @@ class FriendRequestController {
         // Delete friend request in your received and friend send path
         dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(currentUser.uid)
-            .child(friend.id).removeValue()
-        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
-            .child(friend.id)
-            .child(currentUser.uid).removeValue()
-        callback.invoke("you have declined the friend request from ${friend.nickname}")
+            .child(friend.id).removeValue().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
+                        .child(friend.id)
+                        .child(currentUser.uid).removeValue()
+                    callback.invoke("you have declined the friend request from ${friend.nickname}")
+                } else {
+                    callback.invoke(Constant.ERROR_MSG)
+                }
+            }
     }
 
     fun cancelSendFriendRequest(friend: User, callback: (result: String) -> Unit) {
         // Delete friend request in friend received and your send path
         dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(friend.id)
-            .child(currentUser.uid).removeValue()
-        dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
-            .child(currentUser.uid)
-            .child(friend.id).removeValue()
-        callback.invoke("you have cancelled the friend request to ${friend.nickname}")
+            .child(currentUser.uid).removeValue().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    dbref.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
+                        .child(currentUser.uid)
+                        .child(friend.id).removeValue()
+                    callback.invoke("you have cancelled the friend request to ${friend.nickname}")
+                } else {
+                    callback.invoke(Constant.ERROR_MSG)
+                }
+            }
     }
 
 }

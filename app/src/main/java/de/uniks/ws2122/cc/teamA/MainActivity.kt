@@ -99,7 +99,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             Toast.makeText(this, statusMsg, Toast.LENGTH_SHORT).show()
             spinner.isVisible = false
             if (statusMsg.equals(LOGIN_SUCCESS_MSG)) {
-                startActivity(Intent(this@MainActivity, FriendListActivity::class.java))
                 changeToGameSelectScreen()
             } else {
                 loginButton.isEnabled = true
