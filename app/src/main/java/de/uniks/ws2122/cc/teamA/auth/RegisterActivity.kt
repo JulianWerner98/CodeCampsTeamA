@@ -65,8 +65,8 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
             pwdField.requestFocus()
             return
         }
-        emailAddress.error = ""
-        pwdField.error = ""
+        emailAddress.error = null
+        pwdField.error = null
 
         spinner.isVisible = true
         emailAddress.isEnabled = false
