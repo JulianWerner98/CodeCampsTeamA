@@ -10,6 +10,7 @@ class TicTacToeRepository {
     private val rootRef: DatabaseReference = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
     private var tttRef: DatabaseReference
     private lateinit var matchRef: DatabaseReference
+    private val currentUser = FirebaseAuth.getInstance().currentUser!!
 
     init {
 
@@ -17,9 +18,9 @@ class TicTacToeRepository {
 
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                if (!snapshot.exists()) {
+                if (!snapshot.hasChild("TocTacToe")) {
 
-                    rootRef.child("TicTacToe").setValue(1)
+                    rootRef.child("TicTacToe")
                 }
             }
 
@@ -39,12 +40,18 @@ class TicTacToeRepository {
         tttRef.addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                if (snapshot.exists()) {
+                if (!snapshot.hasChild("Match")) {
 
                     createMatch()
                 }
                 else {
 
+                    if (!snapshot.child("Match").hasChild(currentUser.uid)){
+
+                        matchRef = tttRef.child("Match").ref
+                        matchRef.child("Status").setValue("full")
+                        matchRef.child(currentUser.uid).setValue(1)
+                    }
                 }
             }
 
@@ -52,16 +59,13 @@ class TicTacToeRepository {
 
                 TODO("Not yet implemented")
             }
-
         })
-
-        Log.d("TAG", matchRef.toString())
     }
 
     private fun createMatch() {
 
-        tttRef.child("Match").setValue("looking for players")
         matchRef = tttRef.child("Match").ref
-        matchRef.child(FirebaseAuth.getInstance().uid.toString()).setValue(0)
+        matchRef.child("Status").setValue("looking for player")
+        matchRef.child(currentUser.uid).setValue(0)
     }
 }

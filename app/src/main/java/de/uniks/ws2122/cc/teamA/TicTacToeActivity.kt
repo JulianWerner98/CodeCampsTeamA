@@ -21,7 +21,7 @@ class TicTacToeActivity : AppCompatActivity() {
 
         //view model
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
-        viewModel.setTicTacToeData(TicTacToe())
+        viewModel.setTicTacToeData(TicTacToe(isMyTurn = true))
 
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
