@@ -69,6 +69,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             loginButton.id -> {
                 loginUser()
+
+                val intent = Intent(this, MatchSearchActivity::class.java)
+                startActivity(intent)
+
             }
         }
 
