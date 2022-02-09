@@ -4,10 +4,17 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.uniks.ws2122.cc.teamA.repository.TicTacToeRepository
 
-class TicTacToeViewModel: ViewModel() {
+class TicTacToeViewModel : ViewModel() {
 
-    private val tictactoeData: MutableLiveData<TicTacToe> = MutableLiveData()
+    private var tttRepo: TicTacToeRepository = TicTacToeRepository()
+    private val tictactoeData: MutableLiveData<TicTacToe> = tttRepo.getTicTacToeData()
+
+    init {
+
+        tttRepo.joinQueue()
+    }
 
     fun getTicTacToeData(): LiveData<TicTacToe> {
 
@@ -21,7 +28,8 @@ class TicTacToeViewModel: ViewModel() {
 
     fun endTurn(index: Int) {
 
-        var newFields = tictactoeData.value?.fields
+        var ttt = tictactoeData.value
+        var newFields = ttt!!.fields
         var icon: Char = 'x'
 
         if (tictactoeData.value?.isCircle == true) {
@@ -29,12 +37,11 @@ class TicTacToeViewModel: ViewModel() {
             icon = 'o'
         }
 
-        newFields = newFields?.substring(0, index) + icon + newFields?.substring(index+1)
+        newFields = newFields.substring(0, index) + icon + newFields.substring(index + 1)
 
-        tictactoeData.value?.fields = newFields
-
-
-
+        ttt.fields = newFields
+        setTicTacToeData(ttt)
+        tttRepo.sendTurn(index, icon)
         Log.d("TAG", newFields)
     }
 }

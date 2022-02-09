@@ -19,9 +19,6 @@ class MatchSearchActivity : AppCompatActivity() {
 
             val intent = Intent(this, TicTacToeActivity::class.java)
             startActivity(intent)
-
-            val test = TicTacToeRepository()
-            test.searchMatch()
         }
     }
 }

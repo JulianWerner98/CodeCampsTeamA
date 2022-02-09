@@ -69,10 +69,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
             loginButton.id -> {
                 loginUser()
-
-                val intent = Intent(this, MatchSearchActivity::class.java)
-                startActivity(intent)
-
             }
         }
 
@@ -110,8 +106,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun changeToGameSelectScreen() {
-        println("Already Logged In")
-        // TODO Implement
+
+        val intent = Intent(this, MatchSearchActivity::class.java)
+        startActivity(intent)
     }
 
 }

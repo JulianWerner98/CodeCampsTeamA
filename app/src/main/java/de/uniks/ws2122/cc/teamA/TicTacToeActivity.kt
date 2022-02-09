@@ -21,7 +21,6 @@ class TicTacToeActivity : AppCompatActivity() {
 
         //view model
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
-        viewModel.setTicTacToeData(TicTacToe(isMyTurn = true))
 
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
@@ -60,13 +59,16 @@ class TicTacToeActivity : AppCompatActivity() {
 
     private fun createTicTacToeDataObserver(buttons: List<ImageButton>) {
 
-        Log.d("TAG", "ping")
-
         viewModel.getTicTacToeData().observe(this, { tictactoe ->
 
             if (tictactoe.isMyTurn) {
 
                 binding.tvTurnMessage.text = "Your turn"
+
+                buttons.forEach { button ->
+                    button.isClickable = true
+                }
+
             } else {
 
                 binding.tvTurnMessage.text = "Enemy turn"
