@@ -22,7 +22,7 @@ class AuthController {
     private var mAuth: FirebaseAuth = Firebase.auth
     private var dbref: DatabaseReference
 
-    fun getCurrentUser(): FirebaseUser? {
+    fun getCurrentFBUser(): FirebaseUser? {
         return FirebaseAuth.getInstance().currentUser
     }
 
@@ -42,36 +42,43 @@ class AuthController {
     }
 
     fun isLoggedIn(): Boolean {
-        return getCurrentUser() != null
+        return getCurrentFBUser() != null
     }
 
     fun registerUser(
         email: String, pwd: String, nickname: String, callback: (result: User?) -> Unit
     ) {
-        getAllUserNicknames { userStringList ->
-            if (nickname in userStringList) {
-                callback.invoke(User("", "", NICKNAME_ERROR))
-            } else {
-                mAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener { it ->
-                    if (it.isSuccessful) {
-                        var fbUser = getCurrentUser()
-                        var user = User(nickname, email, fbUser!!.uid)
-                        dbref
-                            .child(USERS_PATH)
-                            .child(fbUser.uid)
-                            .setValue(user).addOnCompleteListener { it2 ->
-                                if (it2.isSuccessful) {
-                                    callback.invoke(user)
+        logoutUser()
+        loginUser("admin@admin.de", "z4CKfEpBE254p6") { msg ->
+            if (msg.equals(LOGIN_SUCCESS_MSG)) {
+                getAllUserNicknames { userStringList ->
+                    if (nickname in userStringList) {
+                        callback.invoke(User("", "", NICKNAME_ERROR))
+                    } else {
+                        mAuth.createUserWithEmailAndPassword(email, pwd)
+                            .addOnCompleteListener { it ->
+                                if (it.isSuccessful) {
+                                    var fbUser = getCurrentFBUser()
+                                    var user = User(nickname, email, fbUser!!.uid)
+                                    dbref
+                                        .child(USERS_PATH)
+                                        .child(fbUser.uid)
+                                        .setValue(user).addOnCompleteListener { it2 ->
+                                            if (it2.isSuccessful) {
+                                                callback.invoke(user)
+                                            } else {
+                                                callback.invoke(null)
+                                            }
+                                        }
                                 } else {
                                     callback.invoke(null)
                                 }
                             }
-                    } else {
-                        callback.invoke(null)
                     }
                 }
             }
         }
+
     }
 
     fun logoutUser() {
@@ -118,7 +125,18 @@ class AuthController {
             }
 
         })
+    }
 
+    fun getCurrentUser(uid: String, callback: (result: User?) -> Unit) {
+        dbref.child(USERS_PATH).child(uid).addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue(User::class.java)
+                callback.invoke(user)
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+
+        })
     }
 }
 

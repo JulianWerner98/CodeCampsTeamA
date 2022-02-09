@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
+import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendListBinding
 import de.uniks.ws2122.cc.teamA.model.Friend
@@ -58,7 +59,8 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         }
 
         binding.btnBackToMain.setOnClickListener {
-           // TODO: back to Main Menu
+            val intent = Intent(this, GameSelectActivity::class.java).apply { }
+            startActivity(intent)
         }
         binding.btnRequestList.setOnClickListener {
             startActivity(Intent(this@FriendListActivity, FriendRequestActivity::class.java))
