@@ -45,7 +45,7 @@ class AppViewModel : ViewModel() {
         callback: (result: User?) -> Unit
     ) {
         authController.registerUser(email, pwd, nickname) { user ->
-            if (user != null && !user?.id.equals(NICKNAME_ERROR)) {
+            if (user != null && !user.id.equals(NICKNAME_ERROR)) {
                 setUser(user)
             }
             callback.invoke(user)

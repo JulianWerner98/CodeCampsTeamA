@@ -47,6 +47,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         loginButton.setOnClickListener(this)
 
 
+
+    }
+
+    override fun onStart() {
+        super.onStart()
         if (viewModel.isLoggedIn()) {
             println("Already logged in")
             changeToGameSelectScreen()
