@@ -48,14 +48,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
 
         if (viewModel.isLoggedIn()) {
+            println("Already logged in")
             changeToGameSelectScreen()
         }
-    }
-
-    private fun initLiveDataObserver() {
-        viewModel.getLiveValueUser().observe(this, { value ->
-            forgotPwd.text = value.email
-        })
     }
 
     override fun onClick(v: View?) {
@@ -107,9 +102,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun changeToGameSelectScreen() {
-        println("Already Logged In")
-        // TODO Implement
-
+        val intent = Intent(this, GameSelectActivity::class.java).apply { }
+        startActivity(intent)
     }
 
 }

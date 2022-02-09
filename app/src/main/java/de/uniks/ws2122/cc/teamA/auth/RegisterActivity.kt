@@ -17,6 +17,7 @@ import de.uniks.ws2122.cc.teamA.Constant.ERROR_MSG
 import de.uniks.ws2122.cc.teamA.Constant.LOGIN_SUCCESS_MSG
 import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
 import de.uniks.ws2122.cc.teamA.Constant.REGISTER_SUCCESS_MSG
+import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityRegisterBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
@@ -76,7 +77,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
 
         val name = nickname.text.trim().toString()
         viewModel.registerUser(email, pwd, name) { user ->
-            var toastText = ""
+            var toastText: String
             if (user != null) {
                 if (user.id.equals(NICKNAME_ERROR)) {
                     toastText = NICKNAME_ERROR
@@ -115,7 +116,8 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
     }
 
     private fun changeToGameSelectScreen() {
-        TODO("Not yet implemented")
+        val intent = Intent(this, GameSelectActivity::class.java).apply { }
+        startActivity(intent)
     }
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {

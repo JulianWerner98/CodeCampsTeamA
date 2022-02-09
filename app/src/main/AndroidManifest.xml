@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CCTeamA">
         <activity
+            android:name=".GameSelectActivity"
+            android:exported="false" />
+        <activity
             android:name=".friendlist.FriendProfileActivity"
             android:exported="false" />
         <activity

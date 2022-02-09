@@ -49,7 +49,7 @@ class FriendListController {
                         // Check that you not already friends
                         exists = true
                         if (!snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
-                                .child(Constant.FRIENDS_PATH).child(friend!!.id).exists()
+                                .child(Constant.FRIENDS_PATH).child(friend.id).exists()
                         ) {
                             // Check that you don't have a friend request from this user
                             if (!snapshot.child(Constant.FRIEND_REQUEST_PATH)
