@@ -88,6 +88,15 @@ class TicTacToeActivity : AppCompatActivity() {
                         button.isClickable = false
                     }
                 }
+
+                if (!tictactoe.winner.isEmpty()) {
+
+                    binding.tvTurnMessage.text = "${tictactoe.winner} won"
+
+                    buttons.forEach { button ->
+                        button.isClickable = false
+                    }
+                }
             }
 
             val myIcon: Int

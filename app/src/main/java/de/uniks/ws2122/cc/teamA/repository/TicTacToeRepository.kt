@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.repository
 
+import android.provider.ContactsContract
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
@@ -7,22 +8,25 @@ import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.model.TicTacToe
 import java.util.*
+import kotlin.collections.HashMap
+
+//Constants
+const val TTTQ = "TicTacToeQ"
+const val GAMES = "Games"
+const val TTT = "TicTacToe"
+const val TTTFIELD = "Field"
+const val LASTTURN = "lastTurn"
+const val INGAME = "inGame"
+const val OPENMATCHES = "openMatches"
+const val PLAYER1 = "Player1"
+const val PLAYER2 = "Player2"
+const val NICKNAME ="nickname"
+const val WINNER = "winner"
+const val ID = "id"
+
+const val BLANKFIELD = "_________"
 
 class TicTacToeRepository {
-
-    //Constants
-    private val TTTQ = "TicTacToeQ"
-    private val GAMES = "Games"
-    private val TTT = "TicTacToe"
-    private val TTTFIELD = "Field"
-    private val LASTTURN = "lastTurn"
-    private val INGAME = "inGame"
-    private val OPENMATCHES = "openMatches"
-    private val PLAYER1 = "Player1"
-    private val PLAYER2 = "Player2"
-    private val NICKNAME ="nickname"
-
-    val BLANKFIELD = "_________"
 
     //References
     private val rootRef: DatabaseReference =
@@ -185,7 +189,9 @@ class TicTacToeRepository {
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                matchRef.child(PLAYER2).child(currentUser.uid).setValue(snapshot.child(NICKNAME).value.toString())
+                matchRef.child(PLAYER2).child(ID).setValue(currentUser.uid)
+                var nickname = snapshot.child(NICKNAME).value.toString()
+                matchRef.child(PLAYER2).child(NICKNAME).setValue(nickname)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -223,7 +229,9 @@ class TicTacToeRepository {
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                matchRef.child(PLAYER1).child(currentUser.uid).setValue(snapshot.child(NICKNAME).value.toString())
+                matchRef.child(PLAYER1).child(ID).setValue(currentUser.uid)
+                var nickname = snapshot.child(NICKNAME).value.toString()
+                matchRef.child(PLAYER1).child(NICKNAME).setValue(nickname)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -256,7 +264,8 @@ class TicTacToeRepository {
                 val ticTacToe = TicTacToe()
                 ticTacToe.fields = snapshot.child(TTTFIELD).value.toString()
 
-                if (snapshot.child(PLAYER1).value.toString() == currentUser.uid) {
+
+                if (snapshot.child(PLAYER1).child(ID).value.toString() == currentUser.uid) {
 
                     ticTacToe.isCircle = true
                 }
@@ -268,22 +277,30 @@ class TicTacToeRepository {
 
                 if (ticTacToe.players.size < 2 && snapshot.child(PLAYER2).exists()) {
 
-                    var nicknamePlayer1 = snapshot.child(PLAYER1).value.toString()
-                    nicknamePlayer1 = nicknamePlayer1.substringAfter("=").substringBefore("}")
+                    var nicknamePlayer1 = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
+                    var nicknamePlayer2 = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
 
-                    var nicknamePlayer2 = snapshot.child(PLAYER2).value.toString()
-                    nicknamePlayer2 = nicknamePlayer2.substringAfter("=").substringBefore("}")
-
-                    if (snapshot.child(PLAYER1).hasChild(currentUser.uid)){
+                    if (snapshot.child(PLAYER1).child(ID).value == currentUser.uid){
 
                         ticTacToe.players.add(nicknamePlayer1)
                         ticTacToe.players.add(nicknamePlayer2)
-
 
                     } else {
 
                         ticTacToe.players.add(nicknamePlayer2)
                         ticTacToe.players.add(nicknamePlayer1)
+                    }
+                }
+
+                if (snapshot.child(WINNER).exists()) {
+
+
+                    if (snapshot.child(WINNER).value == snapshot.child(PLAYER1).child(ID).value) {
+
+                        ticTacToe.winner = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
+                    } else {
+
+                        ticTacToe.winner = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
                     }
                 }
 
@@ -297,8 +314,8 @@ class TicTacToeRepository {
         })
     }
 
-    //
-    fun sendTurn(index: Int, icon: Char) {
+    //sends the current move
+    fun sendTurn(index: Int, icon: Char, won: Boolean) {
 
         matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -307,6 +324,11 @@ class TicTacToeRepository {
                 field = field.substring(0, index) + icon + field.substring(index + 1)
                 matchRef.child(TTTFIELD).setValue(field)
                 matchRef.child(LASTTURN).setValue(currentUser.uid)
+
+                if (won) {
+
+                    matchRef.child(WINNER).setValue(currentUser.uid)
+                }
 
                 Log.d("TTTRepo", "sent turn")
             }
