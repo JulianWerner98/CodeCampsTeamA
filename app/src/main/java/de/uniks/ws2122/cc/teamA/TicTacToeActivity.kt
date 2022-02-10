@@ -95,7 +95,6 @@ class TicTacToeActivity : AppCompatActivity() {
             buttons.forEach { button ->
 
                 when (tictactoe.fields[counter]) {
-
                     'o' -> button.setImageResource(myIcon)
                     'x' -> button.setImageResource(enemyIcon)
                 }

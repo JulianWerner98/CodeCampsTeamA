@@ -14,7 +14,7 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.5796875" />
         <entry key="app/src/main/res/layout/activity_game_select.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.35509259259259257" />
-        <entry key="app/src/main/res/layout/activity_register.xml" value="0.12499932844276018" />
+        <entry key="app/src/main/res/layout/activity_register.xml" value="0.3118421052631579" />
         <entry key="app/src/main/res/layout/activity_tic_tac_toe.xml" value="0.75" />
         <entry key="app/src/main/res/layout/auth/activity_forgot_password.xml" value="0.19067028985507245" />
       </map>
