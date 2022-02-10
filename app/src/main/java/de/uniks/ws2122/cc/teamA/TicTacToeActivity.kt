@@ -83,12 +83,12 @@ class TicTacToeActivity : AppCompatActivity() {
 
             if (tictactoe.isCircle) {
 
-                myIcon = R.drawable.common_full_open_on_phone
-                enemyIcon = R.drawable.ic_launcher_background
+                myIcon = R.drawable.circle
+                enemyIcon = R.drawable.cross
             } else {
 
-                myIcon = R.drawable.ic_launcher_background
-                enemyIcon = R.drawable.common_full_open_on_phone
+                myIcon = R.drawable.cross
+                enemyIcon = R.drawable.circle
             }
 
             var counter: Int = 0
