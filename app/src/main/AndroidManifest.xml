@@ -18,6 +18,12 @@
             android:exported="false"
             android:screenOrientation="portrait"/>
         <activity
+            android:name=".MatchSearchActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TicTacToeActivity"
+            android:exported="false" />
+        <activity
             android:name=".auth.RegisterActivity"
             android:exported="false"
             android:screenOrientation="portrait"/>
