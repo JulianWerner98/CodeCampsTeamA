@@ -37,10 +37,11 @@
         android:layout_height="250dp"
         android:layout_marginTop="1dp"
         android:clipToPadding="true"
+        app:layout_constraintBottom_toTopOf="@+id/divider2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvSendListInfoText"
-        tools:listitem="@layout/send_item"/>
+        tools:listitem="@layout/send_item" />
 
     <TextView
         android:id="@+id/tvRequestList"
@@ -81,10 +82,11 @@
         android:layout_width="409dp"
         android:layout_height="250dp"
         android:layout_marginTop="1dp"
+        android:clipToPadding="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvRequestListInfoText"
-        tools:listitem="@layout/request_item"/>
+        tools:listitem="@layout/request_item" />
 
     <View
         android:id="@+id/divider3"

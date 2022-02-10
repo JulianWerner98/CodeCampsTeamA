@@ -12,7 +12,6 @@ import de.uniks.ws2122.cc.teamA.Constant.LOGIN_SUCCESS_MSG
 import de.uniks.ws2122.cc.teamA.auth.ForgotPasswordActivity
 import de.uniks.ws2122.cc.teamA.auth.RegisterActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMainBinding
-import de.uniks.ws2122.cc.teamA.friendlist.FriendListActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 
 
@@ -45,9 +44,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         register.setOnClickListener(this)
         forgotPwd.setOnClickListener(this)
         loginButton.setOnClickListener(this)
-
-
-
+        
     }
 
     override fun onStart() {
