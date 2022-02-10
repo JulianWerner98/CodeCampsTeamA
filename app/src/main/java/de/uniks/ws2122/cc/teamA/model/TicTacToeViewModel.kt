@@ -13,7 +13,7 @@ class TicTacToeViewModel : ViewModel() {
 
     init {
 
-        tttRepo.joinQueue()
+        tttRepo.startMatchMaking()
     }
 
     fun getTicTacToeData(): LiveData<TicTacToe> {
@@ -28,7 +28,7 @@ class TicTacToeViewModel : ViewModel() {
 
     fun endTurn(index: Int) {
 
-        var ttt = tictactoeData.value
+        val ttt = tictactoeData.value
         var newFields = ttt!!.fields
         var icon: Char = 'x'
 

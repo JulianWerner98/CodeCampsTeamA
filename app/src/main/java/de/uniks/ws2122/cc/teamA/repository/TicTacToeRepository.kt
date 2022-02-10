@@ -1,36 +1,38 @@
 package de.uniks.ws2122.cc.teamA.repository
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
-import com.google.firebase.database.ktx.getValue
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.model.TicTacToe
-import java.lang.reflect.Field
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class TicTacToeRepository {
 
     //Constants
-    val TTTQ = "TicTacToeQ"
-    val GAMES = "Games"
-    val TTT = "TicTacToe"
-    val TTTSTATUS = "Status"
-    val TTTSTATUSLOOK = "looking for players"
-    val TTTSTATUSFULL = "full"
-    val TTTFIELD = "Field"
+    private val TTTQ = "TicTacToeQ"
+    private val GAMES = "Games"
+    private val TTT = "TicTacToe"
+    private val TTTFIELD = "Field"
+    private val LASTTURN = "lastTurn"
+    private val INGAME = "inGame"
+    private val OPENMATCHES = "openMatches"
+    private val PLAYER1 = "Player1"
+    private val Player2 = "Player2"
+
     val BLANKFIELD = "_________"
-    val LASTTURN = "Last turn"
 
     //References
-    private val rootRef: DatabaseReference = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
+    private val rootRef: DatabaseReference =
+        FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
     private var gamesRef: DatabaseReference
     private var tttQRef: DatabaseReference
-    private lateinit var tttRef: DatabaseReference
+    private var tttRef: DatabaseReference
+    private lateinit var matchRef: DatabaseReference
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
+    private val currentUserRef = rootRef.child(Constant.USERS_PATH).child(currentUser.uid).ref
+
 
     //TicTacToeData
     private var ticTacToeData: MutableLiveData<TicTacToe> = MutableLiveData()
@@ -55,115 +57,216 @@ class TicTacToeRepository {
 
         gamesRef = rootRef.child(GAMES).ref
         tttQRef = gamesRef.child(TTTQ).ref
+        tttRef = gamesRef.child(TTT).ref
 
-        Log.d("TAG", tttQRef.toString())
+        Log.d("TTTRepo", "Init: $tttQRef \n $tttRef")
     }
 
-    fun joinQueue() {
+    fun startMatchMaking() {
 
-        tttQRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
+
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                //check if the user already in the Q
-                if (!snapshot.hasChild(currentUser.uid)) {
+                if (hasRunningGame(snapshot)) {
 
-                    tttQRef.child(currentUser.uid).setValue(System.currentTimeMillis())
-                    tttQRef.child(currentUser.uid).push()
-                    findMatch()
+                    determineTicTacToeReference(snapshot)
+                    loadRunningGame()
+
+                } else {
+                    if (!isInQueue(snapshot)) {
+
+                        joinQueue()
+                        waitingInQueue()
+                    }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-
                 TODO("Not yet implemented")
             }
         })
     }
 
-    private fun findMatch() {
+    //check if the user is already in the Queue
+    private fun isInQueue(snapshot: DataSnapshot): Boolean {
+
+        return snapshot.child(GAMES).child(TTTQ).hasChild(currentUser.uid)
+    }
+
+    //check if the user has a game running and
+    private fun hasRunningGame(snapshot: DataSnapshot): Boolean {
+
+        return snapshot.child(Constant.USERS_PATH).child(currentUser.uid).hasChild(INGAME)
+    }
+
+    private fun determineTicTacToeReference(snapshot: DataSnapshot) {
+
+        val tttRefKey = snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
+            .child(INGAME).value.toString()
+        matchRef = tttRef.child(tttRefKey)
+    }
+
+    //load the running game
+    private fun loadRunningGame() {
+
+        createTicTacToeDataChangesListener()
+        Log.d("TTTRepo", "loaded game")
+    }
+
+    //add the User in the Queue
+    private fun joinQueue() {
+
+        tttQRef.child(currentUser.uid).setValue(System.currentTimeMillis())
+        tttQRef.child(currentUser.uid).push()
+
+        Log.d("TTTRepo", "joined Queue")
+    }
+
+    //waits till user is the first player in the Queue
+    private fun waitingInQueue() {
 
         tttQRef.orderByKey().limitToFirst(1).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                createMatch(snapshot)
+                if (isFirstInQueue(snapshot)) {
+
+                    searchMatch()
+                    tttQRef.removeEventListener(this)
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
-
-
         })
     }
 
-    private fun createMatch(snapshot: DataSnapshot) {
+    //check if the current user is the longest waiting user
+    private fun isFirstInQueue(snapshot: DataSnapshot): Boolean {
 
-        //check if the current user the longest waiting user is
+        val firstUserRef: DatabaseReference = snapshot.children.iterator().next().ref
+        Log.d("TTTRepo", "First user in Q: $firstUserRef")
 
-        var firstUserRef: DatabaseReference? = null
+        return firstUserRef == tttQRef.child(currentUser.uid).ref
+    }
 
-        snapshot.children.forEach {
+    //looks for match if not it creates one
+    private fun searchMatch() {
 
-            firstUserRef = it.ref
-        }
-
-        Log.d("TAG1", firstUserRef.toString())
-        Log.d("TAG2", tttQRef.child(currentUser.uid).ref.toString())
-
-        if (firstUserRef == tttQRef.child(currentUser.uid).ref) {
-
-            //create new Match
-            tttRef = gamesRef.child(TTT).push()
-            tttRef.child(TTTSTATUS).setValue(TTTSTATUSLOOK)
-            tttRef.child(currentUser.uid).setValue(0)
-            tttRef.child(TTTFIELD).setValue(BLANKFIELD)
-            tttRef.child(LASTTURN).setValue(currentUser.uid)
-
-            //remove user from the Q
-            tttQRef.child(currentUser.uid).setValue(null)
-
-            //remove listener
-
-            //add TicTacToe listener
-            tttRef.addValueEventListener(object: ValueEventListener {
+        tttRef.child(OPENMATCHES).orderByKey().limitToFirst(1)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
-                    var ticTacToe = TicTacToe()
-                    ticTacToe.fields = snapshot.child(TTTFIELD).value.toString()
+                    val iterator = snapshot.children.iterator()
 
-                    if (snapshot.child(currentUser.uid).value == 1) {
+                    if (iterator.hasNext()) {
 
-                        ticTacToe.isCircle = true
+                        val openMatchRefKey = snapshot.children.iterator().next().value.toString()
+                        joinMatch(openMatchRefKey)
                     }
+                    else {
 
-                    if (snapshot.child(LASTTURN).value.toString() != currentUser.uid) {
-
-                        ticTacToe.isMyTurn = true
+                        createNewMatch()
                     }
-
-                    ticTacToeData.value = ticTacToe
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
+            })
+    }
 
+    //join a match
+    private fun joinMatch(openMatchRefKey: String) {
 
-            } )
+        matchRef = tttRef.child(openMatchRefKey)
+        matchRef.child(Player2).setValue(currentUser.uid)
 
-            Log.d("TAG", tttRef.toString())
+        //set match ref to user
+        currentUserRef.child("inGame").setValue(matchRef.key)
+
+        //remove open match and user from the Q
+        tttRef.child(OPENMATCHES).child(openMatchRefKey).removeValue()
+        tttQRef.child(currentUser.uid).removeValue()
+
+        firstTurn()
+        Log.d("TTTRepo", "join Match: $matchRef")
+
+        createTicTacToeDataChangesListener()
+    }
+
+    //Randomly chooses who gets to make the first move
+    private fun firstTurn() {
+
+        if (Random().nextBoolean()) {
+
+            matchRef.child(LASTTURN).setValue(currentUser.uid)
         }
     }
 
+    //create new Match
+    private fun createNewMatch() {
+
+        matchRef = tttRef.push()
+        matchRef.child(PLAYER1).setValue(currentUser.uid)
+        matchRef.child(TTTFIELD).setValue(BLANKFIELD)
+        matchRef.child(LASTTURN).setValue(currentUser.uid)
+
+        //set match ref to open matches and to user
+        tttRef.child(OPENMATCHES).child(matchRef.key.toString()).setValue(matchRef.key)
+        currentUserRef.child("inGame").setValue(matchRef.key)
+
+        //remove user from the Q
+        tttQRef.child(currentUser.uid).removeValue()
+
+        Log.d("TTTRepo", "created Match: $matchRef")
+
+        createTicTacToeDataChangesListener()
+    }
+
+    //add TicTacToe listener to get data changes
+    private fun createTicTacToeDataChangesListener() {
+
+        matchRef.addValueEventListener(object : ValueEventListener {
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val ticTacToe = TicTacToe()
+                ticTacToe.fields = snapshot.child(TTTFIELD).value.toString()
+
+                if (snapshot.child(PLAYER1).value.toString() == currentUser.uid) {
+
+                    ticTacToe.isCircle = true
+                }
+
+                if (snapshot.child(LASTTURN).value.toString() != currentUser.uid) {
+
+                    ticTacToe.isMyTurn = true
+                }
+
+                Log.d("TTTRepo", "data listener: ${ticTacToe.fields}")
+                ticTacToeData.value = ticTacToe
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    //
     fun sendTurn(index: Int, icon: Char) {
 
-        tttRef.addListenerForSingleValueEvent(object: ValueEventListener {
+        matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 var field = snapshot.child(TTTFIELD).value.toString()
                 field = field.substring(0, index) + icon + field.substring(index + 1)
-                tttRef.child(TTTFIELD).setValue(field)
-                tttRef.child(LASTTURN).setValue(currentUser.uid)
+                matchRef.child(TTTFIELD).setValue(field)
+                matchRef.child(LASTTURN).setValue(currentUser.uid)
+
+                Log.d("TTTRepo", "sent turn")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -176,5 +279,7 @@ class TicTacToeRepository {
 
         return ticTacToeData
     }
+
+    //TODO("Win Game, Leave Game, Delete Game")
 }
 
