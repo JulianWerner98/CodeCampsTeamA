@@ -6,7 +6,6 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
-import de.uniks.ws2122.cc.teamA.model.TicTacToe
 import de.uniks.ws2122.cc.teamA.model.TicTacToeViewModel
 
 class TicTacToeActivity : AppCompatActivity() {
@@ -89,7 +88,7 @@ class TicTacToeActivity : AppCompatActivity() {
                     }
                 }
 
-                if (!tictactoe.winner.isEmpty()) {
+                if (tictactoe.winner.isNotEmpty()) {
 
                     binding.tvTurnMessage.text = "${tictactoe.winner} won"
 
@@ -112,7 +111,7 @@ class TicTacToeActivity : AppCompatActivity() {
                 enemyIcon = R.drawable.circle
             }
 
-            var counter: Int = 0
+            var counter = 0
             buttons.forEach { button ->
 
                 when (tictactoe.fields[counter]) {

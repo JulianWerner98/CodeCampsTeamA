@@ -31,7 +31,7 @@ class TicTacToeViewModel : ViewModel() {
 
         val ttt = tictactoeData.value
         var newFields = ttt!!.fields
-        var icon: Char = 'x'
+        var icon = 'x'
 
         if (tictactoeData.value?.isCircle == true) {
 
