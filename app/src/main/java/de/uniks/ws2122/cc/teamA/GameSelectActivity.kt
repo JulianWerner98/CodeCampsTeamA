@@ -67,6 +67,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun changeToTicTacToeScreen() {
-        TODO("Not yet implemented")
+        val intent = Intent(this, TicTacToeActivity::class.java)
+        startActivity(intent)
     }
 }

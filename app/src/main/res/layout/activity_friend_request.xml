@@ -21,8 +21,8 @@
 
     <TextView
         android:id="@+id/tvSendListInfoText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="381dp"
+        android:layout_height="34dp"
         android:gravity="center"
         android:text="Click on the button of the friendrequest to cancel it"
         android:textColor="@color/material_on_primary_emphasis_high_type"
@@ -33,8 +33,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSendList"
-        android:layout_width="409dp"
-        android:layout_height="250dp"
+        android:layout_width="395dp"
+        android:layout_height="253dp"
         android:layout_marginTop="1dp"
         android:clipToPadding="true"
         app:layout_constraintBottom_toTopOf="@+id/divider2"
@@ -79,7 +79,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvRequestList"
-        android:layout_width="409dp"
+        android:layout_width="0dp"
         android:layout_height="250dp"
         android:layout_marginTop="1dp"
         android:clipToPadding="true"
@@ -122,10 +122,10 @@
         style="@style/Widget.AppCompat.Button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
         android:text="Friendlist"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvRequestList" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
