@@ -2,14 +2,17 @@ package de.uniks.ws2122.cc.teamA
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
+import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.TicTacToeViewModel
 
-class TicTacToeActivity : AppCompatActivity() {
+class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
+    private lateinit var appViewModel: AppViewModel
     private lateinit var binding: ActivityTicTacToeBinding
     private lateinit var viewModel: TicTacToeViewModel
 
@@ -20,9 +23,13 @@ class TicTacToeActivity : AppCompatActivity() {
 
         //view model
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
+        appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
+
+        binding.surrenderBtn.setOnClickListener(this)
+        binding.surrenderBtn.isEnabled = false
 
     }
 
@@ -66,34 +73,53 @@ class TicTacToeActivity : AppCompatActivity() {
 
                 binding.tvTurnMessage.text = "Waiting for Player"
                 buttons.forEach { button ->
-                    button.isClickable = false
+                    button.isEnabled = false
                 }
 
             } else {
-
+                binding.surrenderBtn.isEnabled = true
                 if (tictactoe.isMyTurn) {
 
                     binding.tvTurnMessage.text = "Your turn"
 
                     buttons.forEach { button ->
-                        button.isClickable = true
+                        button.isEnabled = true
                     }
 
                 } else {
-
                     binding.tvTurnMessage.text = "${tictactoe.players[1]} turn"
 
                     buttons.forEach { button ->
-                        button.isClickable = false
+                        button.isEnabled = false
                     }
                 }
 
                 if (tictactoe.winner.isNotEmpty()) {
+                    binding.surrenderBtn.isEnabled = false
 
-                    binding.tvTurnMessage.text = "${tictactoe.winner} won"
+                    if (tictactoe.fields.equals("xxxxxxxxx") && !tictactoe.isCircle ||
+                        tictactoe.fields.equals("ooooooooo") && tictactoe.isCircle
+                    ) {
+                        binding.tvTurnMessage.text = "Enemy surrender"
+                    } else if (tictactoe.fields.equals("ooooooooo") && !tictactoe.isCircle ||
+                        tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle
+                    ) {
+                        binding.tvTurnMessage.text = "You surrender"
+
+
+                    } else {
+                        if (tictactoe.winner == "Draw") {
+
+                            binding.tvTurnMessage.text = "Draw"
+
+                        } else {
+
+                            binding.tvTurnMessage.text = "${tictactoe.winner} won"
+                        }
+                    }
 
                     buttons.forEach { button ->
-                        button.isClickable = false
+                        button.isEnabled = false
                     }
                 }
             }
@@ -122,6 +148,15 @@ class TicTacToeActivity : AppCompatActivity() {
                 counter++
             }
         })
+    }
+
+    override fun onClick(v: View?) {
+        if (v != null) {
+            when (v.id) {
+                binding.surrenderBtn.id -> viewModel.surrenderGame()
+            }
+        }
+
     }
 }
 
