@@ -49,10 +49,12 @@ class TicTacToeViewModel : ViewModel() {
 
     fun surrenderGame() {
         val value = tictactoeData.value
-        tttRepo.surrender(
-            if (value?.isCircle!!) "o" else "x",
-            value.players
-        )
+        if(value != null){
+            tttRepo.surrender(
+                if (!value.isCircle) "o" else "x",
+                value.players
+            )
+        }
     }
 
     //looks if the user has won

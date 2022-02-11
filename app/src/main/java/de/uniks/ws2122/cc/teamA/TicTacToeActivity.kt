@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.TicTacToeViewModel
 
-class TicTacToeActivity : AppCompatActivity() {
+class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var binding: ActivityTicTacToeBinding
     private lateinit var viewModel: TicTacToeViewModel
@@ -25,15 +25,8 @@ class TicTacToeActivity : AppCompatActivity() {
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
 
-        binding.surrenderBtn.isEnabled = false
-        binding.surrenderBtn.setOnClickListener(surrender())
+        binding.surrenderBtn.setOnClickListener(this)
 
-
-    }
-
-    private fun surrender(): View.OnClickListener? {
-        viewModel.surrenderGame()
-        return null
     }
 
     private fun initButtons(): List<ImageButton> {
@@ -132,6 +125,15 @@ class TicTacToeActivity : AppCompatActivity() {
                 counter++
             }
         })
+    }
+
+    override fun onClick(v: View?) {
+        if (v != null) {
+            when(v.id){
+                binding.surrenderBtn.id -> viewModel.surrenderGame()
+            }
+        }
+
     }
 }
 
