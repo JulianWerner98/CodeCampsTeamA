@@ -105,7 +105,9 @@ class TicTacToeRepository {
         if (snapshot.child(Constant.USERS_PATH).child(currentUser.uid).hasChild(INGAME)) {
 
             val matchRefString = snapshot.child(Constant.USERS_PATH).child(currentUser.uid).child(INGAME).value.toString()
-            hasGame = snapshot.child(TTT).child(matchRefString).exists()
+            Log.d("TTTRepo", snapshot.child(Constant.USERS_PATH).child(currentUser.uid).child(INGAME).ref.toString())
+            hasGame = snapshot.child(GAMES).child(TTT).hasChild(matchRefString)
+            Log.d("TTTRepo", "hasGame: $hasGame")
         }
 
         return hasGame
