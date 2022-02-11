@@ -73,7 +73,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
                 binding.tvTurnMessage.text = "Waiting for Player"
                 buttons.forEach { button ->
-                    button.isClickable = false
+                    button.isEnabled = false
                 }
 
             } else {
@@ -83,28 +83,29 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                     binding.tvTurnMessage.text = "Your turn"
 
                     buttons.forEach { button ->
-                        button.isClickable = true
+                        button.isEnabled = true
                     }
 
                 } else {
                     binding.tvTurnMessage.text = "${tictactoe.players[1]} turn"
 
                     buttons.forEach { button ->
-                        button.isClickable = false
+                        button.isEnabled = false
                     }
                 }
 
                 if (tictactoe.winner.isNotEmpty()) {
+                    binding.surrenderBtn.isEnabled = false
+
                     if (tictactoe.fields.equals("xxxxxxxxx") && !tictactoe.isCircle ||
                         tictactoe.fields.equals("ooooooooo") && tictactoe.isCircle
                     ) {
                         binding.tvTurnMessage.text = "Enemy surrender"
-                        binding.surrenderBtn.isClickable = false
                     } else if (tictactoe.fields.equals("ooooooooo") && !tictactoe.isCircle ||
                         tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle
                     ) {
                         binding.tvTurnMessage.text = "You surrender"
-                        binding.surrenderBtn.isClickable = false
+
 
                     } else {
                         if (tictactoe.winner == "Draw") {
@@ -118,7 +119,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                     }
 
                     buttons.forEach { button ->
-                        button.isClickable = false
+                        button.isEnabled = false
                     }
                 }
             }
