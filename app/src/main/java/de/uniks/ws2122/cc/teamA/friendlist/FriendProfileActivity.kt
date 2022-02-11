@@ -1,14 +1,20 @@
 package de.uniks.ws2122.cc.teamA.friendlist
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.GameSelectActivity
+import de.uniks.ws2122.cc.teamA.TicTacToeActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendProfileBinding
 import de.uniks.ws2122.cc.teamA.model.FriendListViewModel
+import de.uniks.ws2122.cc.teamA.repository.FriendInviteRepository
+import kotlinx.coroutines.*
 
 class FriendProfileActivity : AppCompatActivity() {
 
@@ -33,7 +39,13 @@ class FriendProfileActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
         binding.btnGameInvite.setOnClickListener {
-            // TODO: Game invite
+
+            //TODO Eine bessere Lösung finden
+
+            FriendInviteRepository().privateMatchRequest("TicTacToe", friendId, nickName)
+
+            val intent = Intent(this, GameSelectActivity::class.java)
+            startActivity(intent)
         }
 
         btnUnfriend.setOnClickListener {

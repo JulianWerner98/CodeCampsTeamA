@@ -156,7 +156,6 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                 binding.surrenderBtn.id -> viewModel.surrenderGame()
             }
         }
-
     }
 }
 
