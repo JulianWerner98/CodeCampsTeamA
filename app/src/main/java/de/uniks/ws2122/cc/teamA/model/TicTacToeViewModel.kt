@@ -12,7 +12,6 @@ class TicTacToeViewModel : ViewModel() {
     private val tictactoeData: MutableLiveData<TicTacToe> = tttRepo.getTicTacToeData()
 
     init {
-
         tttRepo.startMatchMaking()
     }
 
@@ -46,6 +45,14 @@ class TicTacToeViewModel : ViewModel() {
         setTicTacToeData(ttt)
         tttRepo.sendTurn(index, icon, won)
         Log.d("TAG", newFields)
+    }
+
+    fun surrenderGame() {
+        val value = tictactoeData.value
+        tttRepo.surrender(
+            if (value?.isCircle!!) "o" else "x",
+            value.players
+        )
     }
 
     //looks if the user has won

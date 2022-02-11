@@ -2,6 +2,7 @@ package de.uniks.ws2122.cc.teamA
 
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +25,15 @@ class TicTacToeActivity : AppCompatActivity() {
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
 
+        binding.surrenderBtn.isEnabled = false
+        binding.surrenderBtn.setOnClickListener(surrender())
+
+
+    }
+
+    private fun surrender(): View.OnClickListener? {
+        viewModel.surrenderGame()
+        return null
     }
 
     private fun initButtons(): List<ImageButton> {
@@ -70,7 +80,7 @@ class TicTacToeActivity : AppCompatActivity() {
                 }
 
             } else {
-
+                binding.surrenderBtn.isEnabled = true
                 if (tictactoe.isMyTurn) {
 
                     binding.tvTurnMessage.text = "Your turn"

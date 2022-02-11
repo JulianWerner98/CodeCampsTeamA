@@ -18,7 +18,7 @@ const val INGAME = "inGame"
 const val OPENMATCHES = "openMatches"
 const val PLAYER1 = "Player1"
 const val PLAYER2 = "Player2"
-const val NICKNAME ="nickname"
+const val NICKNAME = "nickname"
 const val WINNER = "winner"
 const val ID = "id"
 
@@ -104,7 +104,8 @@ class TicTacToeRepository {
 
         if (snapshot.child(Constant.USERS_PATH).child(currentUser.uid).hasChild(INGAME)) {
 
-            val matchRefString = snapshot.child(Constant.USERS_PATH).child(currentUser.uid).child(INGAME).value.toString()
+            val matchRefString = snapshot.child(Constant.USERS_PATH).child(currentUser.uid)
+                .child(INGAME).value.toString()
             hasGame = snapshot.child(TTT).child(matchRefString).exists()
         }
 
@@ -286,7 +287,7 @@ class TicTacToeRepository {
                     val nicknamePlayer1 = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
                     val nicknamePlayer2 = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
 
-                    if (snapshot.child(PLAYER1).child(ID).value == currentUser.uid){
+                    if (snapshot.child(PLAYER1).child(ID).value == currentUser.uid) {
 
                         ticTacToe.players.add(nicknamePlayer1)
                         ticTacToe.players.add(nicknamePlayer2)
@@ -344,6 +345,29 @@ class TicTacToeRepository {
 
                     matchRef.child(WINNER).setValue(currentUser.uid)
                 }
+
+                Log.d("TTTRepo", "sent turn")
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    fun surrender(icon: String, otherPlayer: MutableList<String>) {
+
+        matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val field = icon + icon + icon + icon + icon + icon + icon + icon + icon
+                matchRef.child(TTTFIELD).setValue(field)
+                matchRef.child(LASTTURN).setValue(currentUser.uid)
+                val otherPLayerId =
+                    if (otherPlayer.get(0).equals(currentUser.uid))
+                        otherPlayer.get(0)
+                    else otherPlayer.get(1)
+                matchRef.child(WINNER).setValue(otherPLayerId)
 
                 Log.d("TTTRepo", "sent turn")
             }
