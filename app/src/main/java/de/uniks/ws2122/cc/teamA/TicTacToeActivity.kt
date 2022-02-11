@@ -95,15 +95,26 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 if (tictactoe.winner.isNotEmpty()) {
-                    if(tictactoe.fields.equals("xxxxxxxxx") && !tictactoe.isCircle ||
-                        tictactoe.fields.equals("ooooooooo") && tictactoe.isCircle){
+                    if (tictactoe.fields.equals("xxxxxxxxx") && !tictactoe.isCircle ||
+                        tictactoe.fields.equals("ooooooooo") && tictactoe.isCircle
+                    ) {
                         binding.tvTurnMessage.text = "Enemy surrender"
-                    }
-                    else if(tictactoe.fields.equals("ooooooooo") && !tictactoe.isCircle ||
-                        tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle) {
+                        binding.surrenderBtn.isClickable = false
+                    } else if (tictactoe.fields.equals("ooooooooo") && !tictactoe.isCircle ||
+                        tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle
+                    ) {
                         binding.tvTurnMessage.text = "You surrender"
+                        binding.surrenderBtn.isClickable = false
+
                     } else {
-                        binding.tvTurnMessage.text = "${tictactoe.winner} won"
+                        if (tictactoe.winner == "Draw") {
+
+                            binding.tvTurnMessage.text = "Draw"
+
+                        } else {
+
+                            binding.tvTurnMessage.text = "${tictactoe.winner} won"
+                        }
                     }
 
                     buttons.forEach { button ->
@@ -140,7 +151,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         if (v != null) {
-            when(v.id){
+            when (v.id) {
                 binding.surrenderBtn.id -> viewModel.surrenderGame()
             }
         }
