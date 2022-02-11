@@ -73,7 +73,7 @@ class FriendInviteRepository {
     private fun acceptRequest() {
 
         val friendRef = rootRef.child(Constant.USERS_PATH).child(friendID).ref
-        var matchRefString = ""
+        var matchRefString: String
 
         friendRef.child(Constant.INGAME).addListenerForSingleValueEvent(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
