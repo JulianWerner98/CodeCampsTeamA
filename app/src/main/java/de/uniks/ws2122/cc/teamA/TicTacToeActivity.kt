@@ -7,10 +7,12 @@ import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
+import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.TicTacToeViewModel
 
 class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
+    private lateinit var appViewModel: AppViewModel
     private lateinit var binding: ActivityTicTacToeBinding
     private lateinit var viewModel: TicTacToeViewModel
 
@@ -21,6 +23,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
         //view model
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
+        appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
@@ -83,7 +86,6 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                     }
 
                 } else {
-
                     binding.tvTurnMessage.text = "${tictactoe.players[1]} turn"
 
                     buttons.forEach { button ->
@@ -92,8 +94,8 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 if (tictactoe.winner.isNotEmpty()) {
-
-                    binding.tvTurnMessage.text = "${tictactoe.winner} won"
+                    val nickname = appViewModel.getLiveValueUser().value?.nickname
+                    binding.tvTurnMessage.text = if (nickname.equals(tictactoe.winner)) "You won" else "${tictactoe.players[1]} won"
 
                     buttons.forEach { button ->
                         button.isClickable = false
