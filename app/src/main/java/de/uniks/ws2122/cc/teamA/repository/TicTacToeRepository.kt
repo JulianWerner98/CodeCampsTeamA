@@ -8,21 +8,23 @@ import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.model.TicTacToe
 import java.util.*
 
+//Constants
+const val TTTQ = "TicTacToeQ"
+const val GAMES = "Games"
+const val TTT = "TicTacToe"
+const val TTTFIELD = "Field"
+const val LASTTURN = "lastTurn"
+const val INGAME = "inGame"
+const val OPENMATCHES = "openMatches"
+const val PLAYER1 = "Player1"
+const val PLAYER2 = "Player2"
+const val NICKNAME ="nickname"
+const val WINNER = "winner"
+const val ID = "id"
+
+const val BLANKFIELD = "_________"
+
 class TicTacToeRepository {
-
-    //Constants
-    private val TTTQ = "TicTacToeQ"
-    private val GAMES = "Games"
-    private val TTT = "TicTacToe"
-    private val TTTFIELD = "Field"
-    private val LASTTURN = "lastTurn"
-    private val INGAME = "inGame"
-    private val OPENMATCHES = "openMatches"
-    private val PLAYER1 = "Player1"
-    private val PLAYER2 = "Player2"
-    private val NICKNAME ="nickname"
-
-    val BLANKFIELD = "_________"
 
     //References
     private val rootRef: DatabaseReference =
@@ -98,7 +100,15 @@ class TicTacToeRepository {
     //check if the user has a game running and
     private fun hasRunningGame(snapshot: DataSnapshot): Boolean {
 
-        return snapshot.child(Constant.USERS_PATH).child(currentUser.uid).hasChild(INGAME)
+        var hasGame = false
+
+        if (snapshot.child(Constant.USERS_PATH).child(currentUser.uid).hasChild(INGAME)) {
+
+            val matchRefString = snapshot.child(Constant.USERS_PATH).child(currentUser.uid).child(INGAME).value.toString()
+            hasGame = snapshot.child(TTT).child(matchRefString).exists()
+        }
+
+        return hasGame
     }
 
     private fun determineTicTacToeReference(snapshot: DataSnapshot) {
@@ -185,7 +195,9 @@ class TicTacToeRepository {
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                matchRef.child(PLAYER2).child(currentUser.uid).setValue(snapshot.child(NICKNAME).value.toString())
+                matchRef.child(PLAYER2).child(ID).setValue(currentUser.uid)
+                val nickname = snapshot.child(NICKNAME).value.toString()
+                matchRef.child(PLAYER2).child(NICKNAME).setValue(nickname)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -194,7 +206,7 @@ class TicTacToeRepository {
         })
 
         //set match ref to user
-        currentUserRef.child("inGame").setValue(matchRef.key)
+        currentUserRef.child(INGAME).setValue(matchRef.key)
 
         //remove open match and user from the Q
         tttRef.child(OPENMATCHES).child(openMatchRefKey).removeValue()
@@ -223,7 +235,9 @@ class TicTacToeRepository {
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                matchRef.child(PLAYER1).child(currentUser.uid).setValue(snapshot.child(NICKNAME).value.toString())
+                matchRef.child(PLAYER1).child(ID).setValue(currentUser.uid)
+                val nickname = snapshot.child(NICKNAME).value.toString()
+                matchRef.child(PLAYER1).child(NICKNAME).setValue(nickname)
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -236,7 +250,7 @@ class TicTacToeRepository {
 
         //set match ref to open matches and to user
         tttRef.child(OPENMATCHES).child(matchRef.key.toString()).setValue(matchRef.key)
-        currentUserRef.child("inGame").setValue(matchRef.key)
+        currentUserRef.child(INGAME).setValue(matchRef.key)
 
         //remove user from the Q
         tttQRef.child(currentUser.uid).removeValue()
@@ -256,7 +270,8 @@ class TicTacToeRepository {
                 val ticTacToe = TicTacToe()
                 ticTacToe.fields = snapshot.child(TTTFIELD).value.toString()
 
-                if (snapshot.child(PLAYER1).value.toString() == currentUser.uid) {
+
+                if (snapshot.child(PLAYER1).child(ID).value.toString() == currentUser.uid) {
 
                     ticTacToe.isCircle = true
                 }
@@ -268,17 +283,13 @@ class TicTacToeRepository {
 
                 if (ticTacToe.players.size < 2 && snapshot.child(PLAYER2).exists()) {
 
-                    var nicknamePlayer1 = snapshot.child(PLAYER1).value.toString()
-                    nicknamePlayer1 = nicknamePlayer1.substringAfter("=").substringBefore("}")
+                    val nicknamePlayer1 = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
+                    val nicknamePlayer2 = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
 
-                    var nicknamePlayer2 = snapshot.child(PLAYER2).value.toString()
-                    nicknamePlayer2 = nicknamePlayer2.substringAfter("=").substringBefore("}")
-
-                    if (snapshot.child(PLAYER1).hasChild(currentUser.uid)){
+                    if (snapshot.child(PLAYER1).child(ID).value == currentUser.uid){
 
                         ticTacToe.players.add(nicknamePlayer1)
                         ticTacToe.players.add(nicknamePlayer2)
-
 
                     } else {
 
@@ -287,18 +298,39 @@ class TicTacToeRepository {
                     }
                 }
 
+                if (snapshot.child(WINNER).exists()) {
+
+                    if (snapshot.child(WINNER).value == snapshot.child(PLAYER1).child(ID).value) {
+
+                        ticTacToe.winner = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
+                    } else {
+
+                        ticTacToe.winner = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
+                    }
+
+                    matchRef.removeEventListener(this)
+                    deleteMatch()
+                }
+
                 Log.d("TTTRepo", "data listener: ${ticTacToe.fields}")
                 ticTacToeData.value = ticTacToe
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+
             }
         })
     }
 
-    //
-    fun sendTurn(index: Int, icon: Char) {
+    //delete current match
+    private fun deleteMatch() {
+
+        matchRef.removeValue()
+        currentUserRef.child(INGAME).removeValue()
+    }
+
+    //sends the current move
+    fun sendTurn(index: Int, icon: Char, won: Boolean) {
 
         matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -307,6 +339,11 @@ class TicTacToeRepository {
                 field = field.substring(0, index) + icon + field.substring(index + 1)
                 matchRef.child(TTTFIELD).setValue(field)
                 matchRef.child(LASTTURN).setValue(currentUser.uid)
+
+                if (won) {
+
+                    matchRef.child(WINNER).setValue(currentUser.uid)
+                }
 
                 Log.d("TTTRepo", "sent turn")
             }
@@ -321,7 +358,5 @@ class TicTacToeRepository {
 
         return ticTacToeData
     }
-
-    //TODO("Win Game, Leave Game, Delete Game")
 }
 
