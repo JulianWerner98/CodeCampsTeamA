@@ -94,8 +94,16 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                 }
 
                 if (tictactoe.winner.isNotEmpty()) {
-                    val nickname = appViewModel.getLiveValueUser().value?.nickname
-                    binding.tvTurnMessage.text = if (nickname.equals(tictactoe.winner)) "You won" else "${tictactoe.players[1]} won"
+                    if(tictactoe.fields.equals("xxxxxxxxx") && !tictactoe.isCircle ||
+                        tictactoe.fields.equals("ooooooooo") && tictactoe.isCircle){
+                        binding.tvTurnMessage.text = "Enemy surrender"
+                    }
+                    else if(tictactoe.fields.equals("ooooooooo") && !tictactoe.isCircle ||
+                        tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle) {
+                        binding.tvTurnMessage.text = "You surrender"
+                    } else {
+                        binding.tvTurnMessage.text = "${tictactoe.players[1]} won"
+                    }
 
                     buttons.forEach { button ->
                         button.isClickable = false

@@ -378,7 +378,7 @@ class TicTacToeRepository {
                     if (otherPlayer.get(0).equals(currentUser.uid))
                         otherPlayer.get(0)
                     else otherPlayer.get(1)
-                matchRef.child(LASTTURN).setValue(currentUser.uid)
+                matchRef.child(LASTTURN).setValue(otherPLayerId)
                 matchRef.child(WINNER).setValue(otherPLayerId)
 
                 Log.d("TTTRepo", "sent turn")
