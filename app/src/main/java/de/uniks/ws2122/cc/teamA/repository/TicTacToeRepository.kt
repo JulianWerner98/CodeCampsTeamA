@@ -21,7 +21,7 @@ const val PLAYER2 = "Player2"
 const val NICKNAME ="nickname"
 const val WINNER = "winner"
 const val ID = "id"
-
+const val DRAW = "Draw"
 const val BLANKFIELD = "_________"
 
 class TicTacToeRepository {
@@ -302,6 +302,11 @@ class TicTacToeRepository {
 
                 if (snapshot.child(WINNER).exists()) {
 
+                    if(snapshot.child(WINNER).value == DRAW) {
+
+                       ticTacToe.winner = DRAW
+                    }
+                    
                     if (snapshot.child(WINNER).value == snapshot.child(PLAYER1).child(ID).value) {
 
                         ticTacToe.winner = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
@@ -345,6 +350,12 @@ class TicTacToeRepository {
                 if (won) {
 
                     matchRef.child(WINNER).setValue(currentUser.uid)
+                } else {
+
+                    if (!field.contains('_')) {
+
+                        matchRef.child(WINNER).setValue(DRAW)
+                    }
                 }
 
                 Log.d("TTTRepo", "sent turn")
