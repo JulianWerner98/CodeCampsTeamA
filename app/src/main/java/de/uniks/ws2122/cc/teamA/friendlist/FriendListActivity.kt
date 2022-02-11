@@ -3,18 +3,15 @@ package de.uniks.ws2122.cc.teamA.friendlist
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
 import de.uniks.ws2122.cc.teamA.GameSelectActivity
-import de.uniks.ws2122.cc.teamA.MainActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendListBinding
-import de.uniks.ws2122.cc.teamA.model.Friend
 import de.uniks.ws2122.cc.teamA.model.FriendListViewModel
 
 class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickListener {
@@ -24,14 +21,15 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var enterNickNameField: EditText
+    private lateinit var shareId : ImageView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendListBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         enterNickNameField = binding.editEnterNickName
+        shareId = binding.ivShareId
         recyclerView = binding.rvFriendList
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
@@ -64,6 +62,16 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         }
         binding.btnRequestList.setOnClickListener {
             startActivity(Intent(this@FriendListActivity, FriendRequestActivity::class.java))
+        }
+
+        shareId.setOnClickListener {
+            // Share nickname via messengers
+            val shareIntent = Intent().apply {
+                this.action = Intent.ACTION_SEND
+                this.putExtra(Intent.EXTRA_TEXT, "This is my nickname: " + intent.extras?.get("nickname"))
+                this.type = "text/plain"
+            }
+            startActivity(shareIntent)
         }
     }
 

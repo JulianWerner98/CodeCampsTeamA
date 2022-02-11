@@ -60,7 +60,9 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun changeToFriendslist() {
-        val intent = Intent(this, FriendListActivity::class.java).apply { }
+        val intent = Intent(this, FriendListActivity::class.java).apply {
+            this.putExtra("nickname", nicknameText.text)
+        }
         startActivity(intent)
     }
 
