@@ -19,7 +19,8 @@ class TicTacToeRepository {
     private val INGAME = "inGame"
     private val OPENMATCHES = "openMatches"
     private val PLAYER1 = "Player1"
-    private val Player2 = "Player2"
+    private val PLAYER2 = "Player2"
+    private val NICKNAME ="nickname"
 
     val BLANKFIELD = "_________"
 
@@ -164,8 +165,7 @@ class TicTacToeRepository {
 
                         val openMatchRefKey = snapshot.children.iterator().next().value.toString()
                         joinMatch(openMatchRefKey)
-                    }
-                    else {
+                    } else {
 
                         createNewMatch()
                     }
@@ -181,7 +181,17 @@ class TicTacToeRepository {
     private fun joinMatch(openMatchRefKey: String) {
 
         matchRef = tttRef.child(openMatchRefKey)
-        matchRef.child(Player2).setValue(currentUser.uid)
+
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                matchRef.child(PLAYER2).child(currentUser.uid).setValue(snapshot.child(NICKNAME).value.toString())
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
 
         //set match ref to user
         currentUserRef.child("inGame").setValue(matchRef.key)
@@ -209,7 +219,18 @@ class TicTacToeRepository {
     private fun createNewMatch() {
 
         matchRef = tttRef.push()
-        matchRef.child(PLAYER1).setValue(currentUser.uid)
+
+        currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                matchRef.child(PLAYER1).child(currentUser.uid).setValue(snapshot.child(NICKNAME).value.toString())
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
         matchRef.child(TTTFIELD).setValue(BLANKFIELD)
         matchRef.child(LASTTURN).setValue(currentUser.uid)
 
@@ -243,6 +264,27 @@ class TicTacToeRepository {
                 if (snapshot.child(LASTTURN).value.toString() != currentUser.uid) {
 
                     ticTacToe.isMyTurn = true
+                }
+
+                if (ticTacToe.players.size < 2 && snapshot.child(PLAYER2).exists()) {
+
+                    var nicknamePlayer1 = snapshot.child(PLAYER1).value.toString()
+                    nicknamePlayer1 = nicknamePlayer1.substringAfter("=").substringBefore("}")
+
+                    var nicknamePlayer2 = snapshot.child(PLAYER2).value.toString()
+                    nicknamePlayer2 = nicknamePlayer2.substringAfter("=").substringBefore("}")
+
+                    if (snapshot.child(PLAYER1).hasChild(currentUser.uid)){
+
+                        ticTacToe.players.add(nicknamePlayer1)
+                        ticTacToe.players.add(nicknamePlayer2)
+
+
+                    } else {
+
+                        ticTacToe.players.add(nicknamePlayer2)
+                        ticTacToe.players.add(nicknamePlayer1)
+                    }
                 }
 
                 Log.d("TTTRepo", "data listener: ${ticTacToe.fields}")

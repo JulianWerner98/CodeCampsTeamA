@@ -47,7 +47,7 @@ class TicTacToeActivity : AppCompatActivity() {
 
                 val data = viewModel.getTicTacToeData().value
 
-                if(data!!.fields[index] == '_'){
+                if (data!!.fields[index] == '_') {
 
                     viewModel.endTurn(index)
                 }
@@ -61,20 +61,32 @@ class TicTacToeActivity : AppCompatActivity() {
 
         viewModel.getTicTacToeData().observe(this, { tictactoe ->
 
-            if (tictactoe.isMyTurn) {
+            Log.d("TTTActivity", tictactoe.players.toString())
 
-                binding.tvTurnMessage.text = "Your turn"
+            if (tictactoe.players.size < 2) {
 
+                binding.tvTurnMessage.text = "Waiting for Player"
                 buttons.forEach { button ->
-                    button.isClickable = true
+                    button.isClickable = false
                 }
 
             } else {
 
-                binding.tvTurnMessage.text = "Enemy turn"
+                if (tictactoe.isMyTurn) {
 
-                buttons.forEach { button ->
-                    button.isClickable = false
+                    binding.tvTurnMessage.text = "Your turn"
+
+                    buttons.forEach { button ->
+                        button.isClickable = true
+                    }
+
+                } else {
+
+                    binding.tvTurnMessage.text = "${tictactoe.players[1]} turn"
+
+                    buttons.forEach { button ->
+                        button.isClickable = false
+                    }
                 }
             }
 
