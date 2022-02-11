@@ -272,7 +272,6 @@ class TicTacToeRepository {
                 val ticTacToe = TicTacToe()
                 ticTacToe.fields = snapshot.child(TTTFIELD).value.toString()
 
-
                 if (snapshot.child(PLAYER1).child(ID).value.toString() == currentUser.uid) {
 
                     ticTacToe.isCircle = true
@@ -305,16 +304,19 @@ class TicTacToeRepository {
                     if(snapshot.child(WINNER).value == DRAW) {
 
                        ticTacToe.winner = DRAW
-                    }
-
-                    if (snapshot.child(WINNER).value == snapshot.child(PLAYER1).child(ID).value) {
-
-                        ticTacToe.winner = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
                     } else {
 
-                        ticTacToe.winner = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
+                        if (snapshot.child(WINNER).value == snapshot.child(PLAYER1).child(ID).value) {
+
+                            ticTacToe.winner = snapshot.child(PLAYER1).child(NICKNAME).value.toString()
+                        } else {
+
+                            ticTacToe.winner = snapshot.child(PLAYER2).child(NICKNAME).value.toString()
+                        }
+
                     }
 
+                    Log.d("TTTRepo", "Winner: ${ticTacToe.winner}")
                     matchRef.removeEventListener(this)
                     deleteMatch()
                 }
@@ -324,7 +326,6 @@ class TicTacToeRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-
             }
         })
     }

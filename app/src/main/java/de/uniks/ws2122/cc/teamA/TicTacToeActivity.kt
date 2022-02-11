@@ -103,7 +103,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                         tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle) {
                         binding.tvTurnMessage.text = "You surrender"
                     } else {
-                        binding.tvTurnMessage.text = "${tictactoe.players[1]} won"
+                        binding.tvTurnMessage.text = "${tictactoe.winner} won"
                     }
 
                     buttons.forEach { button ->
