@@ -29,6 +29,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
         createTicTacToeDataObserver(buttons)
 
         binding.surrenderBtn.setOnClickListener(this)
+        binding.surrenderBtn.isEnabled = false
 
     }
 
