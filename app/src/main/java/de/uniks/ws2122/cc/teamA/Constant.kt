@@ -37,4 +37,6 @@ object Constant {
     const val MATCH_REQUEST = "matchRequest"
     const val FROM = "FROM"
     const val GAME = "game"
+
+    //
 }

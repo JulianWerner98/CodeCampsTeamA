@@ -21,6 +21,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var friendlistBtn: Button
     private lateinit var tttBtn: Button
     private lateinit var nicknameText: TextView
+    private lateinit var sportBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +34,12 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         friendlistBtn = binding.btnFriedlist
         tttBtn = binding.tttBtn
         nicknameText = binding.TVnickname
+        sportBtn = binding.btnSportChallenges
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
         logoutBtn.setOnClickListener(this)
+        sportBtn.setOnClickListener(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -46,10 +49,12 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
+
         when (v!!.id) {
             logoutBtn.id -> logout()
             tttBtn.id -> changeToTicTacToeScreen()
             friendlistBtn.id -> changeToFriendslist()
+            sportBtn.id -> changeToSportChallenges()
         }
     }
 
@@ -68,6 +73,12 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun changeToTicTacToeScreen() {
         val intent = Intent(this, TicTacToeActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun changeToSportChallenges() {
+
+        val intent = Intent(this, SelectSportModeActivity::class.java)
         startActivity(intent)
     }
 }

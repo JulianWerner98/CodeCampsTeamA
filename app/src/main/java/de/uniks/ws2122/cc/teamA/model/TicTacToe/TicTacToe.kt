@@ -1,4 +1,6 @@
-package de.uniks.ws2122.cc.teamA.model
+package de.uniks.ws2122.cc.teamA.model.TicTacToe
+
+import de.uniks.ws2122.cc.teamA.model.Game
 
 class TicTacToe(
     var fields: String = "_________",
