@@ -13,7 +13,8 @@ import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.CompassViewModel
 
-class CompassActivity : AppCompatActivity(){
+class CompassActivity : AppCompatActivity() {
+    private lateinit var emblems: TextView
     private lateinit var appViewModel: AppViewModel
     private lateinit var viewModel: CompassViewModel
     private lateinit var binding: ActivityCompassBinding
@@ -38,12 +39,25 @@ class CompassActivity : AppCompatActivity(){
 
         imageView = binding.arrow
         textView = binding.degree
+        emblems = binding.emblems
 
         //ViewModel
         viewModel = ViewModelProvider(this)[CompassViewModel::class.java]
         appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
-        //viewModel.getRandomLocation()
+        viewModel.getRandomLocation(this) { emblems ->
+            this.emblems.text = ""
+            emblems.forEachIndexed { index, it ->
+                this.emblems.text =
+                    this.emblems.text as String + (index + 1).toString() + ". " + it.properties.Objekt + " \n"
+            }
+        }
+
+
+
+
+
+
 
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 
@@ -62,7 +76,7 @@ class CompassActivity : AppCompatActivity(){
                     floatGeoMagnetic
                 )
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation)
-                imageView.rotation = (-floatOrientation[0] * 180 / 3.14159).toFloat() -90F
+                imageView.rotation = (-floatOrientation[0] * 180 / 3.14159).toFloat() - 90F
                 textView.text = (-floatOrientation[0] * 180 / 3.14159).toString()
             }
 
@@ -78,14 +92,21 @@ class CompassActivity : AppCompatActivity(){
                     floatGeoMagnetic
                 )
                 SensorManager.getOrientation(floatRotationMatrix, floatOrientation)
-                imageView.rotation = (-floatOrientation[0] * 180 / 3.14159).toFloat() -90F
+                imageView.rotation = (-floatOrientation[0] * 180 / 3.14159).toFloat() - 90F
                 textView.text = (-floatOrientation[0] * 180 / 3.14159).toString()
             }
 
             override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
         }
-        sensorManager.registerListener(sensorEventListenerAccelrometer, sensorAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(sensorEventListenerMagneticField, sensorMagneticField, SensorManager.SENSOR_DELAY_NORMAL);
-
+        sensorManager.registerListener(
+            sensorEventListenerAccelrometer,
+            sensorAccelerometer,
+            SensorManager.SENSOR_DELAY_NORMAL
+        );
+        sensorManager.registerListener(
+            sensorEventListenerMagneticField,
+            sensorMagneticField,
+            SensorManager.SENSOR_DELAY_NORMAL
+        );
     }
 }
