@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityGameSelectBinding
 import de.uniks.ws2122.cc.teamA.friendlist.FriendListActivity
+import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 
 class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
@@ -21,6 +22,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var friendlistBtn: Button
     private lateinit var tttBtn: Button
     private lateinit var nicknameText: TextView
+    private lateinit var mentalArithmeticBtn : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,10 +35,12 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         friendlistBtn = binding.btnFriedlist
         tttBtn = binding.tttBtn
         nicknameText = binding.TVnickname
+        mentalArithmeticBtn = binding.btnMentalArithmetic
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
         logoutBtn.setOnClickListener(this)
+        mentalArithmeticBtn.setOnClickListener (this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -50,7 +54,13 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             logoutBtn.id -> logout()
             tttBtn.id -> changeToTicTacToeScreen()
             friendlistBtn.id -> changeToFriendslist()
+            mentalArithmeticBtn.id -> changeToMentalArithmetic()
         }
+    }
+
+    private fun changeToMentalArithmetic() {
+        val intent = Intent(this, MentalArithmeticActivity::class.java).apply {  }
+        startActivity(intent)
     }
 
     private fun logout() {

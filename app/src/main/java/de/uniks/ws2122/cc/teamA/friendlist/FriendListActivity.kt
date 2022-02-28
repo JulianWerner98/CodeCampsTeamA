@@ -34,7 +34,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
 
-        viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FriendListViewModel::class.java]
 
         friendsAdapter = MyFriendsAdapter(viewModel.getLiveDataFriendList(), this)
 
