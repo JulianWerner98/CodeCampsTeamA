@@ -2,6 +2,7 @@ package de.uniks.ws2122.cc.teamA
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
@@ -20,6 +21,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var spinner: ProgressBar
     private lateinit var friendlistBtn: Button
     private lateinit var tttBtn: Button
+    private lateinit var compassBtn: Button
     private lateinit var nicknameText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,11 +34,13 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         spinner.isVisible = false
         friendlistBtn = binding.btnFriedlist
         tttBtn = binding.tttBtn
+        compassBtn = binding.kompassBtn
         nicknameText = binding.TVnickname
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
         logoutBtn.setOnClickListener(this)
+        compassBtn.setOnClickListener(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -50,6 +54,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             logoutBtn.id -> logout()
             tttBtn.id -> changeToTicTacToeScreen()
             friendlistBtn.id -> changeToFriendslist()
+            compassBtn.id -> changeToCompassScreen()
         }
     }
 
@@ -68,6 +73,10 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun changeToTicTacToeScreen() {
         val intent = Intent(this, TicTacToeActivity::class.java)
+        startActivity(intent)
+    }
+    private fun changeToCompassScreen() {
+        val intent = Intent(this, CompassActivity::class.java)
         startActivity(intent)
     }
 }

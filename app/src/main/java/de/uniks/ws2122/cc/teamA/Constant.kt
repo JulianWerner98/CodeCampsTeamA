@@ -10,6 +10,7 @@ object Constant {
     val ALREADY_INGAME_ERROR = "You are already in Game"
     //Links
     val FIREBASE_URL = "https://codecampsteama-default-rtdb.europe-west1.firebasedatabase.app"
+    val COMPASS_API_URL ="https://geoportal.kassel.de/arcgis/rest/services/Service_Daten/Freizeit_Kultur/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&%20geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&distance=&units=esriSRUnit_Foot&relationPar%20am=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&havingClause=&retu%20rnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVers%20ion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&returnExtentOnly=false&datumTransformation=&par%20ameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=geojson"
     //Path
     const val USERS_PATH = "Users"
     const val FRIENDS_PATH = "Friends"
