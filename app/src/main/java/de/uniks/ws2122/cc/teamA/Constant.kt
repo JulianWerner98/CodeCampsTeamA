@@ -8,8 +8,10 @@ object Constant {
     val NEW_PASSWORD_SUCCESS_MSG = "Mail sent successfully"
     val NICKNAME_ERROR = "Nickname is already taken. Choose another"
     val ALREADY_INGAME_ERROR = "You are already in Game"
+
     //Links
     val FIREBASE_URL = "https://codecampsteama-default-rtdb.europe-west1.firebasedatabase.app"
+
     //Path
     const val USERS_PATH = "Users"
     const val FRIENDS_PATH = "Friends"
@@ -32,6 +34,13 @@ object Constant {
     const val ID = "id"
     const val DRAW = "Draw"
     const val BLANKFIELD = "_________"
+
+    // MentalArithmetic Path
+    const val MENTALARITHMETIC = "MentalArithmetic"
+    const val MENTALARITHMETICQUEUE = "MentalArithmeticQueue"
+    const val READY = "Ready"
+    const val ARITHMETICTASKS = "arithmeticTasks"
+    const val ARITHMETICANSWERS = "arithmeticAnswers"
 
     //Invite Path
     const val MATCH_REQUEST = "matchRequest"

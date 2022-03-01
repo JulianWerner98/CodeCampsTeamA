@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.mentalArithmetic
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -38,8 +39,10 @@ class MentalArithmeticActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[MentalArithmeticViewModel::class.java]
 
         startButton.setOnClickListener {
-            startChronometer(chronometer)
+            //startChronometer(chronometer)
+            startActivity(Intent(this, MentalArithmeticResultActivity::class.java))
         }
+        //viewModel.makeArithmeticTasks()
     }
 
     fun startChronometer(v : View) {
