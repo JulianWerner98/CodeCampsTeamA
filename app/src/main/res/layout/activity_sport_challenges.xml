@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/tvEnemyCounter"
+        android:id="@+id/tvEnemyCounterText"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:text="Enemy Counter"
@@ -107,7 +107,7 @@
         app:layout_constraintVertical_bias="0.4" />
 
     <TextView
-        android:id="@+id/tvUserCounter"
+        android:id="@+id/tvUserCounterText"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:text="User Counter"

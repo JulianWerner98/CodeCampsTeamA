@@ -1,12 +1,17 @@
 package de.uniks.ws2122.cc.teamA
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityGameSelectBinding
@@ -43,9 +48,11 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
-        viewModel.getLiveValueUser().observe(this, { user ->
+        viewModel.getLiveValueUser().observe(this) { user ->
             nicknameText.text = user.nickname
-        })
+        }
+
+        requestPermissions()
     }
 
     override fun onClick(v: View?) {
@@ -80,5 +87,14 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         val intent = Intent(this, SelectSportModeActivity::class.java)
         startActivity(intent)
+    }
+
+    private fun requestPermissions() {
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+
+            Log.d("STEP", "Permission Request")
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1337)
+        }
     }
 }

@@ -65,7 +65,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun createTicTacToeDataObserver(buttons: List<ImageButton>) {
 
-        viewModel.getTicTacToeData().observe(this, { tictactoe ->
+        viewModel.getTicTacToeData().observe(this) { tictactoe ->
 
             Log.d("TTTActivity", tictactoe.players.toString())
 
@@ -147,7 +147,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
                 counter++
             }
-        })
+        }
     }
 
     override fun onClick(v: View?) {
