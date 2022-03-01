@@ -1,6 +1,5 @@
 package de.uniks.ws2122.cc.teamA.mentalArithmetic
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -9,6 +8,7 @@ import android.widget.Button
 import android.widget.Chronometer
 import android.widget.EditText
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMentalArithmeticBinding
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticViewModel
@@ -39,18 +39,25 @@ class MentalArithmeticActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[MentalArithmeticViewModel::class.java]
 
         startButton.setOnClickListener {
-            //startChronometer(chronometer)
-            startActivity(Intent(this, MentalArithmeticResultActivity::class.java))
+            //startActivity(Intent(this, MentalArithmeticResultActivity::class.java))
+            viewModel.readyUpToStartGame()
         }
-        //viewModel.makeArithmeticTasks()
-    }
 
-    fun startChronometer(v : View) {
-        if (!running) {
-            chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
-            chronometer.start()
-            running = true
+        sendAnswerBtn.setOnClickListener {
+            if (answer.text.isNotEmpty()){
+                viewModel.sendTaskAnswer(answer.text.toString())
+                answer.text.clear()
+            }
         }
+
+        viewModel.getLiveCurrentUserAnswersData().observe(this, Observer {
+            if (running){
+                chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+                chronometer.start()
+            }
+            arithmeticTask.text = viewModel.getCurrentTask()
+            running = true
+        })
     }
 
     fun pauseChronometer(v : View){

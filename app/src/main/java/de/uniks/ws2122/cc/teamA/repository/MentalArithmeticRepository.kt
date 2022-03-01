@@ -3,7 +3,6 @@ package de.uniks.ws2122.cc.teamA.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.model.MentalArithmetic
 
 class MentalArithmeticRepository {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
@@ -35,23 +34,28 @@ class MentalArithmeticRepository {
         currentUserRef = rootRef.child(Constant.USERS_PATH).child(currentUser.uid).ref
     }
 
-    fun lookForGame(arithmeticTasks: MutableList<String>, arithmeticAnswers: MutableList<String>) {
+    fun lookForGame(arithmeticTasks: MutableList<String>, arithmeticAnswers: MutableList<String>, callback: (result: String) -> Unit) {
         maRef.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.hasChildren()){
                     snapshot.children.forEach {
-                        if (it.hasChild(Constant.MENTALARITHMETICQUEUE)){
+                        if (it.hasChild(Constant.MENTALARITHMETICQUEUE)) {
                             val matchId = it.key
-                            rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.MENTALARITHMETIC).setValue(matchId.toString())
+                            callback.invoke(matchId.toString())
+                            rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
+                                .child(Constant.MENTALARITHMETIC).setValue(matchId.toString())
                             maRef.child(matchId.toString()).child(currentUser.uid).setValue("")
-                            maRef.child(matchId.toString()).child(Constant.READY).child(currentUser.uid).setValue(false)
-                            maRef.child(matchId.toString()).child(Constant.MENTALARITHMETICQUEUE).removeValue()
+                            maRef.child(matchId.toString()).child(Constant.READY)
+                                .child(currentUser.uid).setValue(false)
+                            maRef.child(matchId.toString()).child(Constant.MENTALARITHMETICQUEUE)
+                                .removeValue()
                             return
                         }
                     }
-                    createNewGame(arithmeticTasks, arithmeticAnswers)
                 }
-                createNewGame(arithmeticTasks, arithmeticAnswers)
+                createNewGame(arithmeticTasks, arithmeticAnswers) { key ->
+                    callback.invoke(key)
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -61,17 +65,17 @@ class MentalArithmeticRepository {
         })
     }
 
-    private fun createNewGame(arithmeticTasks: MutableList<String>, arithmeticAnswers: MutableList<String>) {
+    private fun createNewGame(arithmeticTasks: MutableList<String>, arithmeticAnswers: MutableList<String>, callback: (result: String) -> Unit) {
         maRef.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val gameKey = maRef.push().key
+                callback.invoke(gameKey.toString())
                 maRef.child(gameKey.toString()).child(Constant.ARITHMETICTASKS).setValue(arithmeticTasks)
                 maRef.child(gameKey.toString()).child(Constant.ARITHMETICANSWERS).setValue(arithmeticAnswers)
                 maRef.child(gameKey.toString()).child(currentUser.uid).setValue("")
                 maRef.child(gameKey.toString()).child(Constant.MENTALARITHMETICQUEUE).setValue(currentUser.uid)
                 maRef.child(gameKey.toString()).child(Constant.READY).child(currentUser.uid).setValue(false)
                 rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.MENTALARITHMETIC).setValue(gameKey.toString())
-                listenerOnReady(gameKey.toString())
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -81,18 +85,42 @@ class MentalArithmeticRepository {
         })
     }
 
-    private fun listenerOnReady(gameKey: String) {
+    fun fetchGameKey(callback: (result: String) -> Unit){
+        rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
+            .child(Constant.MENTALARITHMETIC)
+            .addListenerForSingleValueEvent(object : ValueEventListener{
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    callback.invoke(snapshot.value.toString())
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+
+            })
+    }
+
+    fun readyUpToStartGame(gameKey: String, callback: (result: Boolean) -> Unit) {
         maRef.child(gameKey).child(Constant.READY).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 var counter = 0
                 snapshot.children.forEach {
-                    if (it.value as Boolean){
+                    if (it.key.toString() == currentUser.uid){
+                        maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
                         counter += 1
+                    } else {
+                        if (it.value as Boolean){
+                            counter += 1
+                        }
                     }
                 }
                 if (counter == 2){
-                    startGame()
+                    callback.invoke(true)
+                    maRef.child(gameKey).child(Constant.READY).removeEventListener(this)
+                } else {
+                    callback.invoke(false)
                 }
+
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -102,8 +130,43 @@ class MentalArithmeticRepository {
         })
     }
 
-    private fun startGame() {
-        TODO("Not yet implemented")
+    // Get a list of tasks from database
+    fun fetchArithmeticTasks(gameKey: String, callback: (result: ArrayList<String>) -> Unit) {
+        maRef.child(gameKey).child(Constant.ARITHMETICTASKS).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val tasks = arrayListOf<String>()
+                snapshot.children.forEach {
+                    tasks.add(it.value.toString())
+                }
+                callback.invoke(tasks)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
+    // Get a list of answers from database
+    fun fetchArithmeticAnswers(gameKey: String, callback: (result: ArrayList<String>) -> Unit) {
+        maRef.child(gameKey).child(Constant.ARITHMETICANSWERS).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val answers = arrayListOf<String>()
+                snapshot.children.forEach {
+                    answers.add(it.value.toString())
+                }
+                callback.invoke(answers)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    fun sendTaskAnswer(taskAnswer: Boolean, gameKey: String, taskNumber: String) {
+        maRef.child(gameKey).child(currentUser.uid).child(taskNumber).setValue(taskAnswer)
+    }
 }

@@ -8,18 +8,29 @@ class MentalArithmeticViewModel : ViewModel() {
     private var counter = 0
     private var arithmeticTasks = mutableListOf<String>()
     private var arithmeticAnswers = mutableListOf<String>()
+    private var currentUserAnswers = mutableListOf<Boolean>()
+    private var gameKey = String()
+    private var running = false
+
+    // Live Data
     private var arithmeticTasksData = MutableLiveData<List<String>>()
     private var arithmeticAnswersData = MutableLiveData<List<String>>()
-    private var mentalArithmeticRepo = MentalArithmeticRepository()
-    private var currentUserAnswers = mutableListOf<Boolean>()
     private var currentUserAnswersData = MutableLiveData<List<Boolean>>()
+
+    // Repo
+    private var mentalArithmeticRepo = MentalArithmeticRepository()
 
     init {
         arithmeticTasksData.value = arithmeticTasks
         arithmeticAnswersData.value = arithmeticAnswers
         currentUserAnswersData.value = currentUserAnswers
+
         makeArithmeticTasks()
-        mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers)
+        mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers) { key ->
+            gameKey = key
+            fetchArithmeticTasks()
+            fetchArithmeticAnswers()
+        }
     }
 
     // Setter
@@ -48,6 +59,7 @@ class MentalArithmeticViewModel : ViewModel() {
         return currentUserAnswersData
     }
 
+    // Create a number of tasks
     fun makeArithmeticTasks(){
         for (i in 0..9){
             when ((0..3).random()) {
@@ -59,10 +71,6 @@ class MentalArithmeticViewModel : ViewModel() {
         }
         setLiveArithmeticTasksData()
         setLiveArithmeticAnswersData()
-        for (i in 0..9){
-            println("$i: " + arithmeticTasksData.value!![i])
-            println(arithmeticAnswersData.value!![i])
-        }
     }
 
     private fun makeAdditionTask() {
@@ -109,6 +117,52 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Ready up to start the game
+    fun readyUpToStartGame(){
+        mentalArithmeticRepo.readyUpToStartGame(gameKey) { answer ->
+            if (answer){
+                //currentUserAnswers.add(false)
+                setLiveCurrentUserAnswersData()
+                //currentUserAnswers.removeAt(0)
+            }
+        }
+    }
 
+    fun getCurrentTask(): String {
+        if (running) {
+            return getLiveArithmeticTasksData().value!![counter]
+        } else {
+            running = true
+            return "Arithmetic Tasks"
+        }
+    }
 
+    fun fetchArithmeticTasks(){
+        mentalArithmeticRepo.fetchArithmeticTasks(gameKey) { tasks ->
+            arithmeticTasks = tasks
+            setLiveArithmeticTasksData()
+        }
+    }
+
+    fun fetchArithmeticAnswers(){
+        mentalArithmeticRepo.fetchArithmeticAnswers(gameKey) { answers ->
+            arithmeticAnswers = answers
+            setLiveArithmeticAnswersData()
+        }
+    }
+
+    // Write true or false in database from current player
+    fun sendTaskAnswer(taskAnswer: String) {
+        if (taskAnswer == arithmeticAnswers[counter]){
+            counter += 1
+            mentalArithmeticRepo.sendTaskAnswer(true, gameKey, counter.toString())
+            currentUserAnswers.add(true)
+            setLiveCurrentUserAnswersData()
+        } else {
+            counter += 1
+            mentalArithmeticRepo.sendTaskAnswer(false, gameKey, counter.toString())
+            currentUserAnswers.add(false)
+            setLiveCurrentUserAnswersData()
+        }
+    }
 }
