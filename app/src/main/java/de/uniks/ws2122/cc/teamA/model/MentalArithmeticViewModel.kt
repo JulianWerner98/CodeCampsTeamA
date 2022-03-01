@@ -154,13 +154,13 @@ class MentalArithmeticViewModel : ViewModel() {
     // Write true or false in database from current player
     fun sendTaskAnswer(taskAnswer: String) {
         if (taskAnswer == arithmeticAnswers[counter]){
-            counter += 1
             mentalArithmeticRepo.sendTaskAnswer(true, gameKey, counter.toString())
+            counter += 1
             currentUserAnswers.add(true)
             setLiveCurrentUserAnswersData()
         } else {
-            counter += 1
             mentalArithmeticRepo.sendTaskAnswer(false, gameKey, counter.toString())
+            counter += 1
             currentUserAnswers.add(false)
             setLiveCurrentUserAnswersData()
         }
