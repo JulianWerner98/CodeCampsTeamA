@@ -1,17 +1,19 @@
 package de.uniks.ws2122.cc.teamA
 
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.gms.common.util.Hex
 import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.CompassViewModel
+import kotlin.math.roundToInt
+
 
 class CompassActivity : AppCompatActivity() {
     private lateinit var emblems: TextView
@@ -20,16 +22,9 @@ class CompassActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCompassBinding
     private lateinit var imageView: ImageView
     private lateinit var textView: TextView
-
-    private lateinit var sensorManager: SensorManager
-    private lateinit var sensorAccelerometer: Sensor
-    private lateinit var sensorMagneticField: Sensor
-
-    private var floatGravity = FloatArray(3)
-    private var floatGeoMagnetic = FloatArray(3)
-
-    private val floatOrientation = FloatArray(3)
-    private val floatRotationMatrix = FloatArray(9)
+    private lateinit var background: ConstraintLayout
+    private var angle: Double = 0F.toDouble()
+    private var searchedDegree:Double = 0F.toDouble()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,10 +35,13 @@ class CompassActivity : AppCompatActivity() {
         imageView = binding.arrow
         textView = binding.degree
         emblems = binding.emblems
+        background = binding.background
+        background.setBackgroundColor(Color.parseColor("#393E46"))
 
         //ViewModel
         viewModel = ViewModelProvider(this)[CompassViewModel::class.java]
         appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
+        viewModel.setupSensors(this) { newSensorValue(it) }
 
         viewModel.getRandomLocation(this) { emblems ->
             this.emblems.text = ""
@@ -51,62 +49,25 @@ class CompassActivity : AppCompatActivity() {
                 this.emblems.text =
                     this.emblems.text as String + (index + 1).toString() + ". " + it.properties.Objekt + " \n"
             }
-        }
-
-
-
-
-
-
-
-        sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
-
-        sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
-
-        imageView.rotation = 90F
-
-        val sensorEventListenerAccelrometer: SensorEventListener = object : SensorEventListener {
-            override fun onSensorChanged(event: SensorEvent) {
-                floatGravity = event.values
-                SensorManager.getRotationMatrix(
-                    floatRotationMatrix,
-                    null,
-                    floatGravity,
-                    floatGeoMagnetic
-                )
-                SensorManager.getOrientation(floatRotationMatrix, floatOrientation)
-                imageView.rotation = (-floatOrientation[0] * 180 / 3.14159).toFloat() - 90F
-                textView.text = (-floatOrientation[0] * 180 / 3.14159).toString()
+            viewModel.getAngleToLocation(this, emblems[0]) { degree ->
+                Log.d("Debug Degree", emblems[0].properties.Objekt + ": " + degree.toString())
+                binding.degree2.text = degree.toString()
+                searchedDegree = degree
             }
-
-            override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
         }
-        val sensorEventListenerMagneticField: SensorEventListener = object : SensorEventListener {
-            override fun onSensorChanged(event: SensorEvent) {
-                floatGeoMagnetic = event.values
-                SensorManager.getRotationMatrix(
-                    floatRotationMatrix,
-                    null,
-                    floatGravity,
-                    floatGeoMagnetic
-                )
-                SensorManager.getOrientation(floatRotationMatrix, floatOrientation)
-                imageView.rotation = (-floatOrientation[0] * 180 / 3.14159).toFloat() - 90F
-                textView.text = (-floatOrientation[0] * 180 / 3.14159).toString()
-            }
+        imageView.rotation = -90F
 
-            override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
-        }
-        sensorManager.registerListener(
-            sensorEventListenerAccelrometer,
-            sensorAccelerometer,
-            SensorManager.SENSOR_DELAY_NORMAL
-        );
-        sensorManager.registerListener(
-            sensorEventListenerMagneticField,
-            sensorMagneticField,
-            SensorManager.SENSOR_DELAY_NORMAL
-        );
     }
+
+    fun newSensorValue(floatOrientation: FloatArray) {
+        textView.text = (floatOrientation[0]*180/Math.PI).roundToInt().toString()
+        angle = floatOrientation[0]*180/Math.PI
+        if(searchedDegree + 15 >= angle && searchedDegree - 15 <= angle){
+            background.setBackgroundColor(Color.GREEN)
+        } else {
+            background.setBackgroundColor(Color.parseColor("#393E46"))
+        }
+    }
+
+
 }
