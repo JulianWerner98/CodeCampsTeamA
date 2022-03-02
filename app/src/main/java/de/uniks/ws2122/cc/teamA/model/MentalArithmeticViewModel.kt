@@ -19,7 +19,7 @@ class MentalArithmeticViewModel : ViewModel() {
     private var pauseOffset : Long = 0
     private var friendId = String()
     private var matchTyp = String()
-    private var inventionKey = String()
+    private var inviteKey = String()
 
     // Live Data
     private var arithmeticTasksData = MutableLiveData<List<String>>()
@@ -123,21 +123,18 @@ class MentalArithmeticViewModel : ViewModel() {
     }
 
     fun makeGame() {
-        mentalArithmeticRepo.fetchInventionKey() { inventionKey ->
-            Log.d("MentalArithmetic", "friendID:  $inventionKey")
-            this.inventionKey = inventionKey
-            if (inventionKey == "default"){
-                mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers, matchTyp, inventionKey, friendId) { key ->
-                    gameKey = key
-                    fetchArithmeticTasks()
-                    fetchArithmeticAnswers()
-                }
-            } else {
-                mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers, matchTyp, inventionKey, friendId) { key ->
-                    gameKey = key
-                    fetchArithmeticTasks()
-                    fetchArithmeticAnswers()
-                }
+        Log.d("MentalArithmetic", "friendID:  $inviteKey")
+        if (inviteKey == Constant.DEFAULT){
+            mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers, matchTyp, inviteKey, friendId) { key ->
+                gameKey = key
+                fetchArithmeticTasks()
+                fetchArithmeticAnswers()
+            }
+        } else {
+            mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers, matchTyp, inviteKey, friendId) { key ->
+                gameKey = key
+                fetchArithmeticTasks()
+                fetchArithmeticAnswers()
             }
         }
     }
@@ -208,12 +205,12 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
-    fun setMatchTyp(friendId: String, matchTyp: String, inventionKey: String) {
+    fun setMatchTyp(friendId: String, matchTyp: String, inviteKey: String) {
         this.friendId = friendId
         this.matchTyp = matchTyp
-        this.inventionKey = inventionKey
+        this.inviteKey = inviteKey
         Log.d("MentalArithmetic", "friendID:  ${this.friendId}")
         Log.d("MentalArithmetic", "friendID:  ${this.matchTyp}")
-        Log.d("MentalArithmetic", "friendID:  ${this.inventionKey}")
+        Log.d("MentalArithmetic", "friendID:  ${this.inviteKey}")
     }
 }

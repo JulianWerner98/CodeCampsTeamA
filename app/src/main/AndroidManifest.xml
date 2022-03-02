@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CCTeamA">
         <activity
+            android:name=".gameInvite.GameInviteListActivity"
+            android:exported="false" />
+        <activity
             android:name=".friendlist.FriendGameInviteActivity"
             android:exported="false" />
         <activity

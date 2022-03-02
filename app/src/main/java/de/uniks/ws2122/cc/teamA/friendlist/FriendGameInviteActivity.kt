@@ -25,9 +25,9 @@ class FriendGameInviteActivity : AppCompatActivity() {
         friendId = intent.extras?.getString("friendId").toString()
         inviteArithmeticBtn.setOnClickListener {
             val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
-                this.putExtra("friendId", friendId)
-                this.putExtra("matchTyp", "private")
-                this.putExtra("inventionKey", "default")
+                this.putExtra(Constant.FRIENDID, friendId)
+                this.putExtra(Constant.MATCHTYP, Constant.PRIVATE)
+                this.putExtra(Constant.INVITEKEY, Constant.DEFAULT)
             }
             startActivity(intent)
         }

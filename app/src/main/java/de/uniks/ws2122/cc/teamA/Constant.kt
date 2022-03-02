@@ -51,4 +51,10 @@ object Constant {
     const val MATCH_REQUEST = "matchRequest"
     const val FROM = "FROM"
     const val GAME = "game"
+    const val INVITES = "invites"
+    const val FRIENDID = "friendId"
+    const val INVITEKEY = "inviteKey"
+    const val MATCHTYP = "matchTyp"
+    const val DEFAULT = "default"
+    const val PRIVATE = "private"
 }

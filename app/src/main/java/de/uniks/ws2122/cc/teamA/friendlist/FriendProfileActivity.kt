@@ -34,8 +34,8 @@ class FriendProfileActivity : AppCompatActivity() {
         friendNickName = binding.tvFriendProfileNickName
         btnUnfriend = binding.btnUnfriend
         gameListBtn = binding.btnInviteGameList
-        friendId = intent.extras?.get("FriendId").toString()
-        nickName = intent.extras?.get("nickname").toString()
+        friendId = intent.extras?.get(Constant.FRIENDID).toString()
+        nickName = intent.extras?.get(Constant.NICKNAME).toString()
         friendNickName.text = nickName
 
 
@@ -70,7 +70,7 @@ class FriendProfileActivity : AppCompatActivity() {
 
         gameListBtn.setOnClickListener {
             val intent = Intent(this, FriendGameInviteActivity::class.java).apply {
-                this.putExtra("friendId", friendId)
+                this.putExtra(Constant.FRIENDID, friendId)
             }
             startActivity(intent)
         }

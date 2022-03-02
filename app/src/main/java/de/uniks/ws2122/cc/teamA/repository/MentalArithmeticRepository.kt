@@ -6,6 +6,7 @@ import de.uniks.ws2122.cc.teamA.Constant
 
 class MentalArithmeticRepository {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
+    private var currentUserName = String()
 
     // Database References
     private val rootRef: DatabaseReference =
@@ -17,6 +18,7 @@ class MentalArithmeticRepository {
         rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
+                currentUserName = snapshot.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.NICKNAME).value as String
 
                 if (!snapshot.child(Constant.GAMES).hasChild(Constant.MENTALARITHMETIC)) {
 
@@ -38,11 +40,11 @@ class MentalArithmeticRepository {
         arithmeticTasks: MutableList<String>,
         arithmeticAnswers: MutableList<String>,
         matchTyp: String,
-        inventionKey: String,
+        inviteKey: String,
         friendId: String,
         callback: (result: String) -> Unit
     ) {
-        if (matchTyp == "default") {
+        if (matchTyp == Constant.DEFAULT) {
             maRef.addListenerForSingleValueEvent(object : ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.hasChildren()){
@@ -72,7 +74,7 @@ class MentalArithmeticRepository {
 
             })
         } else {
-            if (inventionKey == "default"){
+            if (inviteKey == Constant.DEFAULT){
                 maRef.addListenerForSingleValueEvent(object : ValueEventListener{
                     override fun onDataChange(snapshot: DataSnapshot) {
                         createNewPrivateGame(arithmeticTasks, arithmeticAnswers, friendId) { key ->
@@ -88,15 +90,14 @@ class MentalArithmeticRepository {
             } else {
                 maRef.addListenerForSingleValueEvent(object : ValueEventListener{
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        callback.invoke(inventionKey)
+                        callback.invoke(inviteKey)
                         rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
-                            .child(Constant.MENTALARITHMETIC).setValue(inventionKey)
-                        maRef.child(inventionKey).child(currentUser.uid).setValue("")
-                        maRef.child(inventionKey).child(Constant.READY)
+                            .child(Constant.MENTALARITHMETIC).setValue(inviteKey)
+                        maRef.child(inviteKey).child(currentUser.uid).setValue("")
+                        maRef.child(inviteKey).child(Constant.READY)
                             .child(currentUser.uid).setValue(false)
-                        maRef.child(inventionKey).child(Constant.MENTALARITHMETICPRIVATEQUEUE)
+                        maRef.child(inviteKey).child(Constant.MENTALARITHMETICPRIVATEQUEUE)
                             .removeValue()
-                        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child("invention").child(Constant.MENTALARITHMETIC).removeValue()
                     }
 
                     override fun onCancelled(error: DatabaseError) {
@@ -124,7 +125,7 @@ class MentalArithmeticRepository {
                 maRef.child(gameKey.toString()).child(Constant.MENTALARITHMETICPRIVATEQUEUE).setValue(currentUser.uid)
                 maRef.child(gameKey.toString()).child(Constant.READY).child(currentUser.uid).setValue(false)
                 rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.MENTALARITHMETIC).setValue(gameKey.toString())
-                rootRef.child(Constant.USERS_PATH).child(friendId).child("invention").child(Constant.MENTALARITHMETIC).setValue(gameKey.toString())
+                rootRef.child(Constant.USERS_PATH).child(friendId).child(Constant.INVITES).child(Constant.MENTALARITHMETIC).child(currentUserName).setValue(gameKey.toString())
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -319,24 +320,4 @@ class MentalArithmeticRepository {
 
         })
     }
-
-    fun fetchInventionKey(callback: (result: String) -> Unit) {
-        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child("invention").addListenerForSingleValueEvent(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()){
-                    val gameKey = snapshot.child(Constant.MENTALARITHMETIC).value.toString()
-                    callback.invoke(gameKey)
-                } else {
-                    callback.invoke("default")
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-    }
-
-
 }
