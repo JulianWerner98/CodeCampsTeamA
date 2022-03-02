@@ -169,4 +169,87 @@ class MentalArithmeticRepository {
     fun sendTaskAnswer(taskAnswer: Boolean, gameKey: String, taskNumber: String) {
         maRef.child(gameKey).child(currentUser.uid).child(taskNumber).setValue(taskAnswer)
     }
+
+    fun goToResultActivity(
+        gameKey: String,
+        currentUserAnswers: MutableList<Boolean>,
+        time: String, callback: (result: Boolean) -> Unit
+    ) {
+        maRef.child(gameKey).child(Constant.FINISHED).addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.childrenCount.toInt() == 2){
+                    callback.invoke(true)
+                    maRef.child(gameKey).child(Constant.FINISHED).removeEventListener(this)
+                } else {
+                    maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
+                    maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
+                    callback.invoke(false)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    // Result ViewModel
+    fun fetchCurrentUserAnswers(gameKey: String, callback: (result: MutableList<Boolean>) -> Unit) {
+        maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val currentAnswers = mutableListOf<Boolean>()
+                snapshot.children.forEach {
+                    if (it.key.toString() == currentUser.uid){
+                        it.child(Constant.GAMEFINISHEDANSWERS).children.forEach { answer ->
+                            currentAnswers.add(answer.value as Boolean)
+                        }
+                    callback.invoke(currentAnswers)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    fun fetchOpponentAnswers(gameKey: String, callback: (result: MutableList<Boolean>) -> Unit) {
+        maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val currentAnswers = mutableListOf<Boolean>()
+                snapshot.children.forEach {
+                    if (it.key.toString() != currentUser.uid){
+                        it.child(Constant.GAMEFINISHEDANSWERS).children.forEach { answer ->
+                            currentAnswers.add(answer.value as Boolean)
+                        }
+                    callback.invoke(currentAnswers)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    fun fetchTime(gameKey: String, callback: (result: String) -> Unit) {
+        maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val time = snapshot.value.toString()
+                callback.invoke(time)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+
 }

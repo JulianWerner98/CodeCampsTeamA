@@ -41,6 +41,10 @@ object Constant {
     const val READY = "Ready"
     const val ARITHMETICTASKS = "arithmeticTasks"
     const val ARITHMETICANSWERS = "arithmeticAnswers"
+    const val WAITINGFOROPPONENT = "Waiting for opponent"
+    const val FINISHED = "finished"
+    const val GAMEFINISHEDANSWERS = "gameFinishedAnswers"
+    const val FINISHEDTIME = "finishedTime"
 
     //Invite Path
     const val MATCH_REQUEST = "matchRequest"

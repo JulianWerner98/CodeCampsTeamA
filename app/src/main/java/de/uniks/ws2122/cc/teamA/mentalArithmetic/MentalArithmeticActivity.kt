@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.mentalArithmetic
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
@@ -10,6 +11,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMentalArithmeticBinding
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticViewModel
 
@@ -49,13 +51,25 @@ class MentalArithmeticActivity : AppCompatActivity() {
                 answer.text.clear()
             }
         }
+        pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
+        viewModel.chronometer(chronometer, pauseOffset)
 
         viewModel.getLiveCurrentUserAnswersData().observe(this, Observer {
-            if (running){
-                chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
-                chronometer.start()
+            val currentTask = viewModel.getCurrentTask()
+            if (currentTask == Constant.WAITINGFOROPPONENT){
+                arithmeticTask.text = currentTask
+                sendAnswerBtn.isEnabled = false
+                chronometer.stop()
+                viewModel.goToResultActivity(){ it ->
+                    if (it) {
+                        val intent = Intent(this, MentalArithmeticResultActivity::class.java).apply {  }
+                        startActivity(intent)
+                    }
+                }
             }
-            arithmeticTask.text = viewModel.getCurrentTask()
+            else {
+                arithmeticTask.text = currentTask
+            }
             running = true
         })
     }
@@ -63,7 +77,6 @@ class MentalArithmeticActivity : AppCompatActivity() {
     fun pauseChronometer(v : View){
         if (running){
             chronometer.stop()
-            pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
             running = false
             System.out.println(chronometer.text)
         }

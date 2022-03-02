@@ -1,7 +1,10 @@
 package de.uniks.ws2122.cc.teamA.model
 
+import android.os.SystemClock
+import android.widget.Chronometer
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.repository.MentalArithmeticRepository
 
 class MentalArithmeticViewModel : ViewModel() {
@@ -11,6 +14,8 @@ class MentalArithmeticViewModel : ViewModel() {
     private var currentUserAnswers = mutableListOf<Boolean>()
     private var gameKey = String()
     private var running = false
+    private lateinit var chronometer : Chronometer
+    private var pauseOffset : Long = 0
 
     // Live Data
     private var arithmeticTasksData = MutableLiveData<List<String>>()
@@ -59,6 +64,7 @@ class MentalArithmeticViewModel : ViewModel() {
         return currentUserAnswersData
     }
 
+    // Logic
     // Create a number of tasks
     fun makeArithmeticTasks(){
         for (i in 0..9){
@@ -121,6 +127,8 @@ class MentalArithmeticViewModel : ViewModel() {
     fun readyUpToStartGame(){
         mentalArithmeticRepo.readyUpToStartGame(gameKey) { answer ->
             if (answer){
+                chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
+                chronometer.start()
                 //currentUserAnswers.add(false)
                 setLiveCurrentUserAnswersData()
                 //currentUserAnswers.removeAt(0)
@@ -130,6 +138,9 @@ class MentalArithmeticViewModel : ViewModel() {
 
     fun getCurrentTask(): String {
         if (running) {
+            if (counter == 3){
+                return Constant.WAITINGFOROPPONENT
+            }
             return getLiveArithmeticTasksData().value!![counter]
         } else {
             running = true
@@ -163,6 +174,18 @@ class MentalArithmeticViewModel : ViewModel() {
             counter += 1
             currentUserAnswers.add(false)
             setLiveCurrentUserAnswersData()
+        }
+    }
+
+    fun chronometer(chronometer: Chronometer, pauseOffset: Long) {
+        this.chronometer = chronometer
+        this.pauseOffset = pauseOffset
+    }
+
+    fun goToResultActivity(callback: (result: Boolean) -> Unit){
+        val time = chronometer.text
+        mentalArithmeticRepo.goToResultActivity(gameKey, currentUserAnswers, time as String){ answer ->
+            callback.invoke(answer)
         }
     }
 }
