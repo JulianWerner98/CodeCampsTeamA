@@ -23,6 +23,9 @@ class MentalArithmeticActivity : AppCompatActivity() {
     private lateinit var answer : EditText
     private lateinit var sendAnswerBtn : Button
     private lateinit var viewModel : MentalArithmeticViewModel
+    private lateinit var friendId : String
+    private lateinit var matchTyp : String
+    private lateinit var inventionKey : String
 
     private var running : Boolean = false
     private var pauseOffset : Long = 0
@@ -38,7 +41,16 @@ class MentalArithmeticActivity : AppCompatActivity() {
         answer = binding.editTextAnswers
         sendAnswerBtn = binding.btnSendAnswer
 
-        viewModel = ViewModelProvider(this)[MentalArithmeticViewModel::class.java]
+        friendId = intent.extras?.getString("friendId").toString()
+        matchTyp = intent.extras?.getString("matchTyp").toString()
+        inventionKey = intent.extras?.getString("inventionKey").toString()
+
+        viewModel = ViewModelProvider(this)[MentalArithmeticViewModel::class.java].apply {
+            println("here")
+            this.setMatchTyp(friendId, matchTyp, inventionKey)
+        }
+
+        viewModel.makeGame()
 
         startButton.setOnClickListener {
             //startActivity(Intent(this, MentalArithmeticResultActivity::class.java))

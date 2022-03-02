@@ -50,6 +50,8 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
 
         viewModel.getLiveTimeData().observe(this, Observer {
             time.text = it
+            val test = time.text
+            time.text = test.split(":").toString()
         })
     }
 

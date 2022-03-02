@@ -59,7 +59,11 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun changeToMentalArithmetic() {
-        val intent = Intent(this, MentalArithmeticActivity::class.java).apply {  }
+        val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
+            this.putExtra("friendId", "default")
+            this.putExtra("matchTyp", "default")
+            this.putExtra("inventionKey", "default")
+        }
         startActivity(intent)
     }
 

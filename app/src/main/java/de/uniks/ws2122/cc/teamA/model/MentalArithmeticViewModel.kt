@@ -1,6 +1,7 @@
 package de.uniks.ws2122.cc.teamA.model
 
 import android.os.SystemClock
+import android.util.Log
 import android.widget.Chronometer
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,9 @@ class MentalArithmeticViewModel : ViewModel() {
     private var running = false
     private lateinit var chronometer : Chronometer
     private var pauseOffset : Long = 0
+    private var friendId = String()
+    private var matchTyp = String()
+    private var inventionKey = String()
 
     // Live Data
     private var arithmeticTasksData = MutableLiveData<List<String>>()
@@ -31,11 +35,6 @@ class MentalArithmeticViewModel : ViewModel() {
         currentUserAnswersData.value = currentUserAnswers
 
         makeArithmeticTasks()
-        mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers) { key ->
-            gameKey = key
-            fetchArithmeticTasks()
-            fetchArithmeticAnswers()
-        }
     }
 
     // Setter
@@ -123,6 +122,26 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    fun makeGame() {
+        mentalArithmeticRepo.fetchInventionKey() { inventionKey ->
+            Log.d("MentalArithmetic", "friendID:  $inventionKey")
+            this.inventionKey = inventionKey
+            if (inventionKey == "default"){
+                mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers, matchTyp, inventionKey, friendId) { key ->
+                    gameKey = key
+                    fetchArithmeticTasks()
+                    fetchArithmeticAnswers()
+                }
+            } else {
+                mentalArithmeticRepo.lookForGame(arithmeticTasks, arithmeticAnswers, matchTyp, inventionKey, friendId) { key ->
+                    gameKey = key
+                    fetchArithmeticTasks()
+                    fetchArithmeticAnswers()
+                }
+            }
+        }
+    }
+
     // Ready up to start the game
     fun readyUpToStartGame(){
         mentalArithmeticRepo.readyUpToStartGame(gameKey) { answer ->
@@ -187,5 +206,14 @@ class MentalArithmeticViewModel : ViewModel() {
         mentalArithmeticRepo.goToResultActivity(gameKey, currentUserAnswers, time as String){ answer ->
             callback.invoke(answer)
         }
+    }
+
+    fun setMatchTyp(friendId: String, matchTyp: String, inventionKey: String) {
+        this.friendId = friendId
+        this.matchTyp = matchTyp
+        this.inventionKey = inventionKey
+        Log.d("MentalArithmetic", "friendID:  ${this.friendId}")
+        Log.d("MentalArithmetic", "friendID:  ${this.matchTyp}")
+        Log.d("MentalArithmetic", "friendID:  ${this.inventionKey}")
     }
 }

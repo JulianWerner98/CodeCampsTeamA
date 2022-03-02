@@ -38,6 +38,7 @@ object Constant {
     // MentalArithmetic Path
     const val MENTALARITHMETIC = "MentalArithmetic"
     const val MENTALARITHMETICQUEUE = "MentalArithmeticQueue"
+    const val MENTALARITHMETICPRIVATEQUEUE = "MentalArithmeticPrivateQueue"
     const val READY = "Ready"
     const val ARITHMETICTASKS = "arithmeticTasks"
     const val ARITHMETICANSWERS = "arithmeticAnswers"
