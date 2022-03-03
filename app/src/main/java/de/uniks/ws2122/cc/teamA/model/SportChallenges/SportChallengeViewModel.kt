@@ -65,6 +65,7 @@ class SportChallengeViewModel : ViewModel() {
             time = intent.getDoubleExtra(StepTimerService.TIME_EXTRA, 0.0)
             sportChallengeData.value!!.userTime = getTimeStringFromDouble(time)
             setSportChallengeData(sportChallengeData.value!!)
+            saveTime(context, time)
         }
     }
 
@@ -89,12 +90,39 @@ class SportChallengeViewModel : ViewModel() {
 
     private fun startTimer(context: Context) {
 
+        loadTime(context)
         serviceIntent.putExtra(StepTimerService.TIME_EXTRA, time)
         context.startService(serviceIntent)
+    }
+
+    fun saveTime(context: Context, time: Double){
+
+        context.getSharedPreferences(TIME_STEPS_SHARED_PREFS, Context.MODE_PRIVATE).edit().apply {
+
+            putLong(OLD_TIME, System.currentTimeMillis() / 1000)
+            putLong(SAVED_TIMER, time.toLong())
+        }.apply()
+    }
+
+    private fun loadTime(context: Context) {
+
+        val sharedPreferences = context.getSharedPreferences(TIME_STEPS_SHARED_PREFS, Context.MODE_PRIVATE)
+        val savedTime = sharedPreferences.getLong(SAVED_TIMER, 0)
+        val oldTime = sharedPreferences.getLong(OLD_TIME, 0)
+        val currentTime = System.currentTimeMillis() / 1000
+
+        time = ((currentTime - oldTime) + savedTime).toDouble()
     }
 
     private fun stopTimer(context: Context) {
 
         context.stopService(serviceIntent)
+    }
+
+    companion object {
+
+        const val TIME_STEPS_SHARED_PREFS = "TimeAndStepsSharedPref"
+        const val OLD_TIME = "OldTime"
+        const val SAVED_TIMER = "SavedTimer"
     }
 }

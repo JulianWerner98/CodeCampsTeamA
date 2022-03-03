@@ -35,12 +35,6 @@ class SportChallengesActivity : AppCompatActivity() {
         viewModel.startMatch(mode, option, this)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        
-    }
-
     private fun createDataObserver() {
 
         val data = viewModel.getSportChallengeData().value
