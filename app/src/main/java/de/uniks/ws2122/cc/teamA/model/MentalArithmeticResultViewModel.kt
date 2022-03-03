@@ -3,6 +3,7 @@ package de.uniks.ws2122.cc.teamA.model
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.repository.MentalArithmeticRepository
 
 class MentalArithmeticResultViewModel : ViewModel() {
@@ -134,7 +135,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         }
 
         when(calculateTime()){
-            "moreTime" -> {
+            Constant.MORETIME -> {
                 if(currentUserCorrectAnswers > opponentCorrectAnswers) {
                     wonGame = "You have won"
                     setLiveWonGameData()
@@ -143,7 +144,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
                     setLiveWonGameData()
                 }
             }
-            "lessTime" -> {
+            Constant.LESSTIME -> {
                 if (currentUserCorrectAnswers >= opponentCorrectAnswers){
                     wonGame = "You have won"
                     setLiveWonGameData()
@@ -152,7 +153,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
                     setLiveWonGameData()
                 }
             }
-            "sameTime" -> {
+            Constant.SAMETIME -> {
                 if (currentUserCorrectAnswers > opponentCorrectAnswers){
                     wonGame = "You have won"
                     setLiveWonGameData()
@@ -198,15 +199,15 @@ class MentalArithmeticResultViewModel : ViewModel() {
         opponentTime = "$opponentMinutes:$opponentSec"
 
         if (currentUserMinutes > opponentMinutes){
-            return "moreTime"
+            return Constant.MORETIME
         }
         if (currentUserSec > opponentSec) {
-            return "moreTime"
+            return Constant.MORETIME
         }
         return if (currentUserMinutes == opponentMinutes && currentUserSec == opponentSec){
-            "sameTime"
+            Constant.SAMETIME
         } else {
-            "lessTime"
+            Constant.LESSTIME
         }
     }
 

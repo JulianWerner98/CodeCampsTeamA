@@ -46,6 +46,9 @@ object Constant {
     const val FINISHED = "finished"
     const val GAMEFINISHEDANSWERS = "gameFinishedAnswers"
     const val FINISHEDTIME = "finishedTime"
+    const val MORETIME = "moreTime"
+    const val LESSTIME = "lessTime"
+    const val SAMETIME = "sameTime"
 
     //Invite Path
     const val MATCH_REQUEST = "matchRequest"
