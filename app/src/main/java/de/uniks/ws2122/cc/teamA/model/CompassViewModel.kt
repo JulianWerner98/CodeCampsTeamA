@@ -1,10 +1,7 @@
 package de.uniks.ws2122.cc.teamA.model
 
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.SENSOR_SERVICE
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -15,7 +12,6 @@ import android.location.LocationManager
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.*
@@ -29,8 +25,8 @@ class CompassViewModel : ViewModel() {
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     var location: Location? = null
     private var compassRepo: CompassRepository = CompassRepository()
-    private var numberOfEmblems = 3
-    private var objects = ArrayList<Feature>()
+    private var numberOfEmblems = 2
+    var objects = ArrayList<Feature>()
 
     private lateinit var sensorManager: SensorManager
     private lateinit var sensorAccelerometer: Sensor
@@ -44,15 +40,18 @@ class CompassViewModel : ViewModel() {
     private val floatRotationMatrix = FloatArray(9)
 
     private lateinit var sensorCallback: (FloatArray) -> Unit
-    private lateinit var timerCallback: (Double) -> Unit
     private lateinit var getLocationCallback: () -> Unit
 
-    private var timerStarted = false
-    private lateinit var serviceIntent: Intent
-    private var time = 0.0
+    private var currentGame: CompassGame? = null
+    var timerService: TimerService? = null
 
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
-        compassRepo.getApiObject(compassActivity, numberOfEmblems, callback)
+        compassRepo.getApiObject(compassActivity, numberOfEmblems) {
+            it.forEach {
+                objects.add(it)
+            }
+            callback.invoke(it)
+        }
     }
 
     fun getAngleToLocation(
@@ -62,12 +61,15 @@ class CompassViewModel : ViewModel() {
     ) {
         getLastLocation(compassActivity)
         getLocationCallback = {
-            val x = 9.490193682869808 //Hauptbahnhof location.latitude
-            val y = 51.31812310171641 //location.longitude
+            Log.d("Current Position", location!!.latitude.toString() + " "+ location!!.longitude)
+            val x = /*9.490193682869808 */location!!.longitude
+            val y = /*51.31812310171641*/ location!!.latitude
             val x2 = feature.geometry.coordinates[0]
             val y2 = feature.geometry.coordinates[1]
             val radian: Double = Math.atan2(y2 - y, x2 - x)
-            callbackDegree.invoke(radian *180 / Math.PI)
+            val degree = radian * 180 / Math.PI
+            Log.d("Searched Angle", degree.toString())
+            callbackDegree.invoke(degree)
         }
     }
 
@@ -133,7 +135,7 @@ class CompassViewModel : ViewModel() {
     }
 
     fun newLocationData(compassActivity: CompassActivity) {
-        var locationRequest =  LocationRequest()
+        var locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.interval = 0
         locationRequest.fastestInterval = 0
@@ -162,6 +164,10 @@ class CompassViewModel : ViewModel() {
         sensorAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         sensorMagneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
+        startSensor()
+
+    }
+    fun startSensor() {
         sensorManager.registerListener(
             sensorEventListenerAccelrometer,
             sensorAccelerometer,
@@ -172,6 +178,10 @@ class CompassViewModel : ViewModel() {
             sensorMagneticField,
             SensorManager.SENSOR_DELAY_NORMAL
         );
+    }
+    fun stopSensor(){
+        sensorManager.unregisterListener(sensorEventListenerAccelrometer)
+        sensorManager.unregisterListener(sensorEventListenerMagneticField);
     }
 
     val sensorEventListenerAccelrometer: SensorEventListener = object : SensorEventListener {
@@ -185,7 +195,7 @@ class CompassViewModel : ViewModel() {
             )
             SensorManager.getOrientation(floatRotationMatrix, floatOrientation)
             floatOrientationArray.add(floatOrientation)
-            if(floatOrientationArray.size > 1000) {
+            if (floatOrientationArray.size > 1000) {
                 floatOrientationArray.removeAt(0)
             }
             val map1 = floatOrientationArray.map { it -> it[0] }
@@ -217,7 +227,26 @@ class CompassViewModel : ViewModel() {
     }
 
     fun getGame(): CompassGame? {
-        return null
+        if (currentGame != null) {
+            return currentGame
+        } else {
+            return null
+        }
+    }
+
+    fun createGame(compassActivity: CompassActivity, callback: () -> Unit) {
+        getRandomLocation(compassActivity) { emblems ->
+            currentGame = CompassGame(ArrayList(emblems), 0, 0)
+            callback.invoke()
+        }
+    }
+
+    fun nextObject(
+        compassActivity: CompassActivity,
+        currentObjectCount: Int,
+        callback: (Double) -> Unit
+    ) {
+        getAngleToLocation(compassActivity, objects[currentObjectCount], callback)
     }
 
 }
