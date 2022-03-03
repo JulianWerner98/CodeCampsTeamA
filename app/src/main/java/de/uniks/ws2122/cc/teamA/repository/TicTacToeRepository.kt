@@ -81,7 +81,7 @@ class TicTacToeRepository {
         return snapshot.child(Constant.GAMES).child(Constant.TTTQ).hasChild(currentUser.uid)
     }
 
-    //check if the user has a game running and
+    //check if the user has a game running
     private fun hasRunningGame(snapshot: DataSnapshot): Boolean {
 
         var hasGame = false

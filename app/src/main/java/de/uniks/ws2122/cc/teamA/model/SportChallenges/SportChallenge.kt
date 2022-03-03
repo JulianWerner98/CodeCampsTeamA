@@ -5,7 +5,10 @@ import de.uniks.ws2122.cc.teamA.model.Game
 data class SportChallenge(
     var mode: String = "",
     var option: String = "",
-    var userTime: Long = 1,
-    var userCountedSteps: Int = 1,
-    var enemyCountedSteps: Int = 1
+    var userTime: String = "Waiting for Player",
+    var userCountedSteps: Int = 0,
+    var enemyCountedSteps: Int = 0,
+    var userMeters: Float = .0f,
+    var enemyMeters: Float = .0f,
+    var userSpeed: Float = .0f
 ) : Game()

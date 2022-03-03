@@ -2,10 +2,12 @@ package de.uniks.ws2122.cc.teamA
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.size
 import de.uniks.ws2122.cc.teamA.databinding.ActivitySelectSportModeBinding
+import de.uniks.ws2122.cc.teamA.repository.SportChallengeRepository
 
 class SelectSportModeActivity : AppCompatActivity() {
 
@@ -17,6 +19,7 @@ class SelectSportModeActivity : AppCompatActivity() {
         arrayOf("100 Steps", "200 Steps", "500 Steps", "1000 Steps", "10.000 Steps")
 
     private lateinit var binding: ActivitySelectSportModeBinding
+    private val sportRepo = SportChallengeRepository()
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -24,20 +27,45 @@ class SelectSportModeActivity : AppCompatActivity() {
         binding = ActivitySelectSportModeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.radioGroupMode.setOnCheckedChangeListener { radioGroup, _ ->
+        binding.btnStart.isClickable = false
 
-            when(radioGroup.checkedRadioButtonId) {
+        sportRepo.hasRunningGame {
 
-                binding.rbTime.id -> showOption(timeOptions)
-                binding.rbMeters.id -> showOption(meterOptions)
-                binding.rbSteps.id -> showOption(stepsOption)
+            if (it) {
+
+                Log.d("TAG", "Hallo")
+                val intent = Intent(this, SportChallengesActivity::class.java)
+                startActivity(intent)
+
+            } else {
+
+                binding.radioGroupMode.setOnCheckedChangeListener { radioGroup, _ ->
+
+                    when (radioGroup.checkedRadioButtonId) {
+
+                        binding.rbTime.id -> showOption(timeOptions)
+                        binding.rbMeters.id -> showOption(meterOptions)
+                        binding.rbSteps.id -> showOption(stepsOption)
+                    }
+                }
+
+                binding.btnStart.isClickable = true
+                binding.btnStart.setOnClickListener {
+
+                    val selectedModeRadioButton =
+                        findViewById<RadioButton>(binding.radioGroupMode.checkedRadioButtonId)
+                    val selectedOptionRadioButton =
+                        findViewById<RadioButton>(binding.radioGroupOptions.checkedRadioButtonId)
+                    val mode = selectedModeRadioButton.text.toString()
+                    val option = selectedOptionRadioButton.text.toString()
+
+                    val intent = Intent(this, SportChallengesActivity::class.java).apply {
+                        this.putExtra(Constant.MODE, mode)
+                        this.putExtra(Constant.OPTION, option)
+                    }
+                    startActivity(intent)
+                }
             }
-        }
-
-        binding.btnStart.setOnClickListener {
-
-            val intent = Intent(this, SportChallengesActivity::class.java)
-            startActivity(intent)
         }
     }
 

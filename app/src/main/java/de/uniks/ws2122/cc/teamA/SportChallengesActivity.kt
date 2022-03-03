@@ -1,12 +1,9 @@
 package de.uniks.ws2122.cc.teamA
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.content.BroadcastReceiver
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivitySportChallengesBinding
 import de.uniks.ws2122.cc.teamA.model.SportChallenges.SportChallenge
@@ -25,17 +22,30 @@ class SportChallengesActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[SportChallengeViewModel::class.java]
 
-        viewModel.setSportChallengeData(SportChallenge()) //Testing
         createDataObserver()
-        viewModel.countSteps(this)
+
+        val extras = intent.extras
+        var mode = ""
+        var option = ""
+        if (extras != null) {
+
+            mode = extras.get(Constant.MODE).toString()
+            option = extras.get(Constant.OPTION).toString()
+        }
+        viewModel.startMatch(mode, option, this)
     }
 
-    // deutsche Durchschnittsgröße ist ~173cm. durchschnittliche Schrittlänge bei 170cm ist ~70cm
+    override fun onDestroy() {
+        super.onDestroy()
+
+        
+    }
+
     private fun createDataObserver() {
 
         val data = viewModel.getSportChallengeData().value
 
-        if (data!!.mode == "meters") {
+        if (data!!.mode == Constant.METERS) {
 
             binding.tvUserCounterText.text = "User Meters"
             binding.tvEnemyCounterText.text = "Enemy Meters"
@@ -51,21 +61,20 @@ class SportChallengesActivity : AppCompatActivity() {
 
             binding.tvTimeCounter.text = "${sportChallenge.userTime}"
 
-            if (sportChallenge.mode == "meters") {
+            if (sportChallenge.mode == Constant.METERS) {
 
-                binding.tvCounterUser.text = "${0.7f * sportChallenge.userCountedSteps}"
-                binding.tvCounterEnemy.text = "${0.7f * sportChallenge.enemyCountedSteps}"
+                binding.tvCounterUser.text = "${sportChallenge.userMeters}"
+                binding.tvCounterEnemy.text = "${sportChallenge.enemyMeters}"
                 binding.tvCounterStats1.text = "${sportChallenge.userCountedSteps}"
             } else {
 
                 binding.tvCounterUser.text = "${sportChallenge.userCountedSteps}"
                 binding.tvCounterEnemy.text = "${sportChallenge.enemyCountedSteps}"
-                binding.tvCounterStats1.text = "${0.7f * sportChallenge.userCountedSteps}"
+                binding.tvCounterStats1.text = "${sportChallenge.userMeters}"
             }
 
             binding.tvStats2.text = "Steps per Minute"
-            binding.tvCounterStats2.text =
-                "${sportChallenge.userCountedSteps / sportChallenge.userTime}"
+            binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
         }
     }
 }
