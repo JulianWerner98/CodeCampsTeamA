@@ -46,6 +46,8 @@ object Constant {
     const val STEPS = "Steps"
     const val METERS = "Meters"
     const val TIME = "Time"
+    const val COUNTED_TIME = "CountedTime"
+    const val SYSTEM_TIME = "SystemTime"
 
     //average step of a german
     // deutsche Durchschnittsgröße ist ~173cm. durchschnittliche Schrittlänge bei 170cm ist ~70cm

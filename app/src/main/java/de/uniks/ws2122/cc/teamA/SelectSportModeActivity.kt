@@ -7,16 +7,10 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.size
 import de.uniks.ws2122.cc.teamA.databinding.ActivitySelectSportModeBinding
+import de.uniks.ws2122.cc.teamA.model.util.SportMode
 import de.uniks.ws2122.cc.teamA.repository.SportChallengeRepository
 
 class SelectSportModeActivity : AppCompatActivity() {
-
-    private val timeOptions =
-        arrayOf("1 Minute", "5 Minutes", "10 Minutes", "30 Minutes", "60 Minutes")
-    private val meterOptions =
-        arrayOf("100 Meters", "500 Meters", "1 Kilometer", "2 Kilometers", "5 Kilometers")
-    private val stepsOption =
-        arrayOf("100 Steps", "200 Steps", "500 Steps", "1000 Steps", "10.000 Steps")
 
     private lateinit var binding: ActivitySelectSportModeBinding
     private val sportRepo = SportChallengeRepository()
@@ -33,7 +27,6 @@ class SelectSportModeActivity : AppCompatActivity() {
 
             if (it) {
 
-                Log.d("TAG", "Hallo")
                 val intent = Intent(this, SportChallengesActivity::class.java)
                 startActivity(intent)
 
@@ -41,12 +34,15 @@ class SelectSportModeActivity : AppCompatActivity() {
 
                 binding.radioGroupMode.setOnCheckedChangeListener { radioGroup, _ ->
 
+                    var mode = ""
                     when (radioGroup.checkedRadioButtonId) {
 
-                        binding.rbTime.id -> showOption(timeOptions)
-                        binding.rbMeters.id -> showOption(meterOptions)
-                        binding.rbSteps.id -> showOption(stepsOption)
+                        binding.rbTime.id -> mode = Constant.TIME
+                        binding.rbMeters.id -> mode = Constant.METERS
+                        binding.rbSteps.id -> mode = Constant.STEPS
                     }
+
+                    showOption(SportMode().getOptions(mode))
                 }
 
                 binding.btnStart.isClickable = true
@@ -69,7 +65,7 @@ class SelectSportModeActivity : AppCompatActivity() {
         }
     }
 
-    private fun showOption(options: Array<String>) {
+    private fun showOption(options: ArrayList<String>) {
 
         for (i in 0 until binding.radioGroupOptions.size) {
 

@@ -22,8 +22,6 @@ class SportChallengesActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this)[SportChallengeViewModel::class.java]
 
-        createDataObserver()
-
         val extras = intent.extras
         var mode = ""
         var option = ""
@@ -32,12 +30,15 @@ class SportChallengesActivity : AppCompatActivity() {
             mode = extras.get(Constant.MODE).toString()
             option = extras.get(Constant.OPTION).toString()
         }
+
         viewModel.startMatch(mode, option, this)
+        createDataObserver()
     }
 
     private fun createDataObserver() {
 
         val data = viewModel.getSportChallengeData().value
+        Log.d("TAG", "Mode: ${data!!.mode}")
 
         if (data!!.mode == Constant.METERS) {
 
@@ -70,5 +71,10 @@ class SportChallengesActivity : AppCompatActivity() {
             binding.tvStats2.text = "Steps per Minute"
             binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
         }
+    }
+
+    override fun onDestroy() {
+        viewModel.saveTime()
+        super.onDestroy()
     }
 }

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,6 +18,7 @@ class SportChallengeViewModel : ViewModel() {
     private val sportChallengeData: MutableLiveData<SportChallenge> = MutableLiveData()
     private lateinit var serviceIntent: Intent
     private var time = 0.0
+    private lateinit var sportRepo: SportChallengeRepository
 
     init {
         setSportChallengeData(SportChallenge())
@@ -35,10 +36,17 @@ class SportChallengeViewModel : ViewModel() {
 
     fun startMatch(mode: String, option: String, context: Context) {
 
-        val sportRepo = SportChallengeRepository()
-        sportRepo.startMatchMaking(mode, option) { enemy ->
+
+        sportChallengeData.value!!.mode = mode
+        sportChallengeData.value!!.option = option
+        setSportChallengeData(sportChallengeData.value!!)
+
+        sportRepo = SportChallengeRepository()
+        sportRepo.startMatchMaking(mode, option) { enemy, user ->
 
             val stepCounter = StepCounter(context)
+
+            sportChallengeData.value!!.players = mutableListOf(user, enemy)
 
             createTimer(context.applicationContext)
             startTimer(context.applicationContext)
@@ -49,10 +57,10 @@ class SportChallengeViewModel : ViewModel() {
                 setSportChallengeData(sportChallengeData.value!!)
             }
 
-            sportRepo.createStepListener(enemy) { enemyStats ->
+            sportRepo.createStepListener(enemy) { steps, meters ->
 
-                sportChallengeData.value!!.enemyCountedSteps = enemyStats.first.toInt()
-                sportChallengeData.value!!.enemyMeters = enemyStats.second.toFloat()
+                sportChallengeData.value!!.enemyCountedSteps = steps
+                sportChallengeData.value!!.enemyMeters = meters
                 setSportChallengeData(sportChallengeData.value!!)
             }
         }
@@ -65,7 +73,11 @@ class SportChallengeViewModel : ViewModel() {
             time = intent.getDoubleExtra(StepTimerService.TIME_EXTRA, 0.0)
             sportChallengeData.value!!.userTime = getTimeStringFromDouble(time)
             setSportChallengeData(sportChallengeData.value!!)
-            saveTime(context, time)
+            sportRepo.sendData(
+                sportChallengeData.value!!.players[0],
+                sportChallengeData.value!!.userCountedSteps,
+                sportChallengeData.value!!.userMeters
+            )
         }
     }
 
@@ -90,39 +102,36 @@ class SportChallengeViewModel : ViewModel() {
 
     private fun startTimer(context: Context) {
 
-        loadTime(context)
-        serviceIntent.putExtra(StepTimerService.TIME_EXTRA, time)
-        context.startService(serviceIntent)
+        loadTime {
+            if (it) {
+
+                serviceIntent.putExtra(StepTimerService.TIME_EXTRA, time)
+                context.startService(serviceIntent)
+            }
+        }
     }
 
-    fun saveTime(context: Context, time: Double){
+    fun saveTime() {
 
-        context.getSharedPreferences(TIME_STEPS_SHARED_PREFS, Context.MODE_PRIVATE).edit().apply {
-
-            putLong(OLD_TIME, System.currentTimeMillis() / 1000)
-            putLong(SAVED_TIMER, time.toLong())
-        }.apply()
+        sportRepo.saveTime(time, sportChallengeData.value!!.players[0])
     }
 
-    private fun loadTime(context: Context) {
+    private fun loadTime(callback: (loaded: Boolean) -> Unit) {
 
-        val sharedPreferences = context.getSharedPreferences(TIME_STEPS_SHARED_PREFS, Context.MODE_PRIVATE)
-        val savedTime = sharedPreferences.getLong(SAVED_TIMER, 0)
-        val oldTime = sharedPreferences.getLong(OLD_TIME, 0)
-        val currentTime = System.currentTimeMillis() / 1000
+        sportRepo.loadTime(sportChallengeData.value!!.players[0]) { countedTime, oldSystemTimeInMilli ->
 
-        time = ((currentTime - oldTime) + savedTime).toDouble()
+            if (countedTime > 0) {
+
+                val currentTime = System.currentTimeMillis() / 1000
+                val oldSystemTime = oldSystemTimeInMilli / 1000
+                time = ((currentTime - oldSystemTime)  + countedTime)
+            }
+            callback.invoke(true)
+        }
     }
 
     private fun stopTimer(context: Context) {
 
         context.stopService(serviceIntent)
-    }
-
-    companion object {
-
-        const val TIME_STEPS_SHARED_PREFS = "TimeAndStepsSharedPref"
-        const val OLD_TIME = "OldTime"
-        const val SAVED_TIMER = "SavedTimer"
     }
 }

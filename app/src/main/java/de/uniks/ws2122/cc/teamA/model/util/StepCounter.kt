@@ -12,12 +12,16 @@ class StepCounter(private val context: Context) : SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private var running = false
-    private var totalCount: Int = 0
+    private var totalSteps = .0f
+    private var previousTotalSteps = .0f
     private lateinit var callback: (steps: Int) -> Unit
 
     fun startSteps(callback: (steps: Int) -> Unit) {
 
         this.callback = callback
+
+        loadSavedSteps()
+
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
 
         val stepSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -40,12 +44,40 @@ class StepCounter(private val context: Context) : SensorEventListener {
 
         if (running) {
 
-            totalCount = event!!.values[0].toInt()
-            Log.d("STEP", event.values[0].toString())
-            callback.invoke(totalCount)
+            totalSteps = event!!.values[0]
+
+            val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+            Log.d("STEP", currentSteps.toString())
+            callback.invoke(currentSteps)
         }
     }
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+    }
+
+    fun resetSteps() {
+
+        previousTotalSteps = totalSteps
+        saveStepsLocal()
+    }
+
+    private fun saveStepsLocal() {
+
+        val editor = context.getSharedPreferences(SHAREDPREF_STEPS, Context.MODE_PRIVATE).edit()
+        editor.putFloat(STEPS_KEY, previousTotalSteps).apply()
+    }
+
+    private fun loadSavedSteps() {
+
+        val sharedPreferences = context.getSharedPreferences(SHAREDPREF_STEPS, Context.MODE_PRIVATE)
+        val savedSteps = sharedPreferences.getFloat(STEPS_KEY, .0f)
+        Log.d("STEP", "Saved Steps: $savedSteps")
+        previousTotalSteps = savedSteps
+    }
+
+    companion object {
+
+        const val SHAREDPREF_STEPS = "SharedPrefSteps"
+        const val STEPS_KEY = "StepsKey"
     }
 }

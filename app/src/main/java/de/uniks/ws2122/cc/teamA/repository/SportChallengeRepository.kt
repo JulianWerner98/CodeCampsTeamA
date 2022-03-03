@@ -9,7 +9,7 @@ class SportChallengeRepository {
 
     private var mode: String = ""
     private var option: String = ""
-    private lateinit var callbackEnemy: (result: String) -> Unit
+    private lateinit var callbackEnemy: (enemy: String, user: String) -> Unit
 
     //References
     private val rootRef = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
@@ -19,7 +19,11 @@ class SportChallengeRepository {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
     private val currentUserRef = rootRef.child(Constant.USERS_PATH).child(currentUser.uid).ref
 
-    fun startMatchMaking(mode: String, option: String, callback: (player: String) -> Unit) {
+    fun startMatchMaking(
+        mode: String,
+        option: String,
+        callback: (enemy: String, user: String) -> Unit
+    ) {
 
         this.callbackEnemy = callback
         this.mode = mode
@@ -76,16 +80,25 @@ class SportChallengeRepository {
 
             if (foundRef) {
 
-                matchRef.addListenerForSingleValueEvent(object: ValueEventListener {
+                matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
 
-                        if (snapshot.child(Constant.PLAYER1).child(Constant.ID).value.toString() == currentUser.uid) {
 
-                            callbackEnemy.invoke(Constant.PLAYER2)
+                        if (snapshot.hasChild(Constant.PLAYER2)) {
+
+                            if (snapshot.child(Constant.PLAYER1)
+                                    .child(Constant.ID).value.toString() == currentUser.uid
+                            ) {
+
+                                callbackEnemy.invoke(Constant.PLAYER2, Constant.PLAYER1)
+                            } else {
+
+                                callbackEnemy.invoke(Constant.PLAYER1, Constant.PLAYER2)
+                            }
                         }
                         else {
 
-                            callbackEnemy.invoke(Constant.PLAYER1)
+                            waitForPlayer2()
                         }
                     }
 
@@ -171,7 +184,7 @@ class SportChallengeRepository {
 
         Log.d("SportRepo", "join Match: $matchRef")
 
-        callbackEnemy.invoke(Constant.PLAYER1)
+        callbackEnemy.invoke(Constant.PLAYER1, Constant.PLAYER2)
     }
 
     //create new Match
@@ -223,7 +236,7 @@ class SportChallengeRepository {
                 if (snapshot.hasChild(Constant.PLAYER2)) {
 
                     matchRef.removeEventListener(this)
-                    callbackEnemy.invoke(Constant.PLAYER2)
+                    callbackEnemy.invoke(Constant.PLAYER2, Constant.PLAYER1)
                 }
             }
 
@@ -232,18 +245,19 @@ class SportChallengeRepository {
         })
     }
 
-    fun createStepListener(enemy: String, callback: (result: Pair<String, String>) -> Unit) {
+    fun createStepListener(enemy: String, callback: (steps: Int, meters: Float) -> Unit) {
 
         matchRef.child(enemy).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                val enemyStats = Pair(
-                    snapshot.child(Constant.STEPS).value.toString(),
-                    snapshot.child(Constant.METERS).value.toString()
-                )
+                if (snapshot.exists()) {
 
-                Log.d("SportRepo", "listen $enemyStats")
-                callback.invoke(enemyStats)
+                    val steps = snapshot.child(Constant.STEPS).value.toString().toInt()
+                    val meters = snapshot.child(Constant.METERS).value.toString().toFloat()
+
+                    Log.d("SportRepo", "Steps: $steps")
+                    callback.invoke(steps, meters)
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -252,4 +266,40 @@ class SportChallengeRepository {
         })
     }
 
+    fun sendData(user: String, steps: Int, meters: Float) {
+
+        matchRef.child(user).child(Constant.STEPS).setValue(steps)
+        matchRef.child(user).child(Constant.METERS).setValue(meters)
+    }
+
+    fun saveTime(countedTime: Double, user: String) {
+
+        matchRef.child(user).child(Constant.COUNTED_TIME).setValue(countedTime)
+        matchRef.child(user).child(Constant.SYSTEM_TIME).setValue(System.currentTimeMillis())
+    }
+
+    fun loadTime(user: String, callback: (countedTime: Double, oldSystemTime: Long) -> Unit) {
+
+        matchRef.child(user).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    if (snapshot.child(Constant.COUNTED_TIME).exists() && snapshot.child(Constant.SYSTEM_TIME).exists()) {
+
+                        val countedTime = snapshot.child(Constant.COUNTED_TIME).value.toString().toDouble()
+                        val oldSystemTime = snapshot.child(Constant.SYSTEM_TIME).value.toString().toLong()
+
+                        callback.invoke(countedTime, oldSystemTime)
+                        Log.d("SPORTRepo", "Time: $countedTime + $oldSystemTime")
+                    }
+                    else {
+
+                        callback.invoke(0.0, 0)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
+    }
 }
