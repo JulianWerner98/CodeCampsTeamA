@@ -46,6 +46,7 @@ class MentalArithmeticRepository {
         callback: (result: String) -> Unit
     ) {
         if (matchTyp == Constant.DEFAULT) {
+            // Look for a game if you find one join else create a new game
             maRef.addListenerForSingleValueEvent(object : ValueEventListener{
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.hasChildren()){
@@ -55,7 +56,7 @@ class MentalArithmeticRepository {
                                 callback.invoke(matchId.toString())
                                 rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
                                     .child(Constant.MENTALARITHMETIC).setValue(matchId.toString())
-                                maRef.child(matchId.toString()).child(currentUser.uid).setValue("")
+                                maRef.child(matchId.toString()).child(Constant.PLAYERS).child(currentUser.uid).setValue("")
                                 maRef.child(matchId.toString()).child(Constant.READY)
                                     .child(currentUser.uid).setValue(false)
                                 maRef.child(matchId.toString()).child(Constant.MENTALARITHMETICQUEUE)
@@ -76,6 +77,7 @@ class MentalArithmeticRepository {
             })
         } else {
             if (inviteKey == Constant.DEFAULT){
+                // You have invited someone and create a new private game
                 maRef.addListenerForSingleValueEvent(object : ValueEventListener{
                     override fun onDataChange(snapshot: DataSnapshot) {
                         createNewPrivateGame(arithmeticTasks, arithmeticAnswers, friendId) { key ->
@@ -89,12 +91,13 @@ class MentalArithmeticRepository {
 
                 })
             } else {
+                // Join a private game with your invite key
                 maRef.addListenerForSingleValueEvent(object : ValueEventListener{
                     override fun onDataChange(snapshot: DataSnapshot) {
                         callback.invoke(inviteKey)
                         rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
                             .child(Constant.MENTALARITHMETIC).setValue(inviteKey)
-                        maRef.child(inviteKey).child(currentUser.uid).setValue("")
+                        maRef.child(inviteKey).child(Constant.PLAYERS).child(currentUser.uid).setValue("")
                         maRef.child(inviteKey).child(Constant.READY)
                             .child(currentUser.uid).setValue(false)
                         maRef.child(inviteKey).child(Constant.MENTALARITHMETICPRIVATEQUEUE)
@@ -122,7 +125,7 @@ class MentalArithmeticRepository {
                 callback.invoke(gameKey.toString())
                 maRef.child(gameKey.toString()).child(Constant.ARITHMETICTASKS).setValue(arithmeticTasks)
                 maRef.child(gameKey.toString()).child(Constant.ARITHMETICANSWERS).setValue(arithmeticAnswers)
-                maRef.child(gameKey.toString()).child(currentUser.uid).setValue("")
+                maRef.child(gameKey.toString()).child(Constant.PLAYERS).child(currentUser.uid).setValue("")
                 maRef.child(gameKey.toString()).child(Constant.MENTALARITHMETICPRIVATEQUEUE).setValue(currentUser.uid)
                 maRef.child(gameKey.toString()).child(Constant.READY).child(currentUser.uid).setValue(false)
                 rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.MENTALARITHMETIC).setValue(gameKey.toString())
@@ -143,7 +146,7 @@ class MentalArithmeticRepository {
                 callback.invoke(gameKey.toString())
                 maRef.child(gameKey.toString()).child(Constant.ARITHMETICTASKS).setValue(arithmeticTasks)
                 maRef.child(gameKey.toString()).child(Constant.ARITHMETICANSWERS).setValue(arithmeticAnswers)
-                maRef.child(gameKey.toString()).child(currentUser.uid).setValue("")
+                maRef.child(gameKey.toString()).child(Constant.PLAYERS).child(currentUser.uid).setValue("")
                 maRef.child(gameKey.toString()).child(Constant.MENTALARITHMETICQUEUE).setValue(currentUser.uid)
                 maRef.child(gameKey.toString()).child(Constant.READY).child(currentUser.uid).setValue(false)
                 rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.MENTALARITHMETIC).setValue(gameKey.toString())
@@ -156,6 +159,7 @@ class MentalArithmeticRepository {
         })
     }
 
+    // Get the current game key
     fun fetchGameKey(callback: (result: String) -> Unit){
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
             .child(Constant.MENTALARITHMETIC)
@@ -171,6 +175,7 @@ class MentalArithmeticRepository {
             })
     }
 
+    // Check if both players are ready to start the game
     fun readyUpToStartGame(gameKey: String, callback: (result: Boolean) -> Unit) {
         maRef.child(gameKey).child(Constant.READY).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -237,10 +242,13 @@ class MentalArithmeticRepository {
         })
     }
 
+    // Send your answers to database
     fun sendTaskAnswer(taskAnswer: Boolean, gameKey: String, taskNumber: String) {
-        maRef.child(gameKey).child(currentUser.uid).child(taskNumber).setValue(taskAnswer)
+        maRef.child(gameKey).child(Constant.PLAYERS).child(currentUser.uid).child(taskNumber).setValue(taskAnswer)
     }
 
+    // Write your result in database and wait for other player
+    // If both are finished change to result activity
     fun goToResultActivity(
         gameKey: String,
         currentUserAnswers: MutableList<Boolean>,
@@ -254,6 +262,7 @@ class MentalArithmeticRepository {
                 } else {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
+                    // Write false so that you don't delete your game if you changed to result activity
                     maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(false)
                     callback.invoke(false)
                 }
@@ -266,6 +275,8 @@ class MentalArithmeticRepository {
         })
     }
 
+    // When called OnDestroyed: If both player leave the game then it will deleted the game from database
+    // If it's a private game the invite will get delete if the game doesn't had started yet
     fun destroyDefaultGame(gameKey: String) {
         maRef.child(gameKey).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -296,6 +307,7 @@ class MentalArithmeticRepository {
 
         })
     }
+
 
     fun destroyPrivateGame(gameKey: String, friendId: String) {
         maRef.child(gameKey).addListenerForSingleValueEvent(object : ValueEventListener{
@@ -330,6 +342,7 @@ class MentalArithmeticRepository {
     }
 
     // ---- Result ViewModel ----
+    // Get your answers from database
     fun fetchCurrentUserAnswers(gameKey: String, callback: (result: MutableList<Boolean>) -> Unit) {
         maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -351,6 +364,7 @@ class MentalArithmeticRepository {
         })
     }
 
+    // Get your opponents answers from database
     fun fetchOpponentAnswers(gameKey: String, callback: (result: MutableList<Boolean>) -> Unit) {
         maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -372,6 +386,7 @@ class MentalArithmeticRepository {
         })
     }
 
+    // Get your used time from database
     fun fetchTime(gameKey: String, callback: (result: List<String>) -> Unit) {
         maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -392,6 +407,7 @@ class MentalArithmeticRepository {
         })
     }
 
+    // Check if both player have finished the game and then delete it
     fun finishedGame(gameKey: String) {
         maRef.child(gameKey).child(Constant.DELETEGAME).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {

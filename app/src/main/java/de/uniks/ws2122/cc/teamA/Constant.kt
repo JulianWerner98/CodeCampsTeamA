@@ -52,6 +52,7 @@ object Constant {
     const val DELETEGAME = "deleteGame"
     const val START = "Start"
     const val SURRENDER = "Surrender"
+    const val PLAYERS = "Players"
 
     //Invite Path
     const val MATCH_REQUEST = "matchRequest"
