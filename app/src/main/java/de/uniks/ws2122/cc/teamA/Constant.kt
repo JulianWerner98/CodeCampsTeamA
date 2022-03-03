@@ -49,6 +49,9 @@ object Constant {
     const val MORETIME = "moreTime"
     const val LESSTIME = "lessTime"
     const val SAMETIME = "sameTime"
+    const val DELETEGAME = "deleteGame"
+    const val START = "Start"
+    const val SURRENDER = "Surrender"
 
     //Invite Path
     const val MATCH_REQUEST = "matchRequest"

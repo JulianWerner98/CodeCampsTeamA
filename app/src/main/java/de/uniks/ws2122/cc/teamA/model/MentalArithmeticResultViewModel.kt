@@ -211,4 +211,8 @@ class MentalArithmeticResultViewModel : ViewModel() {
         }
     }
 
+    fun finishedGame() {
+        mentalArithmeticRepo.finishedGame(gameKey)
+    }
+
 }

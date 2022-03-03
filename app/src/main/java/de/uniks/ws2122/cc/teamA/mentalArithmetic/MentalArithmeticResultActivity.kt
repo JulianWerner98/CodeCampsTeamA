@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.mentalArithmetic
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
@@ -7,6 +8,7 @@ import android.widget.TextView
 import androidx.core.view.isInvisible
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityResultBinding
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticResultViewModel
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticViewModel
@@ -34,8 +36,20 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
         wonGame = binding.tvWonGame
 
         highscore.isInvisible = true
+
         viewModel = ViewModelProvider(this)[MentalArithmeticResultViewModel::class.java]
 
+        initializeObserver()
+
+        backToGameSelectBtn.setOnClickListener {
+            viewModel.finishedGame()
+            val intent = Intent(this, GameSelectActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+
+    private fun initializeObserver() {
         viewModel.getLiveCurrentUserCorrectAnswersData().observe(this, Observer {
             correctAnswers.text = it
         })
@@ -51,7 +65,11 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
         viewModel.getLiveWonGameData().observe(this, Observer {
             wonGame.text = it
         })
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.finishedGame()
     }
 
 }

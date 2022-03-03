@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMentalArithmeticBinding
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticViewModel
 
@@ -40,6 +41,7 @@ class MentalArithmeticActivity : AppCompatActivity() {
         arithmeticTask = binding.tvArithmeticTasks
         answer = binding.editTextAnswers
         sendAnswerBtn = binding.btnSendAnswer
+        sendAnswerBtn.isEnabled = false
 
         friendId = intent.extras?.getString(Constant.FRIENDID).toString()
         matchTyp = intent.extras?.getString(Constant.MATCHTYP).toString()
@@ -53,7 +55,14 @@ class MentalArithmeticActivity : AppCompatActivity() {
 
         startButton.setOnClickListener {
             //startActivity(Intent(this, MentalArithmeticResultActivity::class.java))
-            viewModel.readyUpToStartGame()
+            if (startButton.text == Constant.START){
+                viewModel.readyUpToStartGame()
+                startButton.text = Constant.SURRENDER
+            } else {
+                val intent = Intent(this, GameSelectActivity::class.java).apply {  }
+                startActivity(intent)
+                finish()
+            }
         }
 
         sendAnswerBtn.setOnClickListener {
@@ -66,7 +75,11 @@ class MentalArithmeticActivity : AppCompatActivity() {
         viewModel.chronometer(chronometer, pauseOffset)
 
         viewModel.getLiveCurrentUserAnswersData().observe(this, Observer {
-            val currentTask = viewModel.getCurrentTask()
+            val currentTask = viewModel.getCurrentTask(){ result ->
+                if (result){
+                    sendAnswerBtn.isEnabled = true
+                }
+            }
             if (currentTask == Constant.WAITINGFOROPPONENT){
                 arithmeticTask.text = currentTask
                 sendAnswerBtn.isEnabled = false
@@ -75,6 +88,7 @@ class MentalArithmeticActivity : AppCompatActivity() {
                     if (it) {
                         val intent = Intent(this, MentalArithmeticResultActivity::class.java).apply {  }
                         startActivity(intent)
+                        finish()
                     }
                 }
             }
@@ -85,11 +99,8 @@ class MentalArithmeticActivity : AppCompatActivity() {
         })
     }
 
-    fun pauseChronometer(v : View){
-        if (running){
-            chronometer.stop()
-            running = false
-            System.out.println(chronometer.text)
-        }
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.destroyGame()
     }
 }

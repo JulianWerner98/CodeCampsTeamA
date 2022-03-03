@@ -152,14 +152,16 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
-    fun getCurrentTask(): String {
+    fun getCurrentTask(callback: (result: Boolean) -> Unit): String {
         if (running) {
             if (counter == 3){
                 return Constant.WAITINGFOROPPONENT
             }
+            callback.invoke(true)
             return getLiveArithmeticTasksData().value!![counter]
         } else {
             running = true
+            callback.invoke(false)
             return "Arithmetic Tasks"
         }
     }
@@ -212,5 +214,13 @@ class MentalArithmeticViewModel : ViewModel() {
         Log.d("MentalArithmetic", "friendID:  ${this.friendId}")
         Log.d("MentalArithmetic", "friendID:  ${this.matchTyp}")
         Log.d("MentalArithmetic", "friendID:  ${this.inviteKey}")
+    }
+
+    fun destroyGame() {
+        if (matchTyp == Constant.PRIVATE){
+            mentalArithmeticRepo.destroyPrivateGame(gameKey, friendId)
+        } else {
+            mentalArithmeticRepo.destroyDefaultGame(gameKey)
+        }
     }
 }

@@ -36,6 +36,7 @@ class MentalArithmeticRepository {
         currentUserRef = rootRef.child(Constant.USERS_PATH).child(currentUser.uid).ref
     }
 
+    // ---- MentalArithmetic ViewModel ----
     fun lookForGame(
         arithmeticTasks: MutableList<String>,
         arithmeticAnswers: MutableList<String>,
@@ -253,6 +254,7 @@ class MentalArithmeticRepository {
                 } else {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
+                    maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(false)
                     callback.invoke(false)
                 }
             }
@@ -264,7 +266,70 @@ class MentalArithmeticRepository {
         })
     }
 
-    // Result ViewModel
+    fun destroyDefaultGame(gameKey: String) {
+        maRef.child(gameKey).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.child(Constant.MENTALARITHMETICQUEUE).exists()){
+                    maRef.child(gameKey).removeValue()
+                } else if (!snapshot.child(Constant.DELETEGAME).child(currentUser.uid).exists()){
+                    val currentUserAnswers = mutableListOf<Boolean>()
+                    currentUserAnswers.add(false)
+                    val time = "99:54"
+                    maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
+                    maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
+                    maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
+                    maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
+
+                    snapshot.child(Constant.DELETEGAME).children.forEach{
+                        if (it.key.toString() != currentUser.uid){
+                            if (it.value as Boolean){
+                                // Delete game if both player have given up
+                                maRef.child(gameKey).removeValue()
+                            }
+                        }
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    fun destroyPrivateGame(gameKey: String, friendId: String) {
+        maRef.child(gameKey).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.child(Constant.MENTALARITHMETICPRIVATEQUEUE).exists()){
+                    maRef.child(gameKey).removeValue()
+                    rootRef.child(Constant.USERS_PATH).child(friendId).child(Constant.INVITES).child(Constant.MENTALARITHMETIC).child(currentUserName).removeValue()
+                } else if (!snapshot.child(Constant.DELETEGAME).child(currentUser.uid).exists()){
+                    val currentUserAnswers = mutableListOf<Boolean>()
+                    currentUserAnswers.add(false)
+                    val time = "99:54"
+                    maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
+                    maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
+                    maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
+                    maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
+
+                    snapshot.child(Constant.DELETEGAME).children.forEach{
+                        if (it.key.toString() != currentUser.uid){
+                            if (it.value as Boolean){
+                                // Delete game if both player have given up
+                                maRef.child(gameKey).removeValue()
+                            }
+                        }
+                    }
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    // ---- Result ViewModel ----
     fun fetchCurrentUserAnswers(gameKey: String, callback: (result: MutableList<Boolean>) -> Unit) {
         maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -318,6 +383,32 @@ class MentalArithmeticRepository {
                     }
                 }
                 callback.invoke(timeList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    fun finishedGame(gameKey: String) {
+        maRef.child(gameKey).child(Constant.DELETEGAME).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()){
+                    var counter = 0
+                    snapshot.children.forEach {
+                        if (it.key.toString() == currentUser.uid){
+                            maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
+                            counter += 1
+                        } else if (it.value as Boolean){
+                            counter += 1
+                        }
+                    }
+                    if (counter == 2){
+                        maRef.child(gameKey).removeValue()
+                    }
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
