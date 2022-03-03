@@ -44,15 +44,14 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
             wrongAnswers.text = it
         })
 
+        viewModel.getLiveTimeData().observe(this, Observer {
+            time.text = it
+        })
+
         viewModel.getLiveWonGameData().observe(this, Observer {
             wonGame.text = it
         })
 
-        viewModel.getLiveTimeData().observe(this, Observer {
-            time.text = it
-            val test = time.text
-            time.text = test.split(":").toString()
-        })
     }
 
 }

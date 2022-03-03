@@ -17,7 +17,7 @@ class GameInviteRepository {
     }
 
     fun fetchInvitesList(callback: (result: ArrayList<GameInvites>) -> Unit ) {
-        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.INVITES).addListenerForSingleValueEvent(object : ValueEventListener{
+        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.INVITES).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 val invitesList = arrayListOf<GameInvites>()
 

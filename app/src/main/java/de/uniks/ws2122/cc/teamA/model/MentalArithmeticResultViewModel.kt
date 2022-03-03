@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.model
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.repository.MentalArithmeticRepository
@@ -11,7 +12,9 @@ class MentalArithmeticResultViewModel : ViewModel() {
     private var currentUserCorrectAnswers = 0
     private var currentUserWrongAnswers = 0
     private var opponentCorrectAnswers = 0
+    private var opponentWrongAnswers = 0
     private var time = String()
+    private var opponentTime = String()
     private var wonGame = String()
 
 
@@ -83,8 +86,8 @@ class MentalArithmeticResultViewModel : ViewModel() {
         mentalArithmeticRepo.fetchCurrentUserAnswers(gameKey) {
             currentUserAnswers = it
             setLiveCurrentUserAnswersData()
-            getCorrectAnswers(currentUserAnswers)
-            getWrongAnswers(currentUserAnswers)
+            getCorrectAndWrongAnswers(currentUserAnswers)
+            //getWrongAnswers(currentUserAnswers)
             mentalArithmeticRepo.fetchOpponentAnswers(gameKey) { answer ->
                 opponentAnswers = answer
                 getWonGame(opponentAnswers)
@@ -94,20 +97,22 @@ class MentalArithmeticResultViewModel : ViewModel() {
 
     private fun fetchTime(gameKey: String) {
         mentalArithmeticRepo.fetchTime(gameKey) {
-            time = it
-            setLiveTimeData()
+            time = it[0]
+            opponentTime = it[1]
         }
     }
 
 
-    fun getCorrectAnswers(currentUserAnswers: MutableList<Boolean>){
-        println(currentUserAnswers)
+    fun getCorrectAndWrongAnswers(currentUserAnswers: MutableList<Boolean>){
         for (answer in currentUserAnswers) {
             if (answer) {
                 currentUserCorrectAnswers += 1
+            } else {
+                currentUserWrongAnswers += 1
             }
         }
         setLiveCurrentUserCorrectAnswersData()
+        setLiveCurrentUserWrongAnswersData()
     }
 
     fun getWrongAnswers(currentUserAnswers: MutableList<Boolean>){
@@ -123,17 +128,85 @@ class MentalArithmeticResultViewModel : ViewModel() {
         for (answer in opponentAnswers){
             if (answer) {
                 opponentCorrectAnswers += 1
+            } else {
+                opponentWrongAnswers += 1
             }
         }
-        if (currentUserCorrectAnswers > opponentCorrectAnswers) {
-            wonGame = "You have won"
-            setLiveWonGameData()
-        } else if (currentUserCorrectAnswers < opponentCorrectAnswers) {
-            wonGame = "You have lost"
-            setLiveWonGameData()
+
+        when(calculateTime()){
+            "moreTime" -> {
+                if(currentUserCorrectAnswers > opponentCorrectAnswers) {
+                    wonGame = "You have won"
+                    setLiveWonGameData()
+                } else {
+                    wonGame = "You have lost"
+                    setLiveWonGameData()
+                }
+            }
+            "lessTime" -> {
+                if (currentUserCorrectAnswers >= opponentCorrectAnswers){
+                    wonGame = "You have won"
+                    setLiveWonGameData()
+                } else {
+                    wonGame = "You have lost"
+                    setLiveWonGameData()
+                }
+            }
+            "sameTime" -> {
+                if (currentUserCorrectAnswers > opponentCorrectAnswers){
+                    wonGame = "You have won"
+                    setLiveWonGameData()
+                } else {
+                    if (currentUserCorrectAnswers < opponentCorrectAnswers){
+                        wonGame = "You have lost"
+                        setLiveWonGameData()
+                    } else {
+                        wonGame = "It's a draw"
+                        setLiveWonGameData()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun calculateTime(): String {
+        var currentUserMinutes = time.split(":")[0].toInt()
+        var currentUserSec = time.split(":")[1].toInt()
+        val currentUserTimePenalty = 5 * currentUserWrongAnswers
+        var opponentMinutes = opponentTime.split(":")[0].toInt()
+        var opponentSec = opponentTime.split(":")[1].toInt()
+        val opponentTimePenalty = 5 * opponentWrongAnswers
+
+        currentUserSec += currentUserTimePenalty
+        opponentSec += opponentTimePenalty
+
+        if (currentUserSec >= 60){
+            val minute = currentUserSec % 60
+            currentUserMinutes += minute
+            currentUserSec -= 60 * minute
+        }
+
+        if (opponentSec >= 60){
+            val minute = opponentSec % 60
+            opponentMinutes += minute
+            opponentSec -= 60 * minute
+        }
+
+        time = "$currentUserMinutes:$currentUserSec"
+        Log.d("MentalArithmetic", "Time:  $time")
+        setLiveTimeData()
+        opponentTime = "$opponentMinutes:$opponentSec"
+
+        if (currentUserMinutes > opponentMinutes){
+            return "moreTime"
+        }
+        if (currentUserSec > opponentSec) {
+            return "moreTime"
+        }
+        return if (currentUserMinutes == opponentMinutes && currentUserSec == opponentSec){
+            "sameTime"
         } else {
-            wonGame = "Draw"
-            setLiveWonGameData()
+            "lessTime"
         }
     }
 

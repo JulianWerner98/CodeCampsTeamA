@@ -307,11 +307,17 @@ class MentalArithmeticRepository {
         })
     }
 
-    fun fetchTime(gameKey: String, callback: (result: String) -> Unit) {
-        maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).addListenerForSingleValueEvent(object : ValueEventListener{
+    fun fetchTime(gameKey: String, callback: (result: List<String>) -> Unit) {
+        maRef.child(gameKey).child(Constant.FINISHED).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
-                val time = snapshot.value.toString()
-                callback.invoke(time)
+                val timeList = arrayListOf<String>()
+                timeList.add(snapshot.child(currentUser.uid).child(Constant.FINISHEDTIME).value.toString())
+                snapshot.children.forEach {
+                    if (it.key.toString() != currentUser.uid){
+                        timeList.add(it.child(Constant.FINISHEDTIME).value.toString())
+                    }
+                }
+                callback.invoke(timeList)
             }
 
             override fun onCancelled(error: DatabaseError) {
