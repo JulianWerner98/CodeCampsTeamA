@@ -1,7 +1,10 @@
 package de.uniks.ws2122.cc.teamA.model
 
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.SENSOR_SERVICE
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -12,10 +15,12 @@ import android.location.LocationManager
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.*
 import de.uniks.ws2122.cc.teamA.CompassActivity
+import de.uniks.ws2122.cc.teamA.Service.TimerService
 import de.uniks.ws2122.cc.teamA.repository.CompassRepository
 
 
@@ -26,7 +31,6 @@ class CompassViewModel : ViewModel() {
     private var compassRepo: CompassRepository = CompassRepository()
     private var numberOfEmblems = 3
     private var objects = ArrayList<Feature>()
-    private lateinit var callback: () -> Unit
 
     private lateinit var sensorManager: SensorManager
     private lateinit var sensorAccelerometer: Sensor
@@ -40,6 +44,12 @@ class CompassViewModel : ViewModel() {
     private val floatRotationMatrix = FloatArray(9)
 
     private lateinit var sensorCallback: (FloatArray) -> Unit
+    private lateinit var timerCallback: (Double) -> Unit
+    private lateinit var getLocationCallback: () -> Unit
+
+    private var timerStarted = false
+    private lateinit var serviceIntent: Intent
+    private var time = 0.0
 
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
         compassRepo.getApiObject(compassActivity, numberOfEmblems, callback)
@@ -51,7 +61,7 @@ class CompassViewModel : ViewModel() {
         callbackDegree: (Double) -> Unit
     ) {
         getLastLocation(compassActivity)
-        callback = {
+        getLocationCallback = {
             val x = 9.490193682869808 //Hauptbahnhof location.latitude
             val y = 51.31812310171641 //location.longitude
             val x2 = feature.geometry.coordinates[0]
@@ -69,7 +79,7 @@ class CompassViewModel : ViewModel() {
                     if (location == null) {
                         newLocationData(compassActivity)
                     } else {
-                        callback.invoke()
+                        getLocationCallback.invoke()
                     }
                 }
             } else {
@@ -141,7 +151,7 @@ class CompassViewModel : ViewModel() {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             location = locationResult.lastLocation
-            callback.invoke()
+            getLocationCallback.invoke()
         }
     }
 
@@ -205,4 +215,9 @@ class CompassViewModel : ViewModel() {
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
+
+    fun getGame(): CompassGame? {
+        return null
+    }
+
 }
