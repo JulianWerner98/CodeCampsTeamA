@@ -42,7 +42,6 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
         initializeObserver()
 
         backToGameSelectBtn.setOnClickListener {
-            viewModel.finishedGame()
             val intent = Intent(this, GameSelectActivity::class.java)
             startActivity(intent)
             finish()
