@@ -12,6 +12,8 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityGameSelectBinding
 import de.uniks.ws2122.cc.teamA.friendlist.FriendListActivity
+import de.uniks.ws2122.cc.teamA.gameInvite.GameInviteListActivity
+import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 
 class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
@@ -23,6 +25,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var tttBtn: Button
     private lateinit var compassBtn: Button
     private lateinit var nicknameText: TextView
+    private lateinit var mentalArithmeticBtn : Button
+    private lateinit var gameInviteListBtn : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,11 +40,15 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         tttBtn = binding.tttBtn
         compassBtn = binding.kompassBtn
         nicknameText = binding.TVnickname
+        mentalArithmeticBtn = binding.btnMentalArithmetic
+        gameInviteListBtn = binding.btnGameInviteList
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
         logoutBtn.setOnClickListener(this)
         compassBtn.setOnClickListener(this)
+        mentalArithmeticBtn.setOnClickListener(this)
+        gameInviteListBtn.setOnClickListener(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -55,7 +63,23 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             tttBtn.id -> changeToTicTacToeScreen()
             friendlistBtn.id -> changeToFriendslist()
             compassBtn.id -> changeToCompassScreen()
+            mentalArithmeticBtn.id -> changeToMentalArithmetic()
+            gameInviteListBtn.id -> changeToGameInviteList()
         }
+    }
+
+    private fun changeToGameInviteList() {
+        val intent = Intent(this, GameInviteListActivity::class.java).apply {  }
+        startActivity(intent)
+    }
+
+    private fun changeToMentalArithmetic() {
+        val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
+            this.putExtra(Constant.FRIENDID, Constant.DEFAULT)
+            this.putExtra(Constant.MATCHTYP, Constant.DEFAULT)
+            this.putExtra(Constant.INVITEKEY, Constant.DEFAULT)
+        }
+        startActivity(intent)
     }
 
     private fun logout() {

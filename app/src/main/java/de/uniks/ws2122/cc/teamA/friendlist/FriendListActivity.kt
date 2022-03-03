@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendListBinding
 import de.uniks.ws2122.cc.teamA.model.FriendListViewModel
@@ -34,7 +35,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
 
-        viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
+        viewModel = ViewModelProvider(this)[FriendListViewModel::class.java]
 
         friendsAdapter = MyFriendsAdapter(viewModel.getLiveDataFriendList(), this)
 
@@ -78,8 +79,8 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
     override fun onItemClick(position: Int) {
         val friend = viewModel.getLiveDataFriendList().value!![position]
         val intent = Intent(this@FriendListActivity, FriendProfileActivity::class.java)
-        intent.putExtra("FriendId", friend.id)
-        intent.putExtra("nickname", friend.nickname)
+        intent.putExtra(Constant.FRIENDID, friend.id)
+        intent.putExtra(Constant.NICKNAME, friend.nickname)
         startActivity(intent)
     }
 }

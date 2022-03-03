@@ -18,6 +18,20 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".gameInvite.GameInviteListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".friendlist.FriendGameInviteActivity"
+            android:exported="false" />
+        <activity
+            android:name=".mentalArithmetic.MentalArithmeticResultActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".mentalArithmetic.MentalArithmeticActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".GameSelectActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

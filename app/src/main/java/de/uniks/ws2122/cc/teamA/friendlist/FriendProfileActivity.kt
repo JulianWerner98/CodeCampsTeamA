@@ -24,6 +24,7 @@ class FriendProfileActivity : AppCompatActivity() {
     private lateinit var friendId: String
     private lateinit var nickName: String
     private lateinit var btnUnfriend: Button
+    private lateinit var gameListBtn : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,9 +33,11 @@ class FriendProfileActivity : AppCompatActivity() {
 
         friendNickName = binding.tvFriendProfileNickName
         btnUnfriend = binding.btnUnfriend
-        friendId = intent.extras?.get("FriendId").toString()
-        nickName = intent.extras?.get("nickname").toString()
+        gameListBtn = binding.btnInviteGameList
+        friendId = intent.extras?.get(Constant.FRIENDID).toString()
+        nickName = intent.extras?.get(Constant.NICKNAME).toString()
         friendNickName.text = nickName
+
 
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
@@ -63,6 +66,13 @@ class FriendProfileActivity : AppCompatActivity() {
                     ).show()
                 }
             }
+        }
+
+        gameListBtn.setOnClickListener {
+            val intent = Intent(this, FriendGameInviteActivity::class.java).apply {
+                this.putExtra(Constant.FRIENDID, friendId)
+            }
+            startActivity(intent)
         }
     }
 }
