@@ -104,6 +104,7 @@ class CompassRepository {
 
     fun getRequest(callback: (CompassGame?) -> Unit) {
         callback.invoke(null)
+        return
         rootRef.child(GAMES).child(MATCH_REQUEST).get().addOnCompleteListener {
             if(it.isSuccessful) {
 

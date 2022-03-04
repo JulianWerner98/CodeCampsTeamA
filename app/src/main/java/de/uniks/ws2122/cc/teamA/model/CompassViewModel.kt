@@ -46,9 +46,7 @@ class CompassViewModel : ViewModel() {
 
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
         compassRepo.getApiObject(compassActivity, numberOfEmblems) {
-            it.forEach {
-                currentGame!!.objectList.add(it)
-            }
+            currentGame = CompassGame(ArrayList(it), 0, 0)
             callback.invoke(it)
         }
     }
@@ -243,7 +241,6 @@ class CompassViewModel : ViewModel() {
         callback: () -> Unit
     ) {
         getRandomLocation(compassActivity) { emblems ->
-            currentGame = CompassGame(ArrayList(emblems), 0, 0)
             currentGame!!.players.add(appViewModel.getUID())
             compassRepo.createGame(currentGame)
             callback.invoke()
