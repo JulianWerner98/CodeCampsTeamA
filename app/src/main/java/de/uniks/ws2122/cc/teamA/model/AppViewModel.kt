@@ -4,11 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
-import de.uniks.ws2122.cc.teamA.controller.AuthController
+import de.uniks.ws2122.cc.teamA.repository.AuthRepository
 
 class AppViewModel : ViewModel() {
     private var liveValueUser: MutableLiveData<User> = MutableLiveData()
-    private var authController = AuthController()
+    private var authRepository = AuthRepository()
 
     //Setter
     fun setUser(user: User): User {
@@ -18,9 +18,9 @@ class AppViewModel : ViewModel() {
 
     //Getter
     fun getLiveValueUser(): LiveData<User> {
-        if (authController.isLoggedIn() && liveValueUser.value == null) {
-            val uid = authController.getCurrentFBUser()!!.uid
-            authController.getCurrentUser(uid) { user ->
+        if (authRepository.isLoggedIn() && liveValueUser.value == null) {
+            val uid = authRepository.getCurrentFBUser()!!.uid
+            authRepository.getCurrentUser(uid) { user ->
                 if (user != null) {
                     setUser(user)
                 }
@@ -29,13 +29,17 @@ class AppViewModel : ViewModel() {
         return liveValueUser
     }
 
+    fun getUID(): String {
+        return authRepository.getCurrentFBUser()!!.uid
+    }
+
     //Auth Functions
     fun loginUser(email: String, pwd: String, callback: (result: String) -> Unit) {
-        authController.loginUser(email, pwd, callback)
+        authRepository.loginUser(email, pwd, callback)
     }
 
     fun logoutUser() {
-        authController.logoutUser()
+        authRepository.logoutUser()
     }
 
     fun registerUser(
@@ -44,7 +48,7 @@ class AppViewModel : ViewModel() {
         nickname: String,
         callback: (result: User?) -> Unit
     ) {
-        authController.registerUser(email, pwd, nickname) { user ->
+        authRepository.registerUser(email, pwd, nickname) { user ->
             if (user != null && !user.id.equals(NICKNAME_ERROR)) {
                 setUser(user)
             }
@@ -53,11 +57,11 @@ class AppViewModel : ViewModel() {
     }
 
     fun isLoggedIn(): Boolean {
-        return authController.isLoggedIn()
+        return authRepository.isLoggedIn()
     }
 
     fun newPasswordMail(email: String, callback: (result: String) -> Unit) {
-        authController.resetMail(email, callback)
+        authRepository.resetMail(email, callback)
     }
 
 

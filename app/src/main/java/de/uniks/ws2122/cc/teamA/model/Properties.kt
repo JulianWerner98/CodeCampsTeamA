@@ -13,4 +13,11 @@ data class Properties(
     val Plz_Ort: String,
     val Str: String,
     val Tel: String
-)
+) {
+    constructor() :
+            this(
+                "", false, false, "", "", 0,
+                "", "", 0, "", "", ""
+            )
+
+}

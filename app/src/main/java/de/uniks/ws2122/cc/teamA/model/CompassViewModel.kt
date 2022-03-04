@@ -25,8 +25,7 @@ class CompassViewModel : ViewModel() {
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     var location: Location? = null
     private var compassRepo: CompassRepository = CompassRepository()
-    private var numberOfEmblems = 2
-    var objects = ArrayList<Feature>()
+    private var numberOfEmblems = 3
 
     private lateinit var sensorManager: SensorManager
     private lateinit var sensorAccelerometer: Sensor
@@ -42,13 +41,13 @@ class CompassViewModel : ViewModel() {
     private lateinit var sensorCallback: (FloatArray) -> Unit
     private lateinit var getLocationCallback: () -> Unit
 
-    private var currentGame: CompassGame? = null
+    var currentGame: CompassGame? = null
     var timerService: TimerService? = null
 
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
         compassRepo.getApiObject(compassActivity, numberOfEmblems) {
             it.forEach {
-                objects.add(it)
+                currentGame!!.objectList.add(it)
             }
             callback.invoke(it)
         }
@@ -61,7 +60,7 @@ class CompassViewModel : ViewModel() {
     ) {
         getLastLocation(compassActivity)
         getLocationCallback = {
-            Log.d("Current Position", location!!.latitude.toString() + " "+ location!!.longitude)
+            Log.d("Current Position", location!!.latitude.toString() + " " + location!!.longitude)
             val x = /*9.490193682869808 */location!!.longitude
             val y = /*51.31812310171641*/ location!!.latitude
             val x2 = feature.geometry.coordinates[0]
@@ -167,6 +166,7 @@ class CompassViewModel : ViewModel() {
         startSensor()
 
     }
+
     fun startSensor() {
         sensorManager.registerListener(
             sensorEventListenerAccelrometer,
@@ -179,7 +179,8 @@ class CompassViewModel : ViewModel() {
             SensorManager.SENSOR_DELAY_NORMAL
         );
     }
-    fun stopSensor(){
+
+    fun stopSensor() {
         sensorManager.unregisterListener(sensorEventListenerAccelrometer)
         sensorManager.unregisterListener(sensorEventListenerMagneticField);
     }
@@ -226,17 +227,25 @@ class CompassViewModel : ViewModel() {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
 
-    fun getGame(): CompassGame? {
+    fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit)    {
         if (currentGame != null) {
-            return currentGame
-        } else {
-            return null
+            callback.invoke(currentGame)
+        }
+        compassRepo.getGame(appViewModel)  { game ->
+            currentGame = game
+            callback.invoke(game)
         }
     }
 
-    fun createGame(compassActivity: CompassActivity, callback: () -> Unit) {
+    fun createGame(
+        compassActivity: CompassActivity,
+        appViewModel: AppViewModel,
+        callback: () -> Unit
+    ) {
         getRandomLocation(compassActivity) { emblems ->
             currentGame = CompassGame(ArrayList(emblems), 0, 0)
+            currentGame!!.players.add(appViewModel.getUID())
+            compassRepo.createGame(currentGame)
             callback.invoke()
         }
     }
@@ -246,7 +255,11 @@ class CompassViewModel : ViewModel() {
         currentObjectCount: Int,
         callback: (Double) -> Unit
     ) {
-        getAngleToLocation(compassActivity, objects[currentObjectCount], callback)
+        getAngleToLocation(compassActivity, currentGame!!.objectList[currentObjectCount], callback)
+    }
+
+    fun getRequest(callback: (CompassGame?) -> Unit) {
+        compassRepo.getRequest(callback)
     }
 
 }

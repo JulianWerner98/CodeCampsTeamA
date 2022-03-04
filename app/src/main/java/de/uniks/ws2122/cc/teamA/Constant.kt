@@ -1,6 +1,7 @@
 package de.uniks.ws2122.cc.teamA
 
 object Constant {
+
     //MSG
     val ERROR_MSG = "There are some Errors! Try again."
     val LOGIN_SUCCESS_MSG = "Login successful!"
@@ -54,9 +55,12 @@ object Constant {
     const val SURRENDER = "Surrender"
     const val PLAYERS = "Players"
 
+    //Compass Game
+    const val COMPASS_GAME ="CompassGame"
+
     //Invite Path
     const val MATCH_REQUEST = "matchRequest"
-    const val FROM = "FROM"
+    const val FROM = "from"
     const val GAME = "game"
     const val INVITES = "invites"
     const val FRIENDID = "friendId"
@@ -64,4 +68,5 @@ object Constant {
     const val MATCHTYP = "matchTyp"
     const val DEFAULT = "default"
     const val PRIVATE = "private"
+
 }

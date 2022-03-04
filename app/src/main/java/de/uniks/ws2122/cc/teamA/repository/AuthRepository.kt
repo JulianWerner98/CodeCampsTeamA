@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.controller
+package de.uniks.ws2122.cc.teamA.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -13,7 +13,7 @@ import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.model.User
 
-class AuthController {
+class AuthRepository {
 
     constructor() {
         dbref = FirebaseDatabase.getInstance(FIREBASE_URL).reference

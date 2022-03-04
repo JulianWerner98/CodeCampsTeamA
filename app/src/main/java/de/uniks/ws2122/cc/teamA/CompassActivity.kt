@@ -5,13 +5,13 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.Vibrator
 import android.util.Log
-import android.view.Menu
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.Constant.WAITINGFOROPPONENT
 import de.uniks.ws2122.cc.teamA.Service.TimerService
 import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
@@ -50,22 +50,29 @@ class CompassActivity : AppCompatActivity() {
         binding.btnStart.isVisible = false
         binding.arrow.isVisible = false
 
-        val game = viewModel.getGame()
-        if (game == null) {
-            viewModel.createGame(this) {
-                binding.btnStart.isVisible = true
-                binding.spinner.isVisible = false
-                binding.arrow.isVisible = true
-                binding.btnStart.setOnClickListener { startGame() }
+        viewModel.getGame(appViewModel) { game ->
+            if (game == null) {
+                viewModel.getRequest() { game ->
+                    viewModel.createGame(this, appViewModel) {
+                        binding.btnStart.isVisible = true
+                        binding.spinner.isVisible = false
+                        binding.arrow.isVisible = true
+                        binding.btnStart.setOnClickListener { startGame() }
+                    }
+                }
+
+            } else {
+                if (game.players.size < 2) {
+                    objectLabel.text = WAITINGFOROPPONENT
+                } else {
+                    binding.btnStart.isVisible = true
+                    binding.spinner.isVisible = false
+                    binding.arrow.isVisible = true
+                    binding.btnStart.setOnClickListener { startGame() }
+                }
             }
         }
-        /*viewModel.getRandomLocation(this) { emblems ->
-            viewModel.getAngleToLocation(this, emblems[0]) { degree ->
-                Log.d("Debug Degree", emblems[0].properties.Objekt + ": " + degree.toString())
-                // binding.degree2.text = degree.toString()
-                searchedDegree = degree
-            }
-        }*/
+
 
     }
 
@@ -77,7 +84,7 @@ class CompassActivity : AppCompatActivity() {
             binding.spinner.isVisible = false
             binding.arrow.isVisible = true
             searchedDegree = next
-            objectLabel.text = viewModel.objects[currentObjectCount].properties.Objekt
+            objectLabel.text = viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
             viewModel.timerService?.resetTimer(this)
             viewModel.timerService?.startTimer(this)
         }
@@ -92,11 +99,6 @@ class CompassActivity : AppCompatActivity() {
     override fun onDestroy() {
         Log.d("Closed", "Closed")
         super.onDestroy()
-    }
-
-    override fun onStop() {
-        Log.d("Closed", "Stop")
-        super.onStop()
     }
 
 
@@ -114,13 +116,14 @@ class CompassActivity : AppCompatActivity() {
                     val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                     if (vibrator.hasVibrator()) {
                         vibrator.vibrate(500)
+
                         viewModel.timerService?.stopTimer(this)
                         viewModel.stopSensor()
-                        if (++currentObjectCount < viewModel.objects.size) {
+                        if (++currentObjectCount < viewModel.currentGame!!.objectList.size) {
                             viewModel.nextObject(this, currentObjectCount) { next ->
                                 searchedDegree = next
                                 objectLabel.text =
-                                    viewModel.objects[currentObjectCount].properties.Objekt
+                                    viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
                                 viewModel.startSensor()
                                 viewModel.timerService?.startTimer(this)
                             }
