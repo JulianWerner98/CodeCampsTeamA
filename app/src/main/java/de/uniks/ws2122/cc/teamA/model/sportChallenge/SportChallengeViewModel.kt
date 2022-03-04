@@ -59,6 +59,7 @@ class SportChallengeViewModel : ViewModel() {
             val stepCounter = StepCounter(context)
 
             sportChallengeData.value!!.players = mutableListOf(user, enemy)
+            setSportChallengeData(sportChallengeData.value!!)
 
             createTimer(context.applicationContext)
             startTimer(context.applicationContext)
