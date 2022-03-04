@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.model.SportChallenges
+package de.uniks.ws2122.cc.teamA.model.sportChallenge
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -8,6 +8,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.model.util.SportMode
 import de.uniks.ws2122.cc.teamA.model.util.StepCounter
 import de.uniks.ws2122.cc.teamA.model.util.StepTimerService
 import de.uniks.ws2122.cc.teamA.repository.SportChallengeRepository
@@ -36,12 +38,22 @@ class SportChallengeViewModel : ViewModel() {
 
     fun startMatch(mode: String, option: String, context: Context) {
 
+        sportRepo = SportChallengeRepository()
 
         sportChallengeData.value!!.mode = mode
         sportChallengeData.value!!.option = option
         setSportChallengeData(sportChallengeData.value!!)
 
-        sportRepo = SportChallengeRepository()
+        if (mode.isEmpty()) {
+
+            sportRepo.getModeAndOption { modeRepo, optionRepo ->
+
+                sportChallengeData.value!!.mode = modeRepo
+                sportChallengeData.value!!.option = optionRepo
+                setSportChallengeData(sportChallengeData.value!!)
+            }
+        }
+
         sportRepo.startMatchMaking(mode, option) { enemy, user ->
 
             val stepCounter = StepCounter(context)
@@ -51,9 +63,11 @@ class SportChallengeViewModel : ViewModel() {
             createTimer(context.applicationContext)
             startTimer(context.applicationContext)
 
-            stepCounter.startSteps {
+            stepCounter.startSteps { steps ->
 
-                sportChallengeData.value!!.userCountedSteps = it
+                sportChallengeData.value!!.userCountedSteps = steps
+                sportChallengeData.value!!.userMeters = (steps * 0.7f * 10.0f).roundToInt() / 10.0f
+
                 setSportChallengeData(sportChallengeData.value!!)
             }
 
@@ -71,8 +85,21 @@ class SportChallengeViewModel : ViewModel() {
         override fun onReceive(context: Context, intent: Intent) {
 
             time = intent.getDoubleExtra(StepTimerService.TIME_EXTRA, 0.0)
+            var speed = .0f
+            val unit =
+                if (sportChallengeData.value!!.mode == Constant.METERS) sportChallengeData.value!!.userMeters else sportChallengeData.value!!.userCountedSteps.toFloat()
+
+            if (time > 0) {
+
+                speed = ((unit / time.toFloat()) * 3.6f * 10.0f).roundToInt() / 10.0f
+
+            }
+            sportChallengeData.value!!.userSpeed = speed
             sportChallengeData.value!!.userTime = getTimeStringFromDouble(time)
             setSportChallengeData(sportChallengeData.value!!)
+
+            //checkWinner()
+
             sportRepo.sendData(
                 sportChallengeData.value!!.players[0],
                 sportChallengeData.value!!.userCountedSteps,
@@ -124,7 +151,7 @@ class SportChallengeViewModel : ViewModel() {
 
                 val currentTime = System.currentTimeMillis() / 1000
                 val oldSystemTime = oldSystemTimeInMilli / 1000
-                time = ((currentTime - oldSystemTime)  + countedTime)
+                time = ((currentTime - oldSystemTime) + countedTime)
             }
             callback.invoke(true)
         }
@@ -133,5 +160,27 @@ class SportChallengeViewModel : ViewModel() {
     private fun stopTimer(context: Context) {
 
         context.stopService(serviceIntent)
+    }
+
+    private fun checkWinner() {
+
+        val mode = sportChallengeData.value!!.mode
+        val option = sportChallengeData.value!!.option
+        val goal = SportMode().getOptionValue(mode, option)
+
+        val isWinner = when (mode) {
+
+            Constant.TIME -> goal <= time
+            Constant.METERS -> goal <= sportChallengeData.value!!.userMeters
+            Constant.STEPS -> goal <= sportChallengeData.value!!.userCountedSteps
+            else -> false
+        }
+
+        if (isWinner) {
+
+            sportRepo.sendWin(time) {
+
+            }
+        }
     }
 }

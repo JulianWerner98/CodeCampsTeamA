@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.model.TicTacToe
+package de.uniks.ws2122.cc.teamA.model.ticTacToe
 
 import android.util.Log
 import androidx.lifecycle.LiveData

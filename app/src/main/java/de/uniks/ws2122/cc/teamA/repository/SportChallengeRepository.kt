@@ -38,7 +38,7 @@ class SportChallengeRepository {
         }
     }
 
-    fun hasRunningGame(callback: (result: Boolean) -> Unit) {
+    fun hasRunningGame(callback: (hasGame: Boolean) -> Unit) {
 
         rootRef.child(Constant.USERS_PATH)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -83,7 +83,6 @@ class SportChallengeRepository {
                 matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
 
-
                         if (snapshot.hasChild(Constant.PLAYER2)) {
 
                             if (snapshot.child(Constant.PLAYER1)
@@ -95,8 +94,7 @@ class SportChallengeRepository {
 
                                 callbackEnemy.invoke(Constant.PLAYER1, Constant.PLAYER2)
                             }
-                        }
-                        else {
+                        } else {
 
                             waitForPlayer2()
                         }
@@ -281,25 +279,73 @@ class SportChallengeRepository {
     fun loadTime(user: String, callback: (countedTime: Double, oldSystemTime: Long) -> Unit) {
 
         matchRef.child(user).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                if (snapshot.child(Constant.COUNTED_TIME)
+                        .exists() && snapshot.child(Constant.SYSTEM_TIME).exists()
+                ) {
+
+                    val countedTime =
+                        snapshot.child(Constant.COUNTED_TIME).value.toString().toDouble()
+                    val oldSystemTime =
+                        snapshot.child(Constant.SYSTEM_TIME).value.toString().toLong()
+
+                    callback.invoke(countedTime, oldSystemTime)
+                    Log.d("SPORTRepo", "Time: $countedTime + $oldSystemTime")
+                } else {
+
+                    callback.invoke(0.0, 0)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    fun getModeAndOption(callback: (mode: String, option: String) -> Unit) {
+
+        rootRef.child(Constant.USERS_PATH)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
 
-                    if (snapshot.child(Constant.COUNTED_TIME).exists() && snapshot.child(Constant.SYSTEM_TIME).exists()) {
+                    val sportRefKey = snapshot.child(currentUser.uid)
+                        .child(Constant.SPORT_CHALLENGE).value.toString()
+                    matchRef = sportRef.child(sportRefKey)
 
-                        val countedTime = snapshot.child(Constant.COUNTED_TIME).value.toString().toDouble()
-                        val oldSystemTime = snapshot.child(Constant.SYSTEM_TIME).value.toString().toLong()
+                    matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
 
-                        callback.invoke(countedTime, oldSystemTime)
-                        Log.d("SPORTRepo", "Time: $countedTime + $oldSystemTime")
-                    }
-                    else {
+                            var mode = snapshot.child(Constant.MODE).value.toString()
+                            var option = snapshot.child(Constant.OPTION).value.toString()
 
-                        callback.invoke(0.0, 0)
-                    }
+                            callback.invoke(mode, option)
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            TODO("Not yet implemented")
+                        }
+
+                    })
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     TODO("Not yet implemented")
                 }
             })
+    }
+
+    fun sendWin(time: Double, callback: (isWinner: Boolean) -> Unit) {
+
+        matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
     }
 }

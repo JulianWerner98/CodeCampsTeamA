@@ -1,13 +1,12 @@
 package de.uniks.ws2122.cc.teamA
 
-import android.content.BroadcastReceiver
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivitySportChallengesBinding
-import de.uniks.ws2122.cc.teamA.model.SportChallenges.SportChallenge
-import de.uniks.ws2122.cc.teamA.model.SportChallenges.SportChallengeViewModel
+import de.uniks.ws2122.cc.teamA.model.sportChallenge.SportChallenge
+import de.uniks.ws2122.cc.teamA.model.sportChallenge.SportChallengeViewModel
 
 class SportChallengesActivity : AppCompatActivity() {
 
@@ -37,40 +36,45 @@ class SportChallengesActivity : AppCompatActivity() {
 
     private fun createDataObserver() {
 
-        val data = viewModel.getSportChallengeData().value
-        Log.d("TAG", "Mode: ${data!!.mode}")
-
-        if (data!!.mode == Constant.METERS) {
-
-            binding.tvUserCounterText.text = "User Meters"
-            binding.tvEnemyCounterText.text = "Enemy Meters"
-            binding.tvStats1.text = "Steps"
-        } else {
-
-            binding.tvUserCounterText.text = "User Steps"
-            binding.tvEnemyCounterText.text = "Enemy Steps"
-            binding.tvStats1.text = "Meters"
-        }
-
         viewModel.getSportChallengeData().observe(this) { sportChallenge ->
 
             binding.tvTimeCounter.text = "${sportChallenge.userTime}"
 
-            if (sportChallenge.mode == Constant.METERS) {
+            if (sportChallenge!!.mode == Constant.METERS) {
 
-                binding.tvCounterUser.text = "${sportChallenge.userMeters}"
-                binding.tvCounterEnemy.text = "${sportChallenge.enemyMeters}"
-                binding.tvCounterStats1.text = "${sportChallenge.userCountedSteps}"
+                showMetersText(sportChallenge)
+
             } else {
-
-                binding.tvCounterUser.text = "${sportChallenge.userCountedSteps}"
-                binding.tvCounterEnemy.text = "${sportChallenge.enemyCountedSteps}"
-                binding.tvCounterStats1.text = "${sportChallenge.userMeters}"
+                showStepsText(sportChallenge)
             }
-
-            binding.tvStats2.text = "Steps per Minute"
-            binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
         }
+    }
+
+    private fun showStepsText(sportChallenge: SportChallenge) {
+
+        binding.tvUserCounterText.text = "My Steps"
+        binding.tvEnemyCounterText.text = "Enemy Steps"
+        binding.tvStats1.text = "Meters"
+        binding.tvStats2.text = "steps/h"
+
+        binding.tvCounterUser.text = "${sportChallenge.userCountedSteps}"
+        binding.tvCounterEnemy.text = "${sportChallenge.enemyCountedSteps}"
+        binding.tvCounterStats1.text = "${sportChallenge.userMeters}"
+        binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
+
+    }
+
+    private fun showMetersText(sportChallenge: SportChallenge) {
+
+        binding.tvUserCounterText.text = "My Meters"
+        binding.tvEnemyCounterText.text = "Enemy Meters"
+        binding.tvStats1.text = "Steps"
+        binding.tvStats2.text = "km/h"
+
+        binding.tvCounterUser.text = "${sportChallenge.userMeters}"
+        binding.tvCounterEnemy.text = "${sportChallenge.enemyMeters}"
+        binding.tvCounterStats1.text = "${sportChallenge.userCountedSteps}"
+        binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
     }
 
     override fun onDestroy() {

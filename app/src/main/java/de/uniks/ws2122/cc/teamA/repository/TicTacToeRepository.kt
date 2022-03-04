@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.model.TicTacToe.TicTacToe
+import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToe
 import java.util.*
 
 class TicTacToeRepository {

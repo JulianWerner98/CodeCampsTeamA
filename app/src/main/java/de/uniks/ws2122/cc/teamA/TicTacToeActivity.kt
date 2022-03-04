@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
-import de.uniks.ws2122.cc.teamA.model.TicTacToe.TicTacToeViewModel
+import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
 
 class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 

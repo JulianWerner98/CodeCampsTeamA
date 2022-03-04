@@ -2,7 +2,6 @@ package de.uniks.ws2122.cc.teamA
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.RadioButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.size
@@ -23,9 +22,9 @@ class SelectSportModeActivity : AppCompatActivity() {
 
         binding.btnStart.isClickable = false
 
-        sportRepo.hasRunningGame {
+        sportRepo.hasRunningGame { isRunning ->
 
-            if (it) {
+            if (isRunning) {
 
                 val intent = Intent(this, SportChallengesActivity::class.java)
                 startActivity(intent)

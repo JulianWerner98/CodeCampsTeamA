@@ -17,6 +17,17 @@ class SportMode() {
         stepsOptions = mapOf("100 Steps" to 100, "200 Steps" to 200, "500 Steps" to 500, "1000 Steps" to 1000, "10.000 Steps" to 10000)
     }
 
+    fun getOptionValue(mode: String, option: String): Int {
+
+        return when(mode) {
+
+            Constant.TIME -> timeOptions[option]!!
+            Constant.METERS -> metersOptions[option]!!
+            Constant.STEPS -> stepsOptions[option]!!
+            else -> 0
+        }
+    }
+
     fun getOptions(mode: String): ArrayList<String> {
 
         when(mode) {

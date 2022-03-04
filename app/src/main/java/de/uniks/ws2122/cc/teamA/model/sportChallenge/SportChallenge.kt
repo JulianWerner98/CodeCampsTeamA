@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.model.SportChallenges
+package de.uniks.ws2122.cc.teamA.model.sportChallenge
 
 import de.uniks.ws2122.cc.teamA.model.Game
 
