@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blau_grau"
+    tools:context=".SelectSportModeActivity">
+
+    <Button
+        android:id="@+id/btnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start"
+        android:textColor="#4A148C"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <TextView
+        android:id="@+id/tvModeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Choose Mode"
+        android:textColor="@color/material_on_primary_emphasis_high_type"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.1" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/rbTime"
+        android:orientation='horizontal'
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2">
+
+        <RadioButton
+            android:id="@+id/rbTime"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:textColor="@color/material_on_primary_emphasis_high_type"
+            android:textSize="20sp" />
+
+        <RadioButton
+            android:id="@+id/rbMeters"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Meters"
+            android:textColor="@color/material_on_primary_emphasis_high_type"
+            android:textSize="20sp" />
+
+        <RadioButton
+            android:id="@+id/rbSteps"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="Steps"
+            android:textColor="@color/material_on_primary_emphasis_high_type"
+            android:textSize="20sp" />
+    </RadioGroup>
+
+    <RadioGroup
+        android:id="@+id/radioGroupOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkedButton="@id/rbOption1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/rbOption1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="1 Minute"
+            android:textColor="@color/material_on_primary_emphasis_high_type" />
+
+        <RadioButton
+            android:id="@+id/rbOption2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5 Minute"
+            android:textColor="@color/material_on_primary_emphasis_high_type" />
+
+        <RadioButton
+            android:id="@+id/rbOption3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="10 Minutes"
+            android:textColor="@color/material_on_primary_emphasis_high_type" />
+
+        <RadioButton
+            android:id="@+id/rbOption4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="30 Minutes"
+            android:textColor="@color/material_on_primary_emphasis_high_type" />
+
+        <RadioButton
+            android:id="@+id/rbOption5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="60 Minutes"
+            android:textColor="@color/material_on_primary_emphasis_high_type" />
+
+    </RadioGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
