@@ -26,7 +26,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="280dp"
+        android:layout_marginTop="192dp"
         android:layout_marginEnd="16dp"
         android:text="TicTacToe"
         app:layout_constraintEnd_toEndOf="parent"
@@ -39,7 +39,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="340dp"
+        android:layout_marginTop="248dp"
         android:layout_marginEnd="16dp"
         android:text="Compass Game"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,21 +62,21 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="400dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="20dp"
         android:width="@dimen/browser_actions_context_menu_max_width"
         android:text="Friendlist"
+        app:layout_constraintBottom_toTopOf="@+id/btnGameInviteList"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnMentalArithmetic"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="496dp"
+        android:layout_marginTop="308dp"
         android:layout_marginEnd="16dp"
         android:width="@dimen/browser_actions_context_menu_max_width"
         android:text="Mental Arithmetic"
@@ -90,14 +90,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="580dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:width="@dimen/browser_actions_context_menu_max_width"
         android:text="Game Invitelist"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ProgressBar
         android:id="@+id/spinner"
