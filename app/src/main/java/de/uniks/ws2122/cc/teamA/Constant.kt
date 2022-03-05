@@ -1,7 +1,6 @@
 package de.uniks.ws2122.cc.teamA
 
 object Constant {
-
     //MSG
     val ERROR_MSG = "There are some Errors! Try again."
     val LOGIN_SUCCESS_MSG = "Login successful!"
@@ -25,14 +24,14 @@ object Constant {
     const val GAMES = "Games"
     const val TTT = "TicTacToe"
     const val TTTFIELD = "Field"
-    const val LASTTURN = "lastTurn"
-    const val INGAME = "inGame"
-    const val OPENMATCHES = "openMatches"
+    const val LASTTURN = "LastTurn"
+    const val INGAME = "InGame"
+    const val OPENMATCHES = "OpenMatches"
     const val PLAYER1 = "Player1"
     const val PLAYER2 = "Player2"
     const val NICKNAME = "nickname"
-    const val WINNER = "winner"
-    const val ID = "id"
+    const val WINNER = "Winner"
+    const val ID = "Id"
     const val DRAW = "Draw"
     const val BLANKFIELD = "_________"
 
@@ -58,7 +57,20 @@ object Constant {
     //Compass Game
     const val COMPASS_GAME ="CompassGame"
 
-    //Invite Path
+    //Sport Challenge
+    const val SPORT_CHALLENGE = "SportChallenge"
+    const val MODE = "Mode"
+    const val OPTION = "Option"
+    const val KEY = "Key"
+    const val STEPS = "Steps"
+    const val METERS = "Meters"
+    const val TIME = "Time"
+    const val COUNTED_TIME = "CountedTime"
+    const val SYSTEM_TIME = "SystemTime"
+
+    //average step of a german
+    // deutsche Durchschnittsgröße ist ~173cm. durchschnittliche Schrittlänge bei 170cm ist ~70cm
+    const val AVERAGE_STEP = 0.7f
     const val MATCH_REQUEST = "matchRequest"
     const val FROM = "from"
     const val GAME = "game"

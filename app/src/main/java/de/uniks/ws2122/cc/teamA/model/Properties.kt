@@ -20,4 +20,5 @@ data class Properties(
                 "", "", 0, "", "", ""
             )
 
+
 }
