@@ -154,7 +154,7 @@ class MentalArithmeticViewModel : ViewModel() {
 
     fun getCurrentTask(callback: (result: Boolean) -> Unit): String {
         if (running) {
-            if (counter == 10){
+            if (counter == 3){
                 return Constant.WAITINGFOROPPONENT
             }
             callback.invoke(true)

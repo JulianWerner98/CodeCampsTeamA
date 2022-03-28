@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
-import de.uniks.ws2122.cc.teamA.model.TicTacToeViewModel
+import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
 
 class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -65,7 +65,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun createTicTacToeDataObserver(buttons: List<ImageButton>) {
 
-        viewModel.getTicTacToeData().observe(this, { tictactoe ->
+        viewModel.getTicTacToeData().observe(this) { tictactoe ->
 
             Log.d("TTTActivity", tictactoe.players.toString())
 
@@ -147,7 +147,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
                 counter++
             }
-        })
+        }
     }
 
     override fun onClick(v: View?) {
