@@ -182,19 +182,18 @@ class MentalArithmeticResultViewModel : ViewModel() {
         opponentSec += opponentTimePenalty
 
         if (currentUserSec >= 60){
-            val minute = currentUserSec % 60
+            val minute = currentUserSec / 60
             currentUserMinutes += minute
             currentUserSec -= 60 * minute
         }
 
         if (opponentSec >= 60){
-            val minute = opponentSec % 60
+            val minute = opponentSec / 60
             opponentMinutes += minute
             opponentSec -= 60 * minute
         }
 
         time = "$currentUserMinutes:$currentUserSec"
-        Log.d("MentalArithmetic", "Time:  $time")
         setLiveTimeData()
         opponentTime = "$opponentMinutes:$opponentSec"
 
