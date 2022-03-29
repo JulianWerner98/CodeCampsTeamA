@@ -74,4 +74,11 @@ class AppViewModel : ViewModel() {
         }
     }
 
+    fun sendGameInviteNotification(callback: (result: Boolean, id: Int, name: String) -> Unit) {
+        notificationRepository.sendGameInviteNotification() { result, id, name ->
+            if (result){
+                callback.invoke(result, id, name)
+            }
+        }
+    }
 }

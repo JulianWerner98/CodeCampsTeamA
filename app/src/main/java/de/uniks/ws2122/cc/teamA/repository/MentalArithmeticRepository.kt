@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
+import de.uniks.ws2122.cc.teamA.model.Notification
 
 class MentalArithmeticRepository {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
@@ -133,6 +134,11 @@ class MentalArithmeticRepository {
                 maRef.child(gameKey.toString()).child(Constant.READY).child(currentUser.uid).setValue(false)
                 rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.MENTALARITHMETIC).setValue(gameKey.toString())
                 rootRef.child(Constant.USERS_PATH).child(friendId).child(Constant.INVITES).child(Constant.MENTALARITHMETIC).child(currentUserName).setValue(gameKey.toString())
+
+                // Write in database to send a notification to opponent that you have him invite to a game
+                val notficationId =  rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(friendId).push().key
+                val notification = Notification(notficationId.toString(), currentUserName)
+                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(friendId).child(notficationId.toString()).setValue(notification)
             }
 
             override fun onCancelled(error: DatabaseError) {

@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.repository.MentalArithmeticRepository
+import de.uniks.ws2122.cc.teamA.repository.NotificationRepository
 
 class MentalArithmeticViewModel : ViewModel() {
     private var counter = 0
