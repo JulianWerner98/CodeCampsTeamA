@@ -1,6 +1,5 @@
 package de.uniks.ws2122.cc.teamA.model
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant
@@ -138,31 +137,38 @@ class MentalArithmeticResultViewModel : ViewModel() {
             Constant.MORETIME -> {
                 if(currentUserCorrectAnswers > opponentCorrectAnswers) {
                     wonGame = "You have won"
+                    mentalArithmeticRepo.setMentalArithmeticPoints(currentUserCorrectAnswers)
                     setLiveWonGameData()
                 } else {
                     wonGame = "You have lost"
+                    mentalArithmeticRepo.setMentalArithmeticLose()
                     setLiveWonGameData()
                 }
             }
             Constant.LESSTIME -> {
                 if (currentUserCorrectAnswers >= opponentCorrectAnswers){
                     wonGame = "You have won"
+                    mentalArithmeticRepo.setMentalArithmeticPoints(currentUserCorrectAnswers)
                     setLiveWonGameData()
                 } else {
                     wonGame = "You have lost"
+                    mentalArithmeticRepo.setMentalArithmeticLose()
                     setLiveWonGameData()
                 }
             }
             Constant.SAMETIME -> {
                 if (currentUserCorrectAnswers > opponentCorrectAnswers){
                     wonGame = "You have won"
+                    mentalArithmeticRepo.setMentalArithmeticPoints(currentUserCorrectAnswers)
                     setLiveWonGameData()
                 } else {
                     if (currentUserCorrectAnswers < opponentCorrectAnswers){
                         wonGame = "You have lost"
+                        mentalArithmeticRepo.setMentalArithmeticLose()
                         setLiveWonGameData()
                     } else {
                         wonGame = "It's a draw"
+                        mentalArithmeticRepo.setMentalArithmeticLose()
                         setLiveWonGameData()
                     }
                 }

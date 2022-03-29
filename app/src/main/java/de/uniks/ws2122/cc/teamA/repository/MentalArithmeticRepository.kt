@@ -1,16 +1,14 @@
 package de.uniks.ws2122.cc.teamA.repository
 
-import android.app.PendingIntent
-import android.content.Intent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.Notification
 
 class MentalArithmeticRepository {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
     private var currentUserName = String()
+    private var opponentId = String()
 
     // Database References
     private val rootRef: DatabaseReference =
@@ -194,6 +192,7 @@ class MentalArithmeticRepository {
                         maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
                         counter += 1
                     } else {
+                        opponentId = it.key.toString()
                         if (it.value as Boolean){
                             counter += 1
                         }
@@ -267,6 +266,10 @@ class MentalArithmeticRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.childrenCount.toInt() == 2){
                     callback.invoke(true)
+                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(currentUser.uid).setValue(currentUserName)
+                    rootRef.child(Constant.USERS_PATH).child(opponentId).child(Constant.STATISTIC).child(Constant.HISTORIE)
+                        .child(gameKey).child(currentUser.uid).setValue(currentUserName)
+                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(Constant.GAMENAME).setValue(Constant.MENTALARITHMETIC)
                     maRef.child(gameKey).child(Constant.FINISHED).removeEventListener(this)
                 } else {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
@@ -416,6 +419,53 @@ class MentalArithmeticRepository {
         })
     }
 
+    // If you have won the game update your points in database
+    fun setMentalArithmeticPoints(currentUserCorrectAnswers: Int) {
+        currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()){
+                    getCurrentPoints(){ result ->
+                        var points = result.toInt()
+                        points += 5 * currentUserCorrectAnswers
+                        currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).setValue(points)
+                    }
+                } else {
+                    val points =+ 5 * currentUserCorrectAnswers
+                    currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).setValue(points)
+                }
+                // Set that you have won the game
+                fetchGameKey { result ->
+                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(result).child(Constant.WINNER).setValue(true)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    private fun getCurrentPoints(callback: (result: String) -> Unit) {
+        currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                callback.invoke(snapshot.value.toString())
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    // Set in your historie that you have lost
+    fun setMentalArithmeticLose() {
+        fetchGameKey { result ->
+            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(result).child(Constant.WINNER).setValue(false)
+        }
+    }
+
     // Check if both player have finished the game and then delete it
     fun finishedGame(gameKey: String) {
         maRef.child(gameKey).child(Constant.DELETEGAME).addListenerForSingleValueEvent(object : ValueEventListener{
@@ -442,4 +492,5 @@ class MentalArithmeticRepository {
 
         })
     }
+
 }

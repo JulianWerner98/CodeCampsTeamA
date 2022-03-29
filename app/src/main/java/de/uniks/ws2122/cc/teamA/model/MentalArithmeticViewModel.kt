@@ -1,6 +1,5 @@
 package de.uniks.ws2122.cc.teamA.model
 
-import android.content.Intent
 import android.os.SystemClock
 import android.util.Log
 import android.widget.Chronometer
@@ -8,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.repository.MentalArithmeticRepository
-import de.uniks.ws2122.cc.teamA.repository.NotificationRepository
 
 class MentalArithmeticViewModel : ViewModel() {
     private var counter = 0

@@ -11,7 +11,6 @@ import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityResultBinding
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticResultViewModel
-import de.uniks.ws2122.cc.teamA.model.MentalArithmeticViewModel
 
 class MentalArithmeticResultActivity : AppCompatActivity() {
     private lateinit var binding : ActivityResultBinding
