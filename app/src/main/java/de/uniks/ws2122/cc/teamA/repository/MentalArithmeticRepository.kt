@@ -266,9 +266,9 @@ class MentalArithmeticRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.childrenCount.toInt() == 2){
                     callback.invoke(true)
-                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(currentUser.uid).setValue(currentUserName)
+                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(Constant.CURRENTUSER).setValue(currentUserName)
                     rootRef.child(Constant.USERS_PATH).child(opponentId).child(Constant.STATISTIC).child(Constant.HISTORIE)
-                        .child(gameKey).child(currentUser.uid).setValue(currentUserName)
+                        .child(gameKey).child(Constant.OPPONENT).setValue(currentUserName)
                     currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(Constant.GAMENAME).setValue(Constant.MENTALARITHMETIC)
                     maRef.child(gameKey).child(Constant.FINISHED).removeEventListener(this)
                 } else {

@@ -92,4 +92,6 @@ object Constant {
     const val POINTS = "points"
     const val HISTORIE = "Historie"
     const val GAMENAME = "gamename"
+    const val CURRENTUSER = "currentuser"
+    const val OPPONENT = "opponent"
 }
