@@ -16,8 +16,6 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -27,6 +25,7 @@ import de.uniks.ws2122.cc.teamA.friendlist.FriendRequestActivity
 import de.uniks.ws2122.cc.teamA.gameInvite.GameInviteListActivity
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
+import de.uniks.ws2122.cc.teamA.model.util.Notifications
 
 class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var viewModel: AppViewModel
@@ -78,25 +77,19 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel.notificationRequestList(){ result, id, name ->
             if (result) {
+                // Notification id should be unique
                 notificationId = id
+
+                // Create intent which opens if you click on the notification
                 val intent = Intent(this, FriendRequestActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
                 val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-                val builder = NotificationCompat.Builder(this, Constant.CHANNEL_ID)
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .setContentTitle("Request notification")
-                    .setContentText("$name has send you a friend request")
-                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    // Set the intent that will fire when the user taps the notification
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-
-                with(NotificationManagerCompat.from(this)) {
-                    // notificationId is a unique int for each notification that you must define
-                    notify(notificationId, builder.build())
-                }
+                // Create notification and send it
+                val notification = Notifications()
+                val text = ("$name has send you a friend request")
+                notification.sendNotification(notificationId, "Request notification", text, this, pendingIntent)
             }
         }
         requestPermissions()
