@@ -40,7 +40,6 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var gameInviteListBtn : Button
     private lateinit var sportBtn: Button
 
-    private var notificationId : Int = 0
     private lateinit var notificationManager: NotificationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +76,6 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel.notificationRequestList(){ result, id, name ->
             if (result) {
-                // Notification id should be unique
-                notificationId = id
-
                 // Create intent which opens if you click on the notification
                 val intent = Intent(this, FriendRequestActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -89,7 +85,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 // Create notification and send it
                 val notification = Notifications()
                 val text = ("$name has send you a friend request")
-                notification.sendNotification(notificationId, "Request notification", text, this, pendingIntent)
+                // Notification id should be unique
+                notification.sendNotification(id, "Request notification", text, this, pendingIntent)
             }
         }
         viewModel.sendGameInviteNotification(){ result, id, name ->
