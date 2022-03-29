@@ -81,4 +81,8 @@ object Constant {
     const val DEFAULT = "default"
     const val PRIVATE = "private"
 
+    // Notifications
+    const val NOTIFICATION = "Notification"
+    const val NOTIFICATIONREQUEST = "NotificationRequest"
+    const val CHANNEL_ID = "TeamAChannel"
 }

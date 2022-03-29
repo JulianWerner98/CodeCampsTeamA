@@ -1,13 +1,18 @@
 package de.uniks.ws2122.cc.teamA.friendlist
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.R
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendRequestBinding
 import de.uniks.ws2122.cc.teamA.model.FriendRequestViewModel
 
@@ -20,6 +25,8 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
 
     private lateinit var recyclerViewRequestList: RecyclerView
     private lateinit var recyclerViewSendList: RecyclerView
+
+    private var notificationId = 42
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.model
 
+import android.content.Intent
 import android.os.SystemClock
 import android.util.Log
 import android.widget.Chronometer
@@ -140,7 +141,7 @@ class MentalArithmeticViewModel : ViewModel() {
     }
 
     // Ready up to start the game
-    fun readyUpToStartGame(){
+    fun readyUpToStartGame() {
         mentalArithmeticRepo.readyUpToStartGame(gameKey) { answer ->
             if (answer){
                 chronometer.base = SystemClock.elapsedRealtime() - pauseOffset

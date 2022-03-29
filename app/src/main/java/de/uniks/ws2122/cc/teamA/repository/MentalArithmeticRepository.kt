@@ -1,8 +1,11 @@
 package de.uniks.ws2122.cc.teamA.repository
 
+import android.app.PendingIntent
+import android.content.Intent
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 
 class MentalArithmeticRepository {
     private val currentUser = FirebaseAuth.getInstance().currentUser!!

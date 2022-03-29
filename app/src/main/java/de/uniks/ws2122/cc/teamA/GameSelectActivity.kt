@@ -1,8 +1,13 @@
 package de.uniks.ws2122.cc.teamA
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,11 +16,14 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityGameSelectBinding
 import de.uniks.ws2122.cc.teamA.friendlist.FriendListActivity
+import de.uniks.ws2122.cc.teamA.friendlist.FriendRequestActivity
 import de.uniks.ws2122.cc.teamA.gameInvite.GameInviteListActivity
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
@@ -32,6 +40,9 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mentalArithmeticBtn : Button
     private lateinit var gameInviteListBtn : Button
     private lateinit var sportBtn: Button
+
+    private var notificationId : Int = 0
+    private lateinit var notificationManager: NotificationManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,10 +70,35 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
+        createNotificationChannel()
+
         viewModel.getLiveValueUser().observe(this) { user ->
             nicknameText.text = user.nickname
         }
 
+        viewModel.notificationRequestList(){ result, id, name ->
+            if (result) {
+                notificationId = id
+                val intent = Intent(this, FriendRequestActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+                val builder = NotificationCompat.Builder(this, Constant.CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_launcher_foreground)
+                    .setContentTitle("Request notification")
+                    .setContentText("$name has send you a friend request")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    // Set the intent that will fire when the user taps the notification
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+
+                with(NotificationManagerCompat.from(this)) {
+                    // notificationId is a unique int for each notification that you must define
+                    notify(notificationId, builder.build())
+                }
+            }
+        }
         requestPermissions()
     }
 
@@ -127,6 +163,21 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
             Log.d("STEP", "Permission Request")
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1337)
+        }
+    }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val name = "CodeCampTeamA"
+            val descriptionText = "CodeCampTeamA game app"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(Constant.CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 }
