@@ -211,9 +211,6 @@ class MentalArithmeticViewModel : ViewModel() {
         this.friendId = friendId
         this.matchTyp = matchTyp
         this.inviteKey = inviteKey
-        Log.d("MentalArithmetic", "friendID:  ${this.friendId}")
-        Log.d("MentalArithmetic", "friendID:  ${this.matchTyp}")
-        Log.d("MentalArithmetic", "friendID:  ${this.inviteKey}")
     }
 
     fun destroyGame() {

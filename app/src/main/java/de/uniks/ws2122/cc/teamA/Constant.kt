@@ -53,6 +53,7 @@ object Constant {
     const val START = "Start"
     const val SURRENDER = "Surrender"
     const val PLAYERS = "Players"
+    const val RESULT = "Result"
 
     //Compass Game
     const val COMPASS_GAME ="CompassGame"
@@ -94,4 +95,6 @@ object Constant {
     const val GAMENAME = "gamename"
     const val CURRENTUSER = "currentuser"
     const val OPPONENT = "opponent"
+    const val WIN = "win"
+    const val LOSE = "lose"
 }

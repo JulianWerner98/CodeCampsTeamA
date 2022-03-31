@@ -3,6 +3,7 @@ package de.uniks.ws2122.cc.teamA.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.model.MatchResult
 import de.uniks.ws2122.cc.teamA.model.Notification
 
 class MentalArithmeticRepository {
@@ -134,7 +135,7 @@ class MentalArithmeticRepository {
                 rootRef.child(Constant.USERS_PATH).child(friendId).child(Constant.INVITES).child(Constant.MENTALARITHMETIC).child(currentUserName).setValue(gameKey.toString())
 
                 // Write in database to send a notification to opponent that you have him invite to a game
-                val notficationId =  rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(friendId).push().key
+                val notficationId =  gameKey
                 val notification = Notification(notficationId.toString(), currentUserName)
                 rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(friendId).child(notficationId.toString()).setValue(notification)
             }
@@ -266,14 +267,11 @@ class MentalArithmeticRepository {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.childrenCount.toInt() == 2){
                     callback.invoke(true)
-                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(Constant.CURRENTUSER).setValue(currentUserName)
-                    rootRef.child(Constant.USERS_PATH).child(opponentId).child(Constant.STATISTIC).child(Constant.HISTORIE)
-                        .child(gameKey).child(Constant.OPPONENT).setValue(currentUserName)
-                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).child(Constant.GAMENAME).setValue(Constant.MENTALARITHMETIC)
                     maRef.child(gameKey).child(Constant.FINISHED).removeEventListener(this)
                 } else {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.GAMEFINISHEDANSWERS).setValue(currentUserAnswers)
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
+                    maRef.child(gameKey).child(Constant.RESULT).child(currentUser.uid).child(Constant.NICKNAME).setValue(currentUserName)
                     // Write false so that you don't delete your game if you changed to result activity
                     maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(false)
                     callback.invoke(false)
@@ -420,22 +418,25 @@ class MentalArithmeticRepository {
     }
 
     // If you have won the game update your points in database
-    fun setMentalArithmeticPoints(currentUserCorrectAnswers: Int) {
+    fun setMentalArithmeticWin(currentUserCorrectAnswers: Int, gameKey: String) {
         currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
+                // Update your current points
                 if (snapshot.exists()){
-                    getCurrentPoints(){ result ->
+                    fetchCurrentPoints(){ result ->
                         var points = result.toInt()
-                        points += 5 * currentUserCorrectAnswers
+                        points += 5* currentUserCorrectAnswers
                         currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).setValue(points)
                     }
                 } else {
                     val points =+ 5 * currentUserCorrectAnswers
                     currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).setValue(points)
                 }
-                // Set that you have won the game
-                fetchGameKey { result ->
-                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(result).child(Constant.WINNER).setValue(true)
+                // Set you win in match historie
+                fetchOpponentName(gameKey) { name ->
+                    val winPoints = 5 * currentUserCorrectAnswers
+                    val matchResult = MatchResult(Constant.WIN, currentUserName, name, Constant.MENTALARITHMETIC, winPoints)
+                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult)
                 }
             }
 
@@ -446,7 +447,26 @@ class MentalArithmeticRepository {
         })
     }
 
-    private fun getCurrentPoints(callback: (result: String) -> Unit) {
+    private fun fetchOpponentName(gameKey: String, callback: (result: String) -> Unit) {
+        maRef.child(gameKey).child(Constant.RESULT).addListenerForSingleValueEvent(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                snapshot.children.forEach {
+                    if (it.key != currentUser.uid){
+                        val name = it.child(Constant.NICKNAME).value
+                        callback.invoke(name as String)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+
+        })
+    }
+
+    // fetch your current points
+    private fun fetchCurrentPoints(callback: (result: String) -> Unit) {
         currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 callback.invoke(snapshot.value.toString())
@@ -460,9 +480,18 @@ class MentalArithmeticRepository {
     }
 
     // Set in your historie that you have lost
-    fun setMentalArithmeticLose() {
-        fetchGameKey { result ->
-            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(result).child(Constant.WINNER).setValue(false)
+    fun setMentalArithmeticLose(gameKey: String) {
+        fetchOpponentName(gameKey) { name ->
+            val matchResult = MatchResult(Constant.LOSE, currentUserName, name, Constant.MENTALARITHMETIC, 0)
+            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult)
+        }
+    }
+
+    // Set in your historie that it is a draw
+    fun setMentalArithmeticDraw(gameKey: String) {
+        fetchOpponentName(gameKey) { name ->
+            val matchResult = MatchResult(Constant.DRAW, currentUserName, name, Constant.MENTALARITHMETIC, 0)
+            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult)
         }
     }
 

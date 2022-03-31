@@ -137,38 +137,38 @@ class MentalArithmeticResultViewModel : ViewModel() {
             Constant.MORETIME -> {
                 if(currentUserCorrectAnswers > opponentCorrectAnswers) {
                     wonGame = "You have won"
-                    mentalArithmeticRepo.setMentalArithmeticPoints(currentUserCorrectAnswers)
+                    mentalArithmeticRepo.setMentalArithmeticWin(currentUserCorrectAnswers, gameKey)
                     setLiveWonGameData()
                 } else {
                     wonGame = "You have lost"
-                    mentalArithmeticRepo.setMentalArithmeticLose()
+                    mentalArithmeticRepo.setMentalArithmeticLose(gameKey)
                     setLiveWonGameData()
                 }
             }
             Constant.LESSTIME -> {
                 if (currentUserCorrectAnswers >= opponentCorrectAnswers){
                     wonGame = "You have won"
-                    mentalArithmeticRepo.setMentalArithmeticPoints(currentUserCorrectAnswers)
+                    mentalArithmeticRepo.setMentalArithmeticWin(currentUserCorrectAnswers, gameKey)
                     setLiveWonGameData()
                 } else {
                     wonGame = "You have lost"
-                    mentalArithmeticRepo.setMentalArithmeticLose()
+                    mentalArithmeticRepo.setMentalArithmeticLose(gameKey)
                     setLiveWonGameData()
                 }
             }
             Constant.SAMETIME -> {
                 if (currentUserCorrectAnswers > opponentCorrectAnswers){
                     wonGame = "You have won"
-                    mentalArithmeticRepo.setMentalArithmeticPoints(currentUserCorrectAnswers)
+                    mentalArithmeticRepo.setMentalArithmeticWin(currentUserCorrectAnswers, gameKey)
                     setLiveWonGameData()
                 } else {
                     if (currentUserCorrectAnswers < opponentCorrectAnswers){
                         wonGame = "You have lost"
-                        mentalArithmeticRepo.setMentalArithmeticLose()
+                        mentalArithmeticRepo.setMentalArithmeticLose(gameKey)
                         setLiveWonGameData()
                     } else {
                         wonGame = "It's a draw"
-                        mentalArithmeticRepo.setMentalArithmeticLose()
+                        mentalArithmeticRepo.setMentalArithmeticDraw(gameKey)
                         setLiveWonGameData()
                     }
                 }
@@ -209,7 +209,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         if (currentUserSec > opponentSec) {
             return Constant.MORETIME
         }
-        return if (currentUserMinutes == opponentMinutes && currentUserSec == opponentSec){
+        return if ((currentUserMinutes == opponentMinutes) && (currentUserSec == opponentSec)){
             Constant.SAMETIME
         } else {
             Constant.LESSTIME

@@ -26,6 +26,7 @@ import de.uniks.ws2122.cc.teamA.gameInvite.GameInviteListActivity
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.util.Notifications
+import de.uniks.ws2122.cc.teamA.statistic.HistorieActivity
 
 class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var viewModel: AppViewModel
@@ -39,6 +40,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mentalArithmeticBtn : Button
     private lateinit var gameInviteListBtn : Button
     private lateinit var sportBtn: Button
+    private lateinit var historieBtn: Button
 
     private lateinit var notificationManager: NotificationManager
 
@@ -57,6 +59,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         sportBtn = binding.btnSportChallenges
         mentalArithmeticBtn = binding.btnMentalArithmetic
         gameInviteListBtn = binding.btnGameInviteList
+        historieBtn = binding.btnHistorie
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
@@ -65,6 +68,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         compassBtn.setOnClickListener(this)
         mentalArithmeticBtn.setOnClickListener(this)
         gameInviteListBtn.setOnClickListener(this)
+        historieBtn.setOnClickListener(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -117,7 +121,14 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             mentalArithmeticBtn.id -> changeToMentalArithmetic()
             gameInviteListBtn.id -> changeToGameInviteList()
             sportBtn.id -> changeToSportChallenges()
+            historieBtn.id -> changeToHistorie()
         }
+    }
+
+    private fun changeToHistorie() {
+        val intent = Intent(this, HistorieActivity::class.java).apply {
+        }
+        startActivity(intent)
     }
 
     private fun changeToGameInviteList() {
