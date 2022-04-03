@@ -18,6 +18,7 @@ import com.google.android.gms.location.*
 import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Service.TimerService
 import de.uniks.ws2122.cc.teamA.repository.CompassRepository
+import kotlin.math.atan2
 
 
 class CompassViewModel : ViewModel() {
@@ -59,11 +60,11 @@ class CompassViewModel : ViewModel() {
         getLastLocation(compassActivity)
         getLocationCallback = {
             Log.d("Current Position", location!!.latitude.toString() + " " + location!!.longitude)
-            val x = /*9.490193682869808 */location!!.longitude
-            val y = /*51.31812310171641*/ location!!.latitude
+            val x = 9.490193682869808  //location!!.longitude
+            val y = 51.31812310171641 //location!!.latitude
             val x2 = feature.geometry.coordinates[0]
             val y2 = feature.geometry.coordinates[1]
-            val radian: Double = Math.atan2(y2 - y, x2 - x)
+            val radian: Double = atan2(y2 - y, x2 - x)
             val degree = radian * 180 / Math.PI
             Log.d("Searched Angle", degree.toString())
             callbackDegree.invoke(degree)
