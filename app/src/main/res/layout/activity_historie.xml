@@ -11,12 +11,11 @@
         android:id="@+id/tvHistorie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="36dp"
         android:text="Historie"
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,10 +23,10 @@
         android:id="@+id/rvHistoreList"
         android:layout_width="409dp"
         android:layout_height="500dp"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="36dp"
         android:clipToPadding="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvHistorie"
-        tools:listitem="@layout/historie_item"/>
+        tools:listitem="@layout/historie_item" />
 </androidx.constraintlayout.widget.ConstraintLayout>

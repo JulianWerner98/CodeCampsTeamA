@@ -15,7 +15,6 @@ import de.uniks.ws2122.cc.teamA.model.MentalArithmeticResultViewModel
 class MentalArithmeticResultActivity : AppCompatActivity() {
     private lateinit var binding : ActivityResultBinding
     private lateinit var viewModel: MentalArithmeticResultViewModel
-    private lateinit var highscore : TextView
     private lateinit var time : TextView
     private lateinit var correctAnswers : TextView
     private lateinit var wrongAnswers : TextView
@@ -27,14 +26,11 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        highscore = binding.tvNewHighscore
         time = binding.tvTime
         correctAnswers = binding.tvCorrectAnswers
         wrongAnswers = binding.tvWrongAnswers
         backToGameSelectBtn = binding.btnBackToGameSelect
         wonGame = binding.tvWonGame
-
-        highscore.isInvisible = true
 
         viewModel = ViewModelProvider(this)[MentalArithmeticResultViewModel::class.java]
 
@@ -49,11 +45,14 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
 
     private fun initializeObserver() {
         viewModel.getLiveCurrentUserCorrectAnswersData().observe(this, Observer {
-            correctAnswers.text = it
+            val points = it.toInt() * 5
+            val text = ("$it correct answers and $points points")
+            correctAnswers.text = text
         })
 
         viewModel.getLiveCurrentUserWrongAnswersData().observe(this, Observer {
-            wrongAnswers.text = it
+            val text = "$it wrong answers"
+            wrongAnswers.text = text
         })
 
         viewModel.getLiveTimeData().observe(this, Observer {

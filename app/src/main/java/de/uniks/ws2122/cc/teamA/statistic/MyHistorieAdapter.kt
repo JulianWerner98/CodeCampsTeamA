@@ -1,13 +1,21 @@
 package de.uniks.ws2122.cc.teamA.statistic
 
+import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
+import android.graphics.drawable.shapes.Shape
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import de.uniks.ws2122.cc.teamA.Constant
@@ -25,6 +33,7 @@ class MyHistorieAdapter( val matchResultList: LiveData<List<MatchResult>>, ) : R
         return MyViewHolder(itemView)
     }
 
+
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val currentItem = matchResultList.value!![position]
         holder.gameName.text = currentItem.gamename
@@ -34,13 +43,13 @@ class MyHistorieAdapter( val matchResultList: LiveData<List<MatchResult>>, ) : R
 
         when (currentItem.win) {
             Constant.WIN -> {
-                holder.layout.setBackgroundColor(Color.GREEN)
+                holder.layout.setBackgroundResource(R.color.green)
             }
             Constant.LOSE -> {
-                holder.layout.setBackgroundColor(Color.RED)
+                holder.layout.setBackgroundResource(R.color.red)
             }
             else -> {
-                holder.layout.setBackgroundColor(Color.BLUE)
+                holder.layout.setBackgroundResource(R.color.gray)
             }
         }
     }
