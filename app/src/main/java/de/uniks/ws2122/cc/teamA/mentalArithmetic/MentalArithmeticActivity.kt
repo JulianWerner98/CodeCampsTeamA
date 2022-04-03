@@ -1,10 +1,10 @@
 package de.uniks.ws2122.cc.teamA.mentalArithmetic
 
+import android.app.PendingIntent
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.SystemClock
-import android.view.View
 import android.widget.Button
 import android.widget.Chronometer
 import android.widget.EditText
@@ -14,7 +14,9 @@ import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.GameSelectActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMentalArithmeticBinding
+import de.uniks.ws2122.cc.teamA.friendlist.FriendRequestActivity
 import de.uniks.ws2122.cc.teamA.model.MentalArithmeticViewModel
+import de.uniks.ws2122.cc.teamA.model.util.Notifications
 
 class MentalArithmeticActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMentalArithmeticBinding

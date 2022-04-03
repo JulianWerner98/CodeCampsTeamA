@@ -140,7 +140,7 @@ class MentalArithmeticViewModel : ViewModel() {
     }
 
     // Ready up to start the game
-    fun readyUpToStartGame(){
+    fun readyUpToStartGame() {
         mentalArithmeticRepo.readyUpToStartGame(gameKey) { answer ->
             if (answer){
                 chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
@@ -154,7 +154,7 @@ class MentalArithmeticViewModel : ViewModel() {
 
     fun getCurrentTask(callback: (result: Boolean) -> Unit): String {
         if (running) {
-            if (counter == 3){
+            if (counter == 10){
                 return Constant.WAITINGFOROPPONENT
             }
             callback.invoke(true)
@@ -211,9 +211,6 @@ class MentalArithmeticViewModel : ViewModel() {
         this.friendId = friendId
         this.matchTyp = matchTyp
         this.inviteKey = inviteKey
-        Log.d("MentalArithmetic", "friendID:  ${this.friendId}")
-        Log.d("MentalArithmetic", "friendID:  ${this.matchTyp}")
-        Log.d("MentalArithmetic", "friendID:  ${this.inviteKey}")
     }
 
     fun destroyGame() {

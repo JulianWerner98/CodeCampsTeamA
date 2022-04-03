@@ -62,6 +62,10 @@ class FriendListController {
                                 dbref.child(Constant.FRIEND_REQUEST_PATH)
                                     .child(Constant.RECEIVED_PATH).child(friend.id)
                                     .child(currentUser.uid).setValue(user)
+                                val notikey = dbref.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONREQUEST).push().key.toString()
+                                user.id = notikey
+                                dbref.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONREQUEST)
+                                    .child(friend.id).child(notikey).setValue(user)
                                 callback.invoke("You have send a friend request")
                             } else {
                                 callback.invoke("You have received a friend request from this user")

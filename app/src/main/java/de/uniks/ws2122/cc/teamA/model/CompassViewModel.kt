@@ -142,7 +142,7 @@ class CompassViewModel : ViewModel() {
             LocationServices.getFusedLocationProviderClient(compassActivity)
         if (checkPermission(compassActivity)) {
             fusedLocationProviderClient.requestLocationUpdates(
-                locationRequest, locationCallback, Looper.myLooper()
+                locationRequest, locationCallback, Looper.myLooper()!!
             )
         }
 

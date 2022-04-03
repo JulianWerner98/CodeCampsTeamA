@@ -51,6 +51,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
                 viewModel.getFriendListController().sendFriendRequest(nickName) { msg ->
                     Toast.makeText(this@FriendListActivity, msg, Toast.LENGTH_SHORT).show()
                 }
+                enterNickNameField.text.clear()
             } else {
                 enterNickNameField.error = "Please enter a nickname"
                 enterNickNameField.requestFocus()

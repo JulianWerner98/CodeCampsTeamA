@@ -1,6 +1,5 @@
 package de.uniks.ws2122.cc.teamA.model
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant
@@ -138,31 +137,38 @@ class MentalArithmeticResultViewModel : ViewModel() {
             Constant.MORETIME -> {
                 if(currentUserCorrectAnswers > opponentCorrectAnswers) {
                     wonGame = "You have won"
+                    mentalArithmeticRepo.setMentalArithmeticWin(currentUserCorrectAnswers, gameKey)
                     setLiveWonGameData()
                 } else {
                     wonGame = "You have lost"
+                    mentalArithmeticRepo.setMentalArithmeticLose(gameKey)
                     setLiveWonGameData()
                 }
             }
             Constant.LESSTIME -> {
                 if (currentUserCorrectAnswers >= opponentCorrectAnswers){
                     wonGame = "You have won"
+                    mentalArithmeticRepo.setMentalArithmeticWin(currentUserCorrectAnswers, gameKey)
                     setLiveWonGameData()
                 } else {
                     wonGame = "You have lost"
+                    mentalArithmeticRepo.setMentalArithmeticLose(gameKey)
                     setLiveWonGameData()
                 }
             }
             Constant.SAMETIME -> {
                 if (currentUserCorrectAnswers > opponentCorrectAnswers){
                     wonGame = "You have won"
+                    mentalArithmeticRepo.setMentalArithmeticWin(currentUserCorrectAnswers, gameKey)
                     setLiveWonGameData()
                 } else {
                     if (currentUserCorrectAnswers < opponentCorrectAnswers){
                         wonGame = "You have lost"
+                        mentalArithmeticRepo.setMentalArithmeticLose(gameKey)
                         setLiveWonGameData()
                     } else {
                         wonGame = "It's a draw"
+                        mentalArithmeticRepo.setMentalArithmeticDraw(gameKey)
                         setLiveWonGameData()
                     }
                 }
@@ -182,19 +188,18 @@ class MentalArithmeticResultViewModel : ViewModel() {
         opponentSec += opponentTimePenalty
 
         if (currentUserSec >= 60){
-            val minute = currentUserSec % 60
+            val minute = currentUserSec / 60
             currentUserMinutes += minute
             currentUserSec -= 60 * minute
         }
 
         if (opponentSec >= 60){
-            val minute = opponentSec % 60
+            val minute = opponentSec / 60
             opponentMinutes += minute
             opponentSec -= 60 * minute
         }
 
         time = "$currentUserMinutes:$currentUserSec"
-        Log.d("MentalArithmetic", "Time:  $time")
         setLiveTimeData()
         opponentTime = "$opponentMinutes:$opponentSec"
 
@@ -204,7 +209,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         if (currentUserSec > opponentSec) {
             return Constant.MORETIME
         }
-        return if (currentUserMinutes == opponentMinutes && currentUserSec == opponentSec){
+        return if ((currentUserMinutes == opponentMinutes) && (currentUserSec == opponentSec)){
             Constant.SAMETIME
         } else {
             Constant.LESSTIME

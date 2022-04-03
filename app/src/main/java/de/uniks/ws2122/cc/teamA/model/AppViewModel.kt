@@ -5,10 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant.NICKNAME_ERROR
 import de.uniks.ws2122.cc.teamA.repository.AuthRepository
+import de.uniks.ws2122.cc.teamA.repository.NotificationRepository
 
 class AppViewModel : ViewModel() {
     private var liveValueUser: MutableLiveData<User> = MutableLiveData()
     private var authRepository = AuthRepository()
+    private var notificationRepository = NotificationRepository()
 
     //Setter
     fun setUser(user: User): User {
@@ -64,5 +66,19 @@ class AppViewModel : ViewModel() {
         authRepository.resetMail(email, callback)
     }
 
+    fun notificationRequestList(callback: (result: Boolean, id: Int, name: String) -> Unit) {
+        notificationRepository.notificationRequestList(){ result, id, name ->
+            if (result) {
+                callback.invoke(true, id, name)
+            }
+        }
+    }
 
+    fun sendGameInviteNotification(callback: (result: Boolean, id: Int, name: String) -> Unit) {
+        notificationRepository.sendGameInviteNotification() { result, id, name ->
+            if (result){
+                callback.invoke(result, id, name)
+            }
+        }
+    }
 }

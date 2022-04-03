@@ -53,6 +53,7 @@ object Constant {
     const val START = "Start"
     const val SURRENDER = "Surrender"
     const val PLAYERS = "Players"
+    const val RESULT = "Result"
 
     //Compass Game
     const val COMPASS_GAME ="CompassGame"
@@ -81,4 +82,19 @@ object Constant {
     const val DEFAULT = "default"
     const val PRIVATE = "private"
 
+    // Notifications
+    const val NOTIFICATION = "Notification"
+    const val NOTIFICATIONREQUEST = "NotificationRequest"
+    const val CHANNEL_ID = "TeamAChannel"
+    const val NOTIFICATIONARITHMETIC = "NotificationArithmetic"
+
+    // Statistics
+    const val STATISTIC = "Statistic"
+    const val POINTS = "points"
+    const val HISTORIE = "Historie"
+    const val GAMENAME = "gamename"
+    const val CURRENTUSER = "currentuser"
+    const val OPPONENT = "opponent"
+    const val WIN = "win"
+    const val LOSE = "lose"
 }
