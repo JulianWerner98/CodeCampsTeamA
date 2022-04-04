@@ -60,11 +60,11 @@
         android:id="@+id/rvFriendList"
         android:layout_width="409dp"
         android:layout_height="500dp"
-        android:layout_marginTop="1dp"
         android:clipToPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editEnterNickName"
-        tools:listitem="@layout/friend_item"/>
+        tools:listitem="@layout/friend_item" />
 
     <Button
         android:id="@+id/btnBackToMain"
@@ -87,9 +87,9 @@
         android:text="Requestlist"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/btnBackToMain"
-        app:layout_constraintTop_toBottomOf="@+id/rvFriendList" />
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toEndOf="@+id/btnBackToMain"
+    app:layout_constraintTop_toBottomOf="@+id/rvFriendList" />
 
     <ImageView
         android:id="@+id/ivShareId"

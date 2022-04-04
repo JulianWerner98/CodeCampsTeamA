@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/blau_grau"
-    android:padding="8dp">
+    android:backgroundTint="@color/black"
+    app:contentPadding="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,6 +23,8 @@
             android:textColor="@color/material_on_primary_emphasis_high_type"
             android:textSize="16sp"
             android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/ivFriendAvatar"
             app:layout_constraintTop_toTopOf="parent" />
 

@@ -56,7 +56,6 @@ class MentalArithmeticActivity : AppCompatActivity() {
         viewModel.makeGame()
 
         startButton.setOnClickListener {
-            //startActivity(Intent(this, MentalArithmeticResultActivity::class.java))
             if (startButton.text == Constant.START){
                 viewModel.readyUpToStartGame()
                 startButton.text = Constant.SURRENDER
@@ -77,7 +76,7 @@ class MentalArithmeticActivity : AppCompatActivity() {
         viewModel.chronometer(chronometer, pauseOffset)
 
         viewModel.getLiveCurrentUserAnswersData().observe(this, Observer {
-            val currentTask = viewModel.getCurrentTask(){ result ->
+            val currentTask = viewModel.getCurrentTask(){ result->
                 if (result){
                     sendAnswerBtn.isEnabled = true
                 }
