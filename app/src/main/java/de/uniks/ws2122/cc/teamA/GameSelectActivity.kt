@@ -72,6 +72,11 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
+        if(!viewModel.isLoggedIn()) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
         createNotificationChannel()
 
         viewModel.getLiveValueUser().observe(this) { user ->

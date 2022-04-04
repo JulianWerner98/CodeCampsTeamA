@@ -294,4 +294,8 @@ class CompassViewModel : ViewModel() {
             compassRepo.endTime(currentGame!!, "1")
         }
     }
+
+    fun exitGame(appViewModel: AppViewModel) {
+        compassRepo.exitGame(appViewModel, currentGame)
+    }
 }

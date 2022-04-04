@@ -1,6 +1,7 @@
 package de.uniks.ws2122.cc.teamA
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Vibrator
@@ -13,8 +14,8 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant.LOSE
 import de.uniks.ws2122.cc.teamA.Constant.READYTOSTART
-import de.uniks.ws2122.cc.teamA.Constant.SURRENDER
 import de.uniks.ws2122.cc.teamA.Constant.WAITINGFOROPPONENT
+import de.uniks.ws2122.cc.teamA.Constant.WIN
 import de.uniks.ws2122.cc.teamA.Service.TimerService
 import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
@@ -78,9 +79,28 @@ class CompassActivity : AppCompatActivity() {
     }
 
     private fun gameChanged(game: CompassGame?) {
-        Log.d("Changed", game!!.players.size.toString())
-
+        if (game == null) return
         var started: Boolean
+
+        //Check Winner
+        if (game.winner == appViewModel.getUID()) {
+            objectLabel.text = "You " + WIN
+            binding.arrow.setImageResource(R.drawable.happy)
+        } else if(game.winner.isNotEmpty()) {
+            binding.arrow.setImageResource(R.drawable.lame)
+            objectLabel.text = "You " + LOSE
+
+        }
+        // Return if their is a winner
+        if(game.winner.isNotEmpty()) {
+            viewModel.timerService!!.stopTimer(this)
+            binding.btnStart.isVisible = true
+            binding.btnStart.text = "Exit Game"
+            binding.btnStart.setOnClickListener() { exitGame()}
+            binding.spinner.isVisible = false
+            binding.arrow.isVisible = true
+            return
+        }
         if (appViewModel.getUID() == game.players[0]) {
             started = game.player0Starttime != null
         } else {
@@ -107,6 +127,12 @@ class CompassActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun exitGame() {
+        viewModel.exitGame(appViewModel)
+        val intent = Intent(this, GameSelectActivity::class.java).apply { }
+        startActivity(intent)
     }
 
     private fun startGame() {
@@ -136,7 +162,7 @@ class CompassActivity : AppCompatActivity() {
             angle = floatOrientation[0] * 180 / Math.PI
             binding.arrow.rotation = angle.toFloat()
             Log.d(
-                "Debug",
+                "Debug for Presentation",
                 "Aktuell:" + angle + " Gesucht:" + searchedDegree + " Erste:" + firstDetection
             )
             if (searchedDegree + 15 >= angle && searchedDegree - 15 <= angle) {
@@ -145,23 +171,23 @@ class CompassActivity : AppCompatActivity() {
                 } else if (timer - firstDetection in 2..5) {
                     val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                     if (vibrator.hasVibrator()) {
-                        vibrator.vibrate(500)
-
-                        viewModel.timerService?.stopTimer(this)
-                        viewModel.stopSensor()
-                        if (++currentObjectCount < viewModel.currentGame!!.objectList.size) {
-                            viewModel.nextObject(this, currentObjectCount) { next ->
-                                searchedDegree = next
-                                objectLabel.text =
-                                    viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
-                                viewModel.startSensor()
-                                viewModel.timerService?.startTimer(this)
-                            }
-                        } else {
-                            //Finshed Game
-                            viewModel.endTime(appViewModel)
-                        }
+                        vibrator.vibrate(1000)
                     }
+                    viewModel.timerService?.stopTimer(this)
+                    viewModel.stopSensor()
+                    if (++currentObjectCount < viewModel.currentGame!!.objectList.size) {
+                        viewModel.nextObject(this, currentObjectCount) { next ->
+                            searchedDegree = next
+                            objectLabel.text =
+                                viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
+                            viewModel.startSensor()
+                            viewModel.timerService?.startTimer(this)
+                        }
+                    } else {
+                        //Finshed Game
+                        viewModel.endTime(appViewModel)
+                    }
+
                     background.setBackgroundColor(Color.GREEN)
                 }
             } else {

@@ -105,7 +105,7 @@ class CompassRepository {
     }
 
     fun getRequest(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
-        rootRef.child(GAMES).child(MATCH_REQUEST).child(COMPASS_GAME).get().addOnCompleteListener {
+        gamesRef.child(MATCH_REQUEST).child(COMPASS_GAME).get().addOnCompleteListener {
             if (it.isSuccessful) {
                 if (it.result.value != null) {
                     // Remove Match Request
@@ -149,6 +149,13 @@ class CompassRepository {
 
     fun endTime(currentGame: CompassGame, playerNumber: String) {
         compassGamesRef.child(currentGame.id!!).child("player" + playerNumber + "Endtime").setValue(Date())
+    }
+
+    fun exitGame(appViewModel: AppViewModel, game: CompassGame?) {
+        rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME).removeValue()
+        if(game!!.players.size < 2) {
+            compassGamesRef.child(game!!.id.toString()).removeValue()
+        }
     }
 
 }
