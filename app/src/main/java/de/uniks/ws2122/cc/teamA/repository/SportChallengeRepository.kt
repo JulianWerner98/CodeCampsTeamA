@@ -18,6 +18,8 @@ class SportChallengeRepository {
     private lateinit var matchRef: DatabaseReference
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
     private val currentUserRef = rootRef.child(Constant.USERS_PATH).child(currentUser.uid).ref
+    private lateinit var stepListener: ValueEventListener
+    private lateinit var waitForPlayerListener: ValueEventListener
 
     fun startMatchMaking(
         mode: String,
@@ -228,7 +230,7 @@ class SportChallengeRepository {
 
         //show Waiting for Player
 
-        matchRef.addValueEventListener(object : ValueEventListener {
+       waitForPlayerListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 if (snapshot.hasChild(Constant.PLAYER2)) {
@@ -240,12 +242,14 @@ class SportChallengeRepository {
 
             override fun onCancelled(error: DatabaseError) {
             }
-        })
+        }
+
+        matchRef.addValueEventListener(waitForPlayerListener)
     }
 
     fun createStepListener(enemy: String, callback: (steps: Int, meters: Float) -> Unit) {
 
-        matchRef.child(enemy).addValueEventListener(object : ValueEventListener {
+        stepListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 if (snapshot.exists()) {
@@ -261,7 +265,9 @@ class SportChallengeRepository {
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
-        })
+        }
+
+        matchRef.child(enemy).addValueEventListener(stepListener)
     }
 
     fun sendData(user: String, steps: Int, meters: Float) {
@@ -336,16 +342,63 @@ class SportChallengeRepository {
             })
     }
 
-    fun sendWin(time: Double, callback: (isWinner: Boolean) -> Unit) {
+    fun sendResult(user: String, countedTime: Double, steps: Int, meters: Float) {
 
-        matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        sendData(user, steps, meters)
+        matchRef.child(user).child(Constant.COUNTED_TIME).setValue(countedTime)
+        matchRef.child(user).child(Constant.FINISHED).setValue(Constant.FINISHED)
+    }
+
+    fun getEnemyResults(enemy: String, callback: (time: Double, steps: Int, meters: Float) -> Unit) {
+
+        matchRef.child(enemy).addValueEventListener(object: ValueEventListener {
+
             override fun onDataChange(snapshot: DataSnapshot) {
 
+                if (snapshot.hasChild(Constant.FINISHED)){
+
+                    if (snapshot.child(Constant.FINISHED).value.toString() == Constant.SURRENDER) {
+
+                        callback.invoke(0.0, 0, 0.0f)
+                    }
+                    else {
+
+                        val time = snapshot.child(Constant.COUNTED_TIME).value.toString().toDouble()
+                        val steps = snapshot.child(Constant.STEPS).value.toString().toInt()
+                        val meters = snapshot.child(Constant.METERS).value.toString().toFloat()
+
+                        callback.invoke(time, steps, meters)
+                    }
+
+                    matchRef.child(enemy).removeEventListener(this)
+                    matchRef.child(enemy).removeEventListener(stepListener)
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
         })
+    }
+
+    fun deleteMatch(enemy: String) {
+
+        matchRef.child(enemy).removeEventListener(stepListener)
+        currentUserRef.child(Constant.SPORT_CHALLENGE).removeValue()
+        matchRef.removeValue()
+    }
+
+    fun cancelMatch() {
+
+        matchRef.removeEventListener(waitForPlayerListener)
+        matchRef.removeValue()
+        currentUserRef.child(Constant.SPORT_CHALLENGE).removeValue()
+        sportRef.child(Constant.OPENMATCHES).child(matchRef.key.toString()).removeValue()
+    }
+
+    fun surrenderMatch(user: String) {
+
+        matchRef.child(user).child(Constant.FINISHED).setValue(Constant.SURRENDER)
+        currentUserRef.child(Constant.SPORT_CHALLENGE).removeValue()
     }
 }

@@ -21,6 +21,8 @@ class SportChallengeViewModel : ViewModel() {
     private lateinit var serviceIntent: Intent
     private var time = 0.0
     private lateinit var sportRepo: SportChallengeRepository
+    private lateinit var stepCounter: StepCounter
+    private lateinit var appContext: Context
 
     init {
         setSportChallengeData(SportChallenge())
@@ -56,13 +58,14 @@ class SportChallengeViewModel : ViewModel() {
 
         sportRepo.startMatchMaking(mode, option) { enemy, user ->
 
-            val stepCounter = StepCounter(context)
+            stepCounter = StepCounter(context)
 
             sportChallengeData.value!!.players = mutableListOf(user, enemy)
             setSportChallengeData(sportChallengeData.value!!)
 
-            createTimer(context.applicationContext)
-            startTimer(context.applicationContext)
+            appContext = context.applicationContext
+            createTimer(appContext)
+            startTimer(appContext)
 
             stepCounter.startSteps { steps ->
 
@@ -96,16 +99,16 @@ class SportChallengeViewModel : ViewModel() {
 
             }
             sportChallengeData.value!!.userSpeed = speed
-            sportChallengeData.value!!.userTime = getTimeStringFromDouble(time)
+            sportChallengeData.value!!.userTime = time
             setSportChallengeData(sportChallengeData.value!!)
-
-            //checkWinner()
 
             sportRepo.sendData(
                 sportChallengeData.value!!.players[0],
                 sportChallengeData.value!!.userCountedSteps,
                 sportChallengeData.value!!.userMeters
             )
+
+            checkFinished(context)
         }
     }
 
@@ -118,15 +121,6 @@ class SportChallengeViewModel : ViewModel() {
         )
     }
 
-    private fun getTimeStringFromDouble(time: Double): String {
-
-        val timeInt = time.roundToInt()
-        val hours = timeInt % 86400 / 3600
-        val minutes = timeInt % 86400 % 3600 / 60
-        val seconds = timeInt % 86400 % 3600 % 60
-
-        return "$hours : $minutes : $seconds"
-    }
 
     private fun startTimer(context: Context) {
 
@@ -161,27 +155,101 @@ class SportChallengeViewModel : ViewModel() {
     private fun stopTimer(context: Context) {
 
         context.stopService(serviceIntent)
+
     }
 
-    private fun checkWinner() {
+    private fun isWinner() {
 
-        val mode = sportChallengeData.value!!.mode
-        val option = sportChallengeData.value!!.option
+        var value = sportChallengeData.value!!
+
+        if (value.mode == Constant.TIME) {
+
+            if (value.userCountedSteps > value.enemyCountedSteps) {
+
+                value.winner = value.players[0]
+            }
+
+            if (value.userCountedSteps < value.enemyCountedSteps) {
+
+                value.winner = value.players[1]
+            }
+
+            if (value.userCountedSteps == value.enemyCountedSteps) {
+
+                value.winner = "Tie"
+            }
+        }
+        else {
+
+            if (value.userTime > value.enemyTime) {
+
+                value.winner = value.players[0]
+            }
+
+            if (value.userTime < value.enemyTime) {
+
+                value.winner = value.players[1]
+            }
+
+            if (value.userTime == value.enemyTime) {
+
+                value.winner = "Tie"
+            }
+        }
+
+        setSportChallengeData(value)
+    }
+
+    private fun checkFinished(context: Context) {
+
+        val value = sportChallengeData.value!!
+
+        val mode = value.mode
+        val option = value.option
+        val meters = value.userMeters
+        val steps = value.userCountedSteps
         val goal = SportMode().getOptionValue(mode, option)
 
-        val isWinner = when (mode) {
+        val isFinished = when (mode) {
 
             Constant.TIME -> goal <= time
-            Constant.METERS -> goal <= sportChallengeData.value!!.userMeters
-            Constant.STEPS -> goal <= sportChallengeData.value!!.userCountedSteps
+            Constant.METERS -> goal <= meters
+            Constant.STEPS -> goal <= steps
             else -> false
         }
 
-        if (isWinner) {
+        if (isFinished) {
 
-            sportRepo.sendWin(time) {
+            stopTimer(context)
+            stepCounter.resetSteps()
+            sportRepo.sendResult(value.players[0], time, steps, meters)
 
+            sportRepo.getEnemyResults(value.players[1]) { time, steps, meters ->
+
+                value.enemyTime = time
+                value.enemyCountedSteps = steps
+                value.enemyMeters = meters
+                setSportChallengeData(value)
+
+                isWinner()
             }
         }
+    }
+
+    fun cancelMatch() {
+
+        sportRepo.cancelMatch()
+    }
+
+    fun surrenderMatch() {
+
+        sportRepo.surrenderMatch(sportChallengeData.value!!.players[0])
+        stopTimer(appContext)
+        stepCounter.resetSteps()
+    }
+
+    fun deleteMatch(){
+
+        sportRepo.deleteMatch(sportChallengeData.value!!.players[1])
     }
 }

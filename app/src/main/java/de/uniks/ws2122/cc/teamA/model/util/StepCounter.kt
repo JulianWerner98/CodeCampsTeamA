@@ -16,6 +16,8 @@ class StepCounter(private val context: Context) : SensorEventListener {
     private var previousTotalSteps = .0f
     private lateinit var callback: (steps: Int) -> Unit
 
+
+
     fun startSteps(callback: (steps: Int) -> Unit) {
 
         this.callback = callback
@@ -28,7 +30,7 @@ class StepCounter(private val context: Context) : SensorEventListener {
 
         if (stepSensor == null) {
 
-            Toast.makeText(context, "No sensor detected", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "No step sensor detected", Toast.LENGTH_SHORT).show()
         }
         else {
 

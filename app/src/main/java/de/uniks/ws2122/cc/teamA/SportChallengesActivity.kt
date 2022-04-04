@@ -1,17 +1,18 @@
 package de.uniks.ws2122.cc.teamA
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivitySportChallengesBinding
 import de.uniks.ws2122.cc.teamA.model.sportChallenge.SportChallenge
 import de.uniks.ws2122.cc.teamA.model.sportChallenge.SportChallengeViewModel
+import kotlin.math.roundToInt
 
 class SportChallengesActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySportChallengesBinding
     private lateinit var viewModel: SportChallengeViewModel
+    private var dontSaveTime = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -32,13 +33,22 @@ class SportChallengesActivity : AppCompatActivity() {
 
         viewModel.startMatch(mode, option, this)
         createDataObserver()
+
+        binding.button.text = "Cancel"
+        binding.button.setOnClickListener {
+
+            viewModel.cancelMatch()
+            finish()
+            binding.tvInfo.text = "Canceled"
+            dontSaveTime = true
+        }
     }
 
     private fun createDataObserver() {
 
         viewModel.getSportChallengeData().observe(this) { sportChallenge ->
 
-            binding.tvTimeCounter.text = "${sportChallenge.userTime}"
+            binding.tvTimeCounter.text = getTimeStringFromDouble(sportChallenge)
 
             if (sportChallenge!!.mode == Constant.METERS) {
 
@@ -47,6 +57,19 @@ class SportChallengesActivity : AppCompatActivity() {
             } else {
                 showStepsText(sportChallenge)
             }
+
+            if (sportChallenge.players.size == 2) {
+
+                binding.tvInfo.text = "Run"
+                binding.button.text = "Surrender"
+                binding.button.setOnClickListener {
+
+                    viewModel.surrenderMatch()
+                    finish()
+                }
+            }
+
+            showWinner(sportChallenge)
         }
     }
 
@@ -77,8 +100,52 @@ class SportChallengesActivity : AppCompatActivity() {
         binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
     }
 
+    private fun showWinner(sportChallenge: SportChallenge) {
+
+        if (sportChallenge.winner.isNotEmpty()) {
+
+            if (sportChallenge.players[0] == sportChallenge.winner) {
+
+                binding.tvInfo.text = "You won"
+            }
+            else {
+
+                binding.tvInfo.text = "You lose"
+            }
+
+            if (sportChallenge.winner == "Tie") {
+
+                binding.tvInfo.text = "Tie"
+            }
+
+            binding.button.text = "Leave"
+            binding.button.setOnClickListener {
+
+                viewModel.deleteMatch()
+                dontSaveTime = true
+                finish()
+            }
+        }
+    }
+
+    private fun getTimeStringFromDouble(sportChallenge: SportChallenge): String {
+
+        val time = sportChallenge.userTime
+
+        val timeInt = time.roundToInt()
+        val hours = timeInt % 86400 / 3600
+        val minutes = timeInt % 86400 % 3600 / 60
+        val seconds = timeInt % 86400 % 3600 % 60
+
+        return "$hours : $minutes : $seconds"
+    }
+
     override fun onDestroy() {
-        viewModel.saveTime()
+
+        if (!dontSaveTime) {
+
+            viewModel.saveTime()
+        }
         super.onDestroy()
     }
 }
