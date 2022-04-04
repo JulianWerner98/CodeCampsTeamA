@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.model
+package de.uniks.ws2122.cc.teamA.model.compassGame
 
 import android.content.Context
 import android.content.Context.SENSOR_SERVICE
@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.*
 import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Service.TimerService
+import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.repository.CompassRepository
 import kotlin.math.atan2
 
@@ -47,7 +48,7 @@ class CompassViewModel : ViewModel() {
 
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
         compassRepo.getApiObject(compassActivity, numberOfEmblems) {
-            currentGame = CompassGame(ArrayList(it), 0, 0)
+            currentGame = CompassGame(ArrayList(it), null, null, null, null)
             callback.invoke(it)
         }
     }
@@ -239,12 +240,14 @@ class CompassViewModel : ViewModel() {
     fun createGame(
         compassActivity: CompassActivity,
         appViewModel: AppViewModel,
-        callback: () -> Unit
+        callback: (CompassGame?) -> Unit
     ) {
         getRandomLocation(compassActivity) { emblems ->
             currentGame!!.players.add(appViewModel.getUID())
-            compassRepo.createGame(currentGame)
-            callback.invoke()
+            compassRepo.createGame(currentGame) { game ->
+                currentGame = game
+                callback.invoke(game)
+            }
         }
     }
 
@@ -256,8 +259,39 @@ class CompassViewModel : ViewModel() {
         getAngleToLocation(compassActivity, currentGame!!.objectList[currentObjectCount], callback)
     }
 
-    fun getRequest(callback: (CompassGame?) -> Unit) {
-        compassRepo.getRequest(callback)
+    fun getRequest(appViewModel: AppViewModel,callback: (CompassGame?) -> Unit) {
+        compassRepo.getRequest(appViewModel) {
+            currentGame = it
+            callback.invoke(it)
+        }
     }
 
+    fun setListenerToGame (callback: (CompassGame?) -> Unit) {
+        compassRepo.setListenerToGame(currentGame?.id){
+            if(it != null) {
+                currentGame = it
+                callback.invoke(it)
+            }
+
+        }
+    }
+
+    fun startTime(appViewModel: AppViewModel) {
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            compassRepo.startTime(currentGame!!, "0")
+        } else {
+            compassRepo.startTime(currentGame!!, "1")
+        }
+    }
+
+    fun surrender() {
+    }
+
+    fun endTime(appViewModel: AppViewModel) {
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            compassRepo.endTime(currentGame!!, "0")
+        } else {
+            compassRepo.endTime(currentGame!!, "1")
+        }
+    }
 }

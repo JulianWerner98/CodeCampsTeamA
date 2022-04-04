@@ -3,8 +3,7 @@ package de.uniks.ws2122.cc.teamA.repository
 import android.util.Log
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import com.google.gson.Gson
 import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Constant
@@ -14,9 +13,12 @@ import de.uniks.ws2122.cc.teamA.Constant.GAMES
 import de.uniks.ws2122.cc.teamA.Constant.MATCH_REQUEST
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
-import de.uniks.ws2122.cc.teamA.model.CompassGame
-import de.uniks.ws2122.cc.teamA.model.Feature
-import de.uniks.ws2122.cc.teamA.model.GeoportalData
+import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
+import de.uniks.ws2122.cc.teamA.model.compassGame.Feature
+import de.uniks.ws2122.cc.teamA.model.compassGame.GeoportalData
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.random.Random
 
 class CompassRepository {
@@ -55,19 +57,20 @@ class CompassRepository {
         requestQueue.add(objectRequest)
     }
 
-    fun createGame(compassGame: CompassGame?) {
+    fun createGame(compassGame: CompassGame?, callback: (CompassGame?) -> Unit) {
         if (compassGame != null) {
             val matchRef = compassGamesRef.push()
+            compassGame.id = matchRef.key
             compassGamesRef.child(matchRef.key!!).setValue(compassGame).addOnCompleteListener {
                 if (it.isSuccessful) {
                     rootRef.child(USERS_PATH).child(compassGame.players[0])
                         .child(Constant.COMPASS_GAME).setValue(matchRef.key).addOnCompleteListener {
                             if (it.isSuccessful) {
-                                gamesRef.child(Constant.MATCH_REQUEST).child(matchRef.key!!)
+                                gamesRef.child(Constant.MATCH_REQUEST).child(COMPASS_GAME)
                                     .setValue(object {
-                                        val FROM = compassGame.players[0];
-                                        val Game = Constant.COMPASS_GAME
+                                        val GAME = matchRef.key;
                                     })
+                                callback.invoke(compassGame)
                             }
                         }
                 }
@@ -99,16 +102,54 @@ class CompassRepository {
                     callback.invoke(null)
                 }
             }
-
     }
 
-    fun getRequest(callback: (CompassGame?) -> Unit) {
-        callback.invoke(null)
-        return
-        rootRef.child(GAMES).child(MATCH_REQUEST).get().addOnCompleteListener {
-            if(it.isSuccessful) {
-
+    fun getRequest(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
+        rootRef.child(GAMES).child(MATCH_REQUEST).child(COMPASS_GAME).get().addOnCompleteListener {
+            if (it.isSuccessful) {
+                if (it.result.value != null) {
+                    // Remove Match Request
+                    it.result.ref.removeValue()
+                    // Set Game id to User
+                    val gameId = (it.result.value as HashMap<String, String>)["game"].toString()
+                    rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME)
+                        .setValue(gameId)
+                        .addOnSuccessListener {
+                            rootRef.child(GAMES).child(COMPASS_GAME).child(gameId).child("players")
+                                .child("1").setValue(appViewModel.getUID())
+                            getGame(appViewModel, callback)
+                        }
+                } else {
+                    callback.invoke(null)
+                }
+            } else {
+                callback.invoke(null)
             }
         }
     }
+
+    fun setListenerToGame(
+        currentGameId: String?,
+        callback: (CompassGame?) -> Unit
+    ) {
+        compassGamesRef.child(currentGameId!!)
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    callback.invoke(snapshot.getValue(de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame::class.java))
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+
+            })
+    }
+
+    fun startTime(currentGame: CompassGame, playerNumber: String) {
+        compassGamesRef.child(currentGame.id!!).child("player" + playerNumber + "Starttime").setValue(Date())
+    }
+
+    fun endTime(currentGame: CompassGame, playerNumber: String) {
+        compassGamesRef.child(currentGame.id!!).child("player" + playerNumber + "Endtime").setValue(Date())
+    }
+
 }
+

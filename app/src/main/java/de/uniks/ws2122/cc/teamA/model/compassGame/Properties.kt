@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.model
+package de.uniks.ws2122.cc.teamA.model.compassGame
 
 import com.google.firebase.database.PropertyName
 

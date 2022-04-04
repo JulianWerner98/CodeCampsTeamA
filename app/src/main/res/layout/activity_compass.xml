@@ -51,12 +51,13 @@
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="46dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginBottom="64dp"
         android:lineSpacingExtra="34sp"
         android:textColor="#FFFFFF"
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button

@@ -120,9 +120,7 @@ class AuthRepository {
                 dbref.child(USERS_PATH).removeEventListener(this)
             }
 
-            override fun onCancelled(error: DatabaseError) {
-
-            }
+            override fun onCancelled(error: DatabaseError) {}
 
         })
     }

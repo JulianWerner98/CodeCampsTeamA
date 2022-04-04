@@ -11,11 +11,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.Constant.LOSE
+import de.uniks.ws2122.cc.teamA.Constant.READYTOSTART
+import de.uniks.ws2122.cc.teamA.Constant.SURRENDER
 import de.uniks.ws2122.cc.teamA.Constant.WAITINGFOROPPONENT
 import de.uniks.ws2122.cc.teamA.Service.TimerService
 import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
-import de.uniks.ws2122.cc.teamA.model.CompassViewModel
+import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
+import de.uniks.ws2122.cc.teamA.model.compassGame.CompassViewModel
 
 
 class CompassActivity : AppCompatActivity() {
@@ -52,27 +56,56 @@ class CompassActivity : AppCompatActivity() {
 
         viewModel.getGame(appViewModel) { game ->
             if (game == null) {
-                viewModel.getRequest() { game ->
-                    viewModel.createGame(this, appViewModel) {
-                        binding.btnStart.isVisible = true
-                        binding.spinner.isVisible = false
-                        binding.arrow.isVisible = true
-                        binding.btnStart.setOnClickListener { startGame() }
+                viewModel.getRequest(appViewModel) { game ->
+                    if (game == null) {
+                        viewModel.createGame(this, appViewModel) {
+                            viewModel.setListenerToGame() { gameChanged(it) }
+                            gameChanged(it)
+                        }
+                    } else {
+                        viewModel.setListenerToGame() { gameChanged(it) }
+                        gameChanged(game)
                     }
                 }
 
             } else {
-                if (game.players.size < 2) {
-                    objectLabel.text = WAITINGFOROPPONENT
-                } else {
-                    binding.btnStart.isVisible = true
-                    binding.spinner.isVisible = false
-                    binding.arrow.isVisible = true
-                    binding.btnStart.setOnClickListener { startGame() }
-                }
+                viewModel.setListenerToGame() { gameChanged(it) }
+                gameChanged(game)
             }
         }
 
+
+    }
+
+    private fun gameChanged(game: CompassGame?) {
+        Log.d("Changed", game!!.players.size.toString())
+
+        var started: Boolean
+        if (appViewModel.getUID() == game.players[0]) {
+            started = game.player0Starttime != null
+        } else {
+            started = game.player1Starttime != null
+        }
+        if (!started) {
+            if (game.players.size < 2) {
+                objectLabel.text = WAITINGFOROPPONENT
+                binding.btnStart.isVisible = false
+                binding.spinner.isVisible = true
+                binding.arrow.isVisible = false
+                binding.btnStart.setOnClickListener() {}
+            } else {
+                objectLabel.text = READYTOSTART
+                binding.btnStart.isVisible = true
+                binding.spinner.isVisible = false
+                binding.arrow.isVisible = true
+                binding.btnStart.setOnClickListener { startGame() }
+            }
+        } else {
+            // Joined Again
+            if (timer <= 0) {
+                viewModel.surrender()
+            }
+        }
 
     }
 
@@ -84,8 +117,10 @@ class CompassActivity : AppCompatActivity() {
             binding.spinner.isVisible = false
             binding.arrow.isVisible = true
             searchedDegree = next
-            objectLabel.text = viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
+            objectLabel.text =
+                viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
             viewModel.timerService?.resetTimer(this)
+            viewModel.startTime(appViewModel)
             viewModel.timerService?.startTimer(this)
         }
     }
@@ -96,15 +131,10 @@ class CompassActivity : AppCompatActivity() {
         super.finish()
     }
 
-    override fun onDestroy() {
-        Log.d("Closed", "Closed")
-        super.onDestroy()
-    }
-
-
     fun newSensorValue(floatOrientation: FloatArray) {
         if (searchedDegree != 0F.toDouble()) {
             angle = floatOrientation[0] * 180 / Math.PI
+            binding.arrow.rotation = angle.toFloat()
             Log.d(
                 "Debug",
                 "Aktuell:" + angle + " Gesucht:" + searchedDegree + " Erste:" + firstDetection
@@ -128,8 +158,8 @@ class CompassActivity : AppCompatActivity() {
                                 viewModel.timerService?.startTimer(this)
                             }
                         } else {
-                            objectLabel.text = "Finish"
-                            background.setBackgroundColor(Color.RED)
+                            //Finshed Game
+                            viewModel.endTime(appViewModel)
                         }
                     }
                     background.setBackgroundColor(Color.GREEN)
@@ -143,7 +173,7 @@ class CompassActivity : AppCompatActivity() {
 
     fun newTimerValue(timer: Int) {
         this.timer = timer
-        binding.time.text = timer.toString() + " sek"
+        binding.time.text = timer.toString() + "sec"
     }
 
 
