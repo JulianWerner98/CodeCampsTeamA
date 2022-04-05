@@ -132,8 +132,8 @@ class MentalArithmeticRepository {
 
                 // Write in database to send a notification to opponent that you have him invite to a game
                 val notficationId =  gameKey
-                val notification = Notification(notficationId.toString(), currentUserName)
-                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(friendId).child(notficationId.toString()).setValue(notification)
+                val notification = Notification(notficationId.toString(), currentUserName, Constant.MENTALARITHMETIC)
+                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(friendId).child(notficationId.toString()).setValue(notification)
             }
 
             override fun onCancelled(error: DatabaseError) {

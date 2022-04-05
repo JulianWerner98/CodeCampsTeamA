@@ -87,7 +87,7 @@ object Constant {
     const val NOTIFICATION = "Notification"
     const val NOTIFICATIONREQUEST = "NotificationRequest"
     const val CHANNEL_ID = "TeamAChannel"
-    const val NOTIFICATIONARITHMETIC = "NotificationArithmetic"
+    const val NOTIFICATIONGAMEINVITE = "NotificationGameInvite"
 
     // Statistics
     const val STATISTIC = "Statistic"

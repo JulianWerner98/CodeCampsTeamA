@@ -38,7 +38,6 @@ class NotificationRepository {
             }
 
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -47,32 +46,32 @@ class NotificationRepository {
         })
     }
 
-    fun sendGameInviteNotification(callback: (result: Boolean, id: Int, name: String) -> Unit) {
+    // Add a listener to your game invite in database and if there is a new child
+    // send a notification after that delete notification from database
+    fun sendGameInviteNotification(callback: (result: Boolean, notification: Notification) -> Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser!!
-        rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(currentUser.uid).addChildEventListener(object : ChildEventListener{
+        rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(currentUser.uid).addChildEventListener(object : ChildEventListener{
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 if (snapshot.exists()){
-                    val id = snapshot.child("id").value.toString()
-                    val name = snapshot.child(Constant.NICKNAME).value.toString()
-                    rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(currentUser.uid).child(id).removeValue()
-                    callback.invoke(true, id.hashCode(), name)
+                    val notification = snapshot.getValue(Notification::class.java)
+                    rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(currentUser.uid).child(notification!!.id).removeValue()
+                    callback.invoke(true, notification)
                 }
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {
-                callback.invoke(false, 0, Constant.DEFAULT)
+                val notification = Notification()
+                callback.invoke(false, notification)
             }
 
             override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
-                TODO("Not yet implemented")
             }
 
             override fun onCancelled(error: DatabaseError) {
-                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(currentUser.uid).removeEventListener(this)
+                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(currentUser.uid).removeEventListener(this)
             }
 
         })

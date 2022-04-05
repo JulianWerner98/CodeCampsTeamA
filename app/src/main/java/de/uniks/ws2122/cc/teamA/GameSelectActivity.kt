@@ -98,7 +98,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 notification.sendNotification(id, "Request notification", text, this, pendingIntent)
             }
         }
-        viewModel.sendGameInviteNotification(){ result, id, name ->
+        viewModel.sendGameInviteNotification(){ result, noti ->
             if (result){
                 // Create intent which opens if you click on the notification
                 val intent = Intent(this, GameInviteListActivity::class.java).apply {
@@ -108,9 +108,10 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
                 // Create notification and send it
                 val notification = Notifications()
-                val text = ("$name has send you a game invite to mental arithmetics")
+                val text = ("${noti.nickname} has send you a game invite to ${noti.gamename}")
                 // Notification id should be unique
-                notification.sendNotification(id, "Mental arithmetic game invite", text, this, pendingIntent)
+                val id = noti.id.hashCode()
+                notification.sendNotification(id, "${noti.gamename} game invite", text, this, pendingIntent)
             }
         }
         requestPermissions()
