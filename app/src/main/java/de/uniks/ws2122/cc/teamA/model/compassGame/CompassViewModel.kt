@@ -295,6 +295,20 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    fun checkWinner() {
+        if (currentGame != null){
+            var player0Time = currentGame!!.player0Endtime!!.time - currentGame!!.player0Starttime!!.time
+            var player1Time = currentGame!!.player1Endtime!!.time - currentGame!!.player1Starttime!!.time
+            if(player0Time > player1Time) {
+                currentGame!!.winner = currentGame!!.players[1]
+            } else {
+                currentGame!!.winner = currentGame!!.players[0]
+            }
+            compassRepo.setWinner(currentGame)
+        }
+
+    }
+
     fun exitGame(appViewModel: AppViewModel) {
         compassRepo.exitGame(appViewModel, currentGame)
     }

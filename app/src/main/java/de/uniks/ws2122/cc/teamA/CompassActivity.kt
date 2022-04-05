@@ -57,15 +57,15 @@ class CompassActivity : AppCompatActivity() {
 
         viewModel.getGame(appViewModel) { game ->
             if (game == null) {
-                viewModel.getRequest(appViewModel) { game ->
-                    if (game == null) {
+                viewModel.getRequest(appViewModel) { gameFromMatchRequest ->
+                    if (gameFromMatchRequest == null) {
                         viewModel.createGame(this, appViewModel) {
                             viewModel.setListenerToGame() { gameChanged(it) }
                             gameChanged(it)
                         }
                     } else {
                         viewModel.setListenerToGame() { gameChanged(it) }
-                        gameChanged(game)
+                        gameChanged(gameFromMatchRequest)
                     }
                 }
 
@@ -78,6 +78,13 @@ class CompassActivity : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        if (viewModel.currentGame!!.winner.isNotEmpty()) {
+            exitGame()
+        }
+        super.onBackPressed()
+    }
+
     private fun gameChanged(game: CompassGame?) {
         if (game == null) return
         var started: Boolean
@@ -86,21 +93,21 @@ class CompassActivity : AppCompatActivity() {
         if (game.winner == appViewModel.getUID()) {
             objectLabel.text = "You " + WIN
             binding.arrow.setImageResource(R.drawable.happy)
-        } else if(game.winner.isNotEmpty()) {
+        } else if (game.winner.isNotEmpty()) {
             binding.arrow.setImageResource(R.drawable.lame)
             objectLabel.text = "You " + LOSE
-
         }
         // Return if their is a winner
-        if(game.winner.isNotEmpty()) {
+        if (game.winner.isNotEmpty()) {
             viewModel.timerService!!.stopTimer(this)
             binding.btnStart.isVisible = true
             binding.btnStart.text = "Exit Game"
-            binding.btnStart.setOnClickListener() { exitGame()}
+            binding.btnStart.setOnClickListener() { exitGame() }
             binding.spinner.isVisible = false
             binding.arrow.isVisible = true
             return
         }
+        if (game.player0Endtime != null && game.player1Endtime != null) viewModel.checkWinner()
         if (appViewModel.getUID() == game.players[0]) {
             started = game.player0Starttime != null
         } else {
