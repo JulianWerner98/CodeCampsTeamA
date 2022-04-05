@@ -6,5 +6,4 @@ data class Feature(
     val properties: Properties,
     val type: String) {
     constructor(): this(Geometry(),0, Properties(),"")
-
 }
