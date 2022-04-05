@@ -72,56 +72,75 @@ class CompassActivity : AppCompatActivity() {
 
         viewModel.getGame(appViewModel) { game ->
             if (game == null) {
-                if (inviteId != null) {
-                    viewModel.joinGame(appViewModel, inviteId!!) { game ->
-                        if (game != null) {
-                            viewModel.setListenerToGame() { gameChanged(it) }
-                            gameChanged(game)
-                        }
-                    }
-                } else if (friendId == null) {
-                    viewModel.getRequest(appViewModel) { gameFromMatchRequest ->
-                        if (gameFromMatchRequest == null) {
-                            viewModel.createGame(this, appViewModel) {
+                when {
+                    inviteId != null -> {
+                        viewModel.joinGame(appViewModel, inviteId!!) { game ->
+                            if (game != null) {
                                 viewModel.setListenerToGame() { gameChanged(it) }
-                                gameChanged(it)
+                                gameChanged(game)
                             }
-                        } else {
-                            viewModel.setListenerToGame() { gameChanged(it) }
-                            gameChanged(gameFromMatchRequest)
                         }
                     }
-                } else {
-                    viewModel.createPrivateGame(this, appViewModel, friendId!!) { privateGame ->
-                        viewModel.setListenerToGame() { gameChanged(it) }
-                        gameChanged(privateGame)
+                    friendId == null -> {
+                        viewModel.getRequest(appViewModel) { gameFromMatchRequest ->
+                            if (gameFromMatchRequest == null) {
+                                viewModel.createGame(this, appViewModel) {
+                                    viewModel.setListenerToGame() { gameChanged(it) }
+                                    gameChanged(it)
+                                }
+                            } else {
+                                viewModel.setListenerToGame() { gameChanged(it) }
+                                gameChanged(gameFromMatchRequest)
+                            }
+                        }
+                    }
+                    else -> {
+                        viewModel.createPrivateGame(this, appViewModel, friendId!!) { privateGame ->
+                            viewModel.setListenerToGame() { gameChanged(it) }
+                            gameChanged(privateGame)
+                        }
                     }
                 }
 
 
             } else {
                 if (inviteId != null) {
-                    Toast.makeText(
-                        this,
-                        "Not Joined! You are already in a game",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                if (friendId != null) {
                     if (game.players.size >= 2) {
                         Toast.makeText(
                             this,
-                            "No Invite! You are already in a game",
+                            "Not Joined! You are already in a game.",
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
                         viewModel.deleteRequest {
-                            viewModel.sendInvite(game!!.id!!, friendId!!, appViewModel.getUID())
+                            viewModel.deleteGame(game, appViewModel.getUID()) {
+                                viewModel.joinGame(appViewModel, inviteId!!) { game ->
+                                    if (game != null) {
+                                        viewModel.setListenerToGame() { gameChanged(it) }
+                                        gameChanged(game)
+                                    }
+                                }
+                            }
                         }
                     }
+
+                } else {
+                    if (friendId != null) {
+                        if (game.players.size >= 2) {
+                            Toast.makeText(
+                                this,
+                                "No Invite! You are already in a game",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.deleteRequest {
+                                viewModel.sendInvite(game!!.id!!, friendId!!, appViewModel.getUID())
+                            }
+                        }
+                    }
+                    viewModel.setListenerToGame() { gameChanged(it) }
+                    gameChanged(game)
                 }
-                viewModel.setListenerToGame() { gameChanged(it) }
-                gameChanged(game)
             }
         }
     }
@@ -130,9 +149,13 @@ class CompassActivity : AppCompatActivity() {
         if (viewModel.currentGame!!.winner.isNotEmpty()) {
             exitGame()
         }
-        if (friendId != null) {
-            //Todo delete Request
-            Toast.makeText(this, "Change Game from private to public", Toast.LENGTH_SHORT).show()
+        if (friendId != null && viewModel.currentGame!!.players.size < 2) {
+            viewModel.deleteGame(viewModel.currentGame!!, appViewModel.getUID()) {
+                viewModel.deleteInvite(appViewModel.getUID(), friendId!!) {
+                    Toast.makeText(this, "Delete Game and Request", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
         super.onBackPressed()
     }

@@ -37,7 +37,6 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         viewModel.getLiveGameInviteListData().observe(this, Observer {
             recyclerInviteView.adapter = myInviteAdapter
         })
-
     }
 
     override fun onItemClicked(position: Int) {
