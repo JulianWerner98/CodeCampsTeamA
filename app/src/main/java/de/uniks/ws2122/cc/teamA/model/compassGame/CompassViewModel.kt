@@ -1,4 +1,4 @@
-package de.uniks.ws2122.cc.teamA.model
+package de.uniks.ws2122.cc.teamA.model.compassGame
 
 import android.content.Context
 import android.content.Context.SENSOR_SERVICE
@@ -17,7 +17,9 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.*
 import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Service.TimerService
+import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.repository.CompassRepository
+import kotlin.math.atan2
 
 
 class CompassViewModel : ViewModel() {
@@ -46,7 +48,7 @@ class CompassViewModel : ViewModel() {
 
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
         compassRepo.getApiObject(compassActivity, numberOfEmblems) {
-            currentGame = CompassGame(ArrayList(it), 0, 0)
+            currentGame = CompassGame(ArrayList(it), null, null, null, null)
             callback.invoke(it)
         }
     }
@@ -59,11 +61,11 @@ class CompassViewModel : ViewModel() {
         getLastLocation(compassActivity)
         getLocationCallback = {
             Log.d("Current Position", location!!.latitude.toString() + " " + location!!.longitude)
-            val x = /*9.490193682869808 */location!!.longitude
-            val y = /*51.31812310171641*/ location!!.latitude
+            val x = 9.490193682869808  //location!!.longitude
+            val y = 51.31812310171641 //location!!.latitude
             val x2 = feature.geometry.coordinates[0]
             val y2 = feature.geometry.coordinates[1]
-            val radian: Double = Math.atan2(y2 - y, x2 - x)
+            val radian: Double = atan2(y2 - y, x2 - x)
             val degree = radian * 180 / Math.PI
             Log.d("Searched Angle", degree.toString())
             callbackDegree.invoke(degree)
@@ -225,11 +227,11 @@ class CompassViewModel : ViewModel() {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
 
-    fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit)    {
+    fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         if (currentGame != null) {
             callback.invoke(currentGame)
         }
-        compassRepo.getGame(appViewModel)  { game ->
+        compassRepo.getGame(appViewModel) { game ->
             currentGame = game
             callback.invoke(game)
         }
@@ -238,12 +240,14 @@ class CompassViewModel : ViewModel() {
     fun createGame(
         compassActivity: CompassActivity,
         appViewModel: AppViewModel,
-        callback: () -> Unit
+        callback: (CompassGame?) -> Unit
     ) {
         getRandomLocation(compassActivity) { emblems ->
             currentGame!!.players.add(appViewModel.getUID())
-            compassRepo.createGame(currentGame)
-            callback.invoke()
+            compassRepo.createGame(currentGame) { game ->
+                currentGame = game
+                callback.invoke(game)
+            }
         }
     }
 
@@ -255,8 +259,100 @@ class CompassViewModel : ViewModel() {
         getAngleToLocation(compassActivity, currentGame!!.objectList[currentObjectCount], callback)
     }
 
-    fun getRequest(callback: (CompassGame?) -> Unit) {
-        compassRepo.getRequest(callback)
+    fun getRequest(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
+        compassRepo.getRequest(appViewModel) {
+            currentGame = it
+            callback.invoke(it)
+        }
+    }
+
+    fun setListenerToGame(callback: (CompassGame?) -> Unit) {
+        compassRepo.setListenerToGame(currentGame?.id) {
+            if (it != null) {
+                currentGame = it
+                callback.invoke(it)
+            }
+
+        }
+    }
+
+    fun startTime(appViewModel: AppViewModel) {
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            compassRepo.startTime(currentGame!!, "0")
+        } else {
+            compassRepo.startTime(currentGame!!, "1")
+        }
+        compassRepo.setWinner(currentGame)
+    }
+
+    fun surrender(appViewModel: AppViewModel) {
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            currentGame!!.winner = currentGame!!.players[1]
+            compassRepo.surrender(currentGame, "1") {
+                compassRepo.setWinner(currentGame)
+            }
+        } else {
+            currentGame!!.winner = currentGame!!.players[0]
+            compassRepo.surrender(currentGame, "0") {
+                compassRepo.setWinner(currentGame)
+            }
+        }
+
+    }
+
+    fun endTime(appViewModel: AppViewModel) {
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            compassRepo.endTime(currentGame!!, "0")
+        } else {
+            compassRepo.endTime(currentGame!!, "1")
+        }
+    }
+
+    fun checkWinner() {
+        if (currentGame != null) {
+            if (currentGame!!.winner.isEmpty() || currentGame!!.winner.isBlank()) {
+                var player0Time =
+                    currentGame!!.player0Endtime!!.time - currentGame!!.player0Starttime!!.time
+                var player1Time =
+                    currentGame!!.player1Endtime!!.time - currentGame!!.player1Starttime!!.time
+                if (player0Time > player1Time) {
+                    currentGame!!.winner = currentGame!!.players[1]
+                } else {
+                    currentGame!!.winner = currentGame!!.players[0]
+                }
+                compassRepo.setWinner(currentGame)
+            }
+        }
+    }
+
+    fun exitGame(appViewModel: AppViewModel) {
+        compassRepo.exitGame(appViewModel, currentGame)
+    }
+
+    fun createPrivateGame(
+        compassActivity: CompassActivity,
+        appViewModel: AppViewModel,
+        friendId: String,
+        callback: (CompassGame?) -> Unit
+    ) {
+        createGame(compassActivity, appViewModel) { newGame ->
+            deleteRequest() {
+                sendInvite(newGame!!.id!!, friendId, appViewModel.getUID())
+                callback.invoke(newGame)
+            }
+        }
+    }
+
+    fun sendInvite(gameId: String, friendId: String, uid: String) {
+        compassRepo.sendInvite(gameId, friendId, uid)
+    }
+
+    fun deleteRequest(callback: () -> Unit) {
+        compassRepo.deleteRequest(callback)
+    }
+
+    fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
+        compassRepo.joinGame(appViewModel, gameId, callback)
     }
 
 }

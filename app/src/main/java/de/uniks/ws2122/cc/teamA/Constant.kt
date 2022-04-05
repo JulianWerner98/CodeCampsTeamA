@@ -43,6 +43,7 @@ object Constant {
     const val ARITHMETICTASKS = "arithmeticTasks"
     const val ARITHMETICANSWERS = "arithmeticAnswers"
     const val WAITINGFOROPPONENT = "Waiting for opponent"
+    const val READYTOSTART = "Ready to start!"
     const val FINISHED = "finished"
     const val GAMEFINISHEDANSWERS = "gameFinishedAnswers"
     const val FINISHEDTIME = "finishedTime"
