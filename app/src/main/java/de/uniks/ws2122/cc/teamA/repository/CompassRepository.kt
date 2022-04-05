@@ -17,7 +17,6 @@ import de.uniks.ws2122.cc.teamA.Constant.NICKNAME
 import de.uniks.ws2122.cc.teamA.Constant.STATISTIC
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.Constant.WIN
-import de.uniks.ws2122.cc.teamA.Constant.WINNER
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.MatchResult
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
@@ -159,6 +158,20 @@ class CompassRepository {
             .setValue(Date())
     }
 
+    fun surrender(currentGame: CompassGame?, opponentPlayerNumber: String, function: () -> Unit) {
+        val date = Date()
+        date.time = 0
+        compassGamesRef.child(currentGame!!.id!!)
+            .child("player" + opponentPlayerNumber + "Starttime")
+            .setValue(date).addOnSuccessListener {
+                date.time = 150000
+                compassGamesRef.child(currentGame!!.id!!)
+                    .child("player" + opponentPlayerNumber + "Endtime")
+                    .setValue(date) .addOnSuccessListener { function.invoke() }
+            }
+
+    }
+
     fun exitGame(appViewModel: AppViewModel, game: CompassGame?) {
         rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME).removeValue()
         var matchResult = MatchResult()
@@ -172,25 +185,26 @@ class CompassRepository {
                 matchResult.opponent = opponentName.value.toString()
                 if (game!!.winner == userId) {
                     if (game.players[0] == userId) matchResult.points =
-                        600 - ((game.player0Endtime!!.time - game.player0Starttime!!.time) / 1000).toInt()
+                        1000 - ((game.player0Endtime!!.time - game.player0Starttime!!.time) / 1000).toInt() * 5
                     if (game.players[1] == userId) matchResult.points =
-                        600 - ((game.player1Endtime!!.time - game.player1Starttime!!.time) / 1000).toInt()
+                        1000 - ((game.player1Endtime!!.time - game.player1Starttime!!.time) / 1000).toInt() * 5
+                    if (matchResult.points < 0) matchResult.points = 0
                     matchResult.win = WIN
                 } else {
-                    matchResult.points
+                    matchResult.points = 0
                     matchResult.win = LOSE
                 }
                 //TODO Statistics
                 rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
                     .child(HISTORIE).child(game!!.id.toString()).setValue(matchResult)
                     .addOnSuccessListener {
-                        //TODO Delete Game -> maybe
+                        
                     }
             }
     }
 
     fun setWinner(game: CompassGame?) {
-        compassGamesRef.child(game!!.id.toString()).child(WINNER).setValue(game!!.winner)
+        compassGamesRef.child(game!!.id.toString()).child("winner").setValue(game!!.winner)
     }
 
 }

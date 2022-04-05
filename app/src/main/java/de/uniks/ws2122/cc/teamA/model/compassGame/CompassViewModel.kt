@@ -227,11 +227,11 @@ class CompassViewModel : ViewModel() {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
 
-    fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit)    {
+    fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         if (currentGame != null) {
             callback.invoke(currentGame)
         }
-        compassRepo.getGame(appViewModel)  { game ->
+        compassRepo.getGame(appViewModel) { game ->
             currentGame = game
             callback.invoke(game)
         }
@@ -259,16 +259,16 @@ class CompassViewModel : ViewModel() {
         getAngleToLocation(compassActivity, currentGame!!.objectList[currentObjectCount], callback)
     }
 
-    fun getRequest(appViewModel: AppViewModel,callback: (CompassGame?) -> Unit) {
+    fun getRequest(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         compassRepo.getRequest(appViewModel) {
             currentGame = it
             callback.invoke(it)
         }
     }
 
-    fun setListenerToGame (callback: (CompassGame?) -> Unit) {
-        compassRepo.setListenerToGame(currentGame?.id){
-            if(it != null) {
+    fun setListenerToGame(callback: (CompassGame?) -> Unit) {
+        compassRepo.setListenerToGame(currentGame?.id) {
+            if (it != null) {
                 currentGame = it
                 callback.invoke(it)
             }
@@ -282,9 +282,22 @@ class CompassViewModel : ViewModel() {
         } else {
             compassRepo.startTime(currentGame!!, "1")
         }
+        compassRepo.setWinner(currentGame)
     }
 
-    fun surrender() {
+    fun surrender(appViewModel: AppViewModel) {
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            currentGame!!.winner = currentGame!!.players[1]
+            compassRepo.surrender(currentGame, "1") {
+                compassRepo.setWinner(currentGame)
+            }
+        } else {
+            currentGame!!.winner = currentGame!!.players[0]
+            compassRepo.surrender(currentGame, "0"){
+                compassRepo.setWinner(currentGame)
+            }
+        }
+
     }
 
     fun endTime(appViewModel: AppViewModel) {
@@ -296,17 +309,20 @@ class CompassViewModel : ViewModel() {
     }
 
     fun checkWinner() {
-        if (currentGame != null){
-            var player0Time = currentGame!!.player0Endtime!!.time - currentGame!!.player0Starttime!!.time
-            var player1Time = currentGame!!.player1Endtime!!.time - currentGame!!.player1Starttime!!.time
-            if(player0Time > player1Time) {
-                currentGame!!.winner = currentGame!!.players[1]
-            } else {
-                currentGame!!.winner = currentGame!!.players[0]
+        if (currentGame != null) {
+            if (currentGame!!.winner.isEmpty() || currentGame!!.winner.isBlank()) {
+                var player0Time =
+                    currentGame!!.player0Endtime!!.time - currentGame!!.player0Starttime!!.time
+                var player1Time =
+                    currentGame!!.player1Endtime!!.time - currentGame!!.player1Starttime!!.time
+                if (player0Time > player1Time) {
+                    currentGame!!.winner = currentGame!!.players[1]
+                } else {
+                    currentGame!!.winner = currentGame!!.players[0]
+                }
+                compassRepo.setWinner(currentGame)
             }
-            compassRepo.setWinner(currentGame)
         }
-
     }
 
     fun exitGame(appViewModel: AppViewModel) {

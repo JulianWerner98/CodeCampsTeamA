@@ -14,6 +14,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant.LOSE
 import de.uniks.ws2122.cc.teamA.Constant.READYTOSTART
+import de.uniks.ws2122.cc.teamA.Constant.SURRENDER
 import de.uniks.ws2122.cc.teamA.Constant.WAITINGFOROPPONENT
 import de.uniks.ws2122.cc.teamA.Constant.WIN
 import de.uniks.ws2122.cc.teamA.Service.TimerService
@@ -91,11 +92,16 @@ class CompassActivity : AppCompatActivity() {
 
         //Check Winner
         if (game.winner == appViewModel.getUID()) {
+            viewModel.stopSensor()
             objectLabel.text = "You " + WIN
             binding.arrow.setImageResource(R.drawable.happy)
+            binding.arrow.rotation = 0f
+
         } else if (game.winner.isNotEmpty()) {
+            viewModel.stopSensor()
             binding.arrow.setImageResource(R.drawable.lame)
             objectLabel.text = "You " + LOSE
+            binding.arrow.rotation = 0f
         }
         // Return if their is a winner
         if (game.winner.isNotEmpty()) {
@@ -105,13 +111,14 @@ class CompassActivity : AppCompatActivity() {
             binding.btnStart.setOnClickListener() { exitGame() }
             binding.spinner.isVisible = false
             binding.arrow.isVisible = true
+            binding.time.isVisible = false
             return
         }
         if (game.player0Endtime != null && game.player1Endtime != null) viewModel.checkWinner()
         if (appViewModel.getUID() == game.players[0]) {
-            started = game.player0Starttime != null
+            started = game.player0Starttime != null && game.player0Starttime!!.time != 0L
         } else {
-            started = game.player1Starttime != null
+            started = game.player1Starttime != null && game.player1Starttime!!.time != 0L
         }
         if (!started) {
             if (game.players.size < 2) {
@@ -130,7 +137,7 @@ class CompassActivity : AppCompatActivity() {
         } else {
             // Joined Again
             if (timer <= 0) {
-                viewModel.surrender()
+                viewModel.surrender(appViewModel)
             }
         }
 
@@ -143,6 +150,7 @@ class CompassActivity : AppCompatActivity() {
     }
 
     private fun startGame() {
+        timer = 1
         binding.btnStart.isVisible = false
         binding.spinner.isVisible = true
         binding.arrow.isVisible = false
@@ -178,7 +186,7 @@ class CompassActivity : AppCompatActivity() {
                 } else if (timer - firstDetection in 2..5) {
                     val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                     if (vibrator.hasVibrator()) {
-                        vibrator.vibrate(1000)
+                        vibrator.vibrate(500)
                     }
                     viewModel.timerService?.stopTimer(this)
                     viewModel.stopSensor()
@@ -193,9 +201,13 @@ class CompassActivity : AppCompatActivity() {
                     } else {
                         //Finshed Game
                         viewModel.endTime(appViewModel)
-                    }
+                        background.setBackgroundColor(Color.parseColor("#393E46"))
+                        binding.objectTV.text = "Finished Waiting for Opponent"
+                        binding.arrow.isVisible = false
 
-                    background.setBackgroundColor(Color.GREEN)
+                        return
+                    }
+                    background.setBackgroundColor(Color.parseColor("#05930A"))
                 }
             } else {
                 firstDetection = 0
@@ -207,6 +219,11 @@ class CompassActivity : AppCompatActivity() {
     fun newTimerValue(timer: Int) {
         this.timer = timer
         binding.time.text = timer.toString() + "sec"
+        if (timer > 1) {
+            binding.btnStart.setOnClickListener() { viewModel.surrender(appViewModel) }
+            binding.btnStart.isVisible = true
+            binding.btnStart.text = SURRENDER
+        }
     }
 
 
