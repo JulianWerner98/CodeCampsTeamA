@@ -1,5 +1,7 @@
 package de.uniks.ws2122.cc.teamA
 
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -12,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.Constant.COMPASS_GAME
 import de.uniks.ws2122.cc.teamA.Constant.LOSE
 import de.uniks.ws2122.cc.teamA.Constant.READYTOSTART
 import de.uniks.ws2122.cc.teamA.Constant.SURRENDER
@@ -19,9 +22,12 @@ import de.uniks.ws2122.cc.teamA.Constant.WAITINGFOROPPONENT
 import de.uniks.ws2122.cc.teamA.Constant.WIN
 import de.uniks.ws2122.cc.teamA.Service.TimerService
 import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
+import de.uniks.ws2122.cc.teamA.gameInvite.GameInviteListActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
+import de.uniks.ws2122.cc.teamA.model.Notification
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassViewModel
+import de.uniks.ws2122.cc.teamA.model.util.Notifications
 
 
 class CompassActivity : AppCompatActivity() {
@@ -36,6 +42,7 @@ class CompassActivity : AppCompatActivity() {
     private var searchedDegree: Double = 0F.toDouble()
     private var currentObjectCount: Int = 0
     private var firstDetection: Int = 0
+    private val notificationId = 123456
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +98,11 @@ class CompassActivity : AppCompatActivity() {
     private fun gameChanged(game: CompassGame?) {
         if (game == null) return
         var started: Boolean
+        val intent = Intent(this, CompassGame::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val notifications = Notifications()
 
         //Check Winner
         if (game.winner == appViewModel.getUID()) {
@@ -98,12 +110,13 @@ class CompassActivity : AppCompatActivity() {
             objectLabel.text = "You " + WIN
             binding.arrow.setImageResource(R.drawable.happy)
             binding.arrow.rotation = 0f
-
+            notifications.sendNotification(notificationId, COMPASS_GAME, "You won the game", this, pendingIntent)
         } else if (game.winner.isNotEmpty()) {
             viewModel.stopSensor()
             binding.arrow.setImageResource(R.drawable.lame)
             objectLabel.text = "You " + LOSE
             binding.arrow.rotation = 0f
+            notifications.sendNotification(notificationId, COMPASS_GAME, "You lost the game", this, pendingIntent)
         }
         // Return if their is a winner
         if (game.winner.isNotEmpty()) {
@@ -130,6 +143,7 @@ class CompassActivity : AppCompatActivity() {
                 binding.arrow.isVisible = false
                 binding.btnStart.setOnClickListener() {}
             } else {
+                notifications.sendNotification(notificationId, COMPASS_GAME, "Opponent found", this, pendingIntent)
                 objectLabel.text = READYTOSTART
                 binding.btnStart.isVisible = true
                 binding.spinner.isVisible = false

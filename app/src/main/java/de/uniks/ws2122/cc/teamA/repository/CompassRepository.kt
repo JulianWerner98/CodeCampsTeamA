@@ -9,6 +9,7 @@ import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.Constant.COMPASS_API_URL
 import de.uniks.ws2122.cc.teamA.Constant.COMPASS_GAME
+import de.uniks.ws2122.cc.teamA.Constant.DRAW
 import de.uniks.ws2122.cc.teamA.Constant.GAMES
 import de.uniks.ws2122.cc.teamA.Constant.HISTORIE
 import de.uniks.ws2122.cc.teamA.Constant.LOSE
@@ -18,6 +19,7 @@ import de.uniks.ws2122.cc.teamA.Constant.STATISTIC
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.Constant.WIN
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
+import de.uniks.ws2122.cc.teamA.model.Highscore
 import de.uniks.ws2122.cc.teamA.model.MatchResult
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
 import de.uniks.ws2122.cc.teamA.model.compassGame.Feature
@@ -194,13 +196,24 @@ class CompassRepository {
                     matchResult.points = 0
                     matchResult.win = LOSE
                 }
-                //TODO Statistics
+                rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
+                    .child(COMPASS_GAME).get().addOnSuccessListener { dataSnapshot ->
+                        var highscore =
+                            dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
+                        if(highscore == null) highscore = Highscore()
+                        if(highscore.points < matchResult.points) highscore.points = matchResult.points
+                        if(matchResult.win == WIN) highscore.wins += 1
+                        if(matchResult.win == LOSE) highscore.loses += 1
+                        if(matchResult.win == DRAW) highscore.draws += 1
+                        rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
+                            .child(COMPASS_GAME).setValue(highscore)
+                    }
                 rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
                     .child(HISTORIE).child(game!!.id.toString()).setValue(matchResult)
                     .addOnSuccessListener {
                         rootRef.child(USERS_PATH).child(opponentId).child(STATISTIC).child(HISTORIE)
                             .child(game!!.id.toString()).get().addOnSuccessListener {
-                                if(it.value != null) {
+                                if (it.value != null) {
                                     compassGamesRef.child(game!!.id.toString()).removeValue()
                                 }
                             }
