@@ -167,7 +167,7 @@ class CompassRepository {
                 date.time = 150000
                 compassGamesRef.child(currentGame!!.id!!)
                     .child("player" + opponentPlayerNumber + "Endtime")
-                    .setValue(date) .addOnSuccessListener { function.invoke() }
+                    .setValue(date).addOnSuccessListener { function.invoke() }
             }
 
     }
@@ -198,7 +198,12 @@ class CompassRepository {
                 rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
                     .child(HISTORIE).child(game!!.id.toString()).setValue(matchResult)
                     .addOnSuccessListener {
-                        
+                        rootRef.child(USERS_PATH).child(opponentId).child(STATISTIC).child(HISTORIE)
+                            .child(game!!.id.toString()).get().addOnSuccessListener {
+                                if(it.value != null) {
+                                    compassGamesRef.child(game!!.id.toString()).removeValue()
+                                }
+                            }
                     }
             }
     }

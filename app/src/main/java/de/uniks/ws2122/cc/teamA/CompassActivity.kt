@@ -219,7 +219,7 @@ class CompassActivity : AppCompatActivity() {
     fun newTimerValue(timer: Int) {
         this.timer = timer
         binding.time.text = timer.toString() + "sec"
-        if (timer > 1) {
+        if (timer == 2) {
             binding.btnStart.setOnClickListener() { viewModel.surrender(appViewModel) }
             binding.btnStart.isVisible = true
             binding.btnStart.text = SURRENDER

@@ -116,6 +116,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         requestPermissions()
     }
 
+    override fun onBackPressed() {}
+
     override fun onClick(v: View?) {
 
         when (v!!.id) {
