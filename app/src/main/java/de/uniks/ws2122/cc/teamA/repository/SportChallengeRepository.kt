@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.model.MatchResult
 
 class SportChallengeRepository {
 
@@ -230,7 +231,7 @@ class SportChallengeRepository {
 
         //show Waiting for Player
 
-       waitForPlayerListener = object : ValueEventListener {
+        waitForPlayerListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 if (snapshot.hasChild(Constant.PLAYER2)) {
@@ -349,19 +350,21 @@ class SportChallengeRepository {
         matchRef.child(user).child(Constant.FINISHED).setValue(Constant.FINISHED)
     }
 
-    fun getEnemyResults(enemy: String, callback: (time: Double, steps: Int, meters: Float) -> Unit) {
+    fun getEnemyResults(
+        enemy: String,
+        callback: (time: Double, steps: Int, meters: Float) -> Unit
+    ) {
 
-        matchRef.child(enemy).addValueEventListener(object: ValueEventListener {
+        matchRef.child(enemy).addValueEventListener(object : ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
 
-                if (snapshot.hasChild(Constant.FINISHED)){
+                if (snapshot.hasChild(Constant.FINISHED)) {
 
                     if (snapshot.child(Constant.FINISHED).value.toString() == Constant.SURRENDER) {
 
                         callback.invoke(0.0, 0, 0.0f)
-                    }
-                    else {
+                    } else {
 
                         val time = snapshot.child(Constant.COUNTED_TIME).value.toString().toDouble()
                         val steps = snapshot.child(Constant.STEPS).value.toString().toInt()
@@ -400,5 +403,25 @@ class SportChallengeRepository {
 
         matchRef.child(user).child(Constant.FINISHED).setValue(Constant.SURRENDER)
         currentUserRef.child(Constant.SPORT_CHALLENGE).removeValue()
+    }
+
+    fun getEnemyName(enemy: String, callback: (name: String) -> Unit) {
+
+        matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                val name = snapshot.child(enemy).child(Constant.NICKNAME).value.toString()
+                callback.invoke(name)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    fun saveMatchResult(matchResult: MatchResult) {
+
+        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.HISTORIE).child(matchRef.key.toString()).setValue(matchResult)
     }
 }
