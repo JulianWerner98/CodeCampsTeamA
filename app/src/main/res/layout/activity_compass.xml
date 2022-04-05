@@ -8,6 +8,27 @@
     android:background="@color/blau_grau"
     tools:context=".CompassActivity">
 
+    <ImageView
+        android:id="@+id/curvedArrowLeft"
+        android:layout_width="117dp"
+        android:layout_height="304dp"
+        android:layout_marginBottom="256dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/curved_arrow" />
+
+    <ImageView
+        android:id="@+id/curvedArrowRight"
+        android:layout_width="117dp"
+        android:layout_height="304dp"
+        android:layout_marginBottom="256dp"
+        android:scaleX="-1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/curved_arrow" />
+
     <ProgressBar
         android:id="@+id/spinner"
         style="?android:attr/progressBarStyle"

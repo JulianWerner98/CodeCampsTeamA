@@ -45,6 +45,8 @@ class CompassActivity : AppCompatActivity() {
         imageView = binding.arrow
         objectLabel = binding.objectTV
         background = binding.background
+        binding.curvedArrowLeft.isVisible = false
+        binding.curvedArrowRight.isVisible = false
 
         //ViewModel
         viewModel = ViewModelProvider(this)[CompassViewModel::class.java]
