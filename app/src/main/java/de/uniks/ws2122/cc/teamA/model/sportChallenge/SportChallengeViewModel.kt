@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.model.MatchResult
 import de.uniks.ws2122.cc.teamA.model.util.SportMode
 import de.uniks.ws2122.cc.teamA.model.util.StepCounter
 import de.uniks.ws2122.cc.teamA.model.util.StepTimerService
@@ -160,7 +161,7 @@ class SportChallengeViewModel : ViewModel() {
 
     private fun isWinner() {
 
-        var value = sportChallengeData.value!!
+        val value = sportChallengeData.value!!
 
         if (value.mode == Constant.TIME) {
 
@@ -176,7 +177,7 @@ class SportChallengeViewModel : ViewModel() {
 
             if (value.userCountedSteps == value.enemyCountedSteps) {
 
-                value.winner = "Tie"
+                value.winner = Constant.DRAW
             }
         }
         else {
@@ -193,7 +194,7 @@ class SportChallengeViewModel : ViewModel() {
 
             if (value.userTime == value.enemyTime) {
 
-                value.winner = "Tie"
+                value.winner = Constant.DRAW
             }
         }
 
@@ -232,7 +233,31 @@ class SportChallengeViewModel : ViewModel() {
                 setSportChallengeData(value)
 
                 isWinner()
+                saveMatchResult()
             }
+        }
+    }
+
+    private fun saveMatchResult() {
+
+        val value = sportChallengeData.value!!
+        val matchResult = MatchResult()
+
+        matchResult.currentuser = "You"
+        matchResult.gamename = Constant.SPORT_CHALLENGE
+        matchResult.points = value.userCountedSteps * value.userTime.toInt()
+
+        when (value.winner) {
+
+            value.players[0] -> matchResult.win = Constant.WIN
+            value.players[1] -> matchResult.win = Constant.LOSE
+            else -> matchResult.win = Constant.DRAW
+        }
+
+        sportRepo.getEnemyName(value.players[1]) {
+            
+            matchResult.opponent = it
+            sportRepo.saveMatchResult(matchResult)
         }
     }
 
@@ -243,6 +268,7 @@ class SportChallengeViewModel : ViewModel() {
 
     fun surrenderMatch() {
 
+        saveMatchResult()
         sportRepo.surrenderMatch(sportChallengeData.value!!.players[0])
         stopTimer(appContext)
         stepCounter.resetSteps()
