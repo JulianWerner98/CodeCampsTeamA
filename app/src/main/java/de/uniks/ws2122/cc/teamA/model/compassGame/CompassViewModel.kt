@@ -293,7 +293,7 @@ class CompassViewModel : ViewModel() {
             }
         } else {
             currentGame!!.winner = currentGame!!.players[0]
-            compassRepo.surrender(currentGame, "0"){
+            compassRepo.surrender(currentGame, "0") {
                 compassRepo.setWinner(currentGame)
             }
         }
@@ -328,4 +328,31 @@ class CompassViewModel : ViewModel() {
     fun exitGame(appViewModel: AppViewModel) {
         compassRepo.exitGame(appViewModel, currentGame)
     }
+
+    fun createPrivateGame(
+        compassActivity: CompassActivity,
+        appViewModel: AppViewModel,
+        friendId: String,
+        callback: (CompassGame?) -> Unit
+    ) {
+        createGame(compassActivity, appViewModel) { newGame ->
+            deleteRequest() {
+                sendInvite(newGame!!.id!!, friendId, appViewModel.getUID())
+                callback.invoke(newGame)
+            }
+        }
+    }
+
+    fun sendInvite(gameId: String, friendId: String, uid: String) {
+        compassRepo.sendInvite(gameId, friendId, uid)
+    }
+
+    fun deleteRequest(callback: () -> Unit) {
+        compassRepo.deleteRequest(callback)
+    }
+
+    fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
+        compassRepo.joinGame(appViewModel, gameId, callback)
+    }
+
 }

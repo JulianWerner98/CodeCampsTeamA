@@ -7,6 +7,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.databinding.ActivityGameInviteListBinding
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
@@ -47,7 +48,15 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         viewModel.deleteInvite(gameName, friendName)
         when(gameName){
             Constant.MENTALARITHMETIC -> changeToArithmeticIntent(gameKey)
+            Constant.COMPASS_GAME -> changeToCompassIntent(gameKey)
         }
+    }
+
+    private fun changeToCompassIntent(gameKey: String) {
+        val intent = Intent(this, CompassActivity::class.java).apply {
+            this.putExtra(Constant.INVITEKEY, gameKey)
+        }
+        startActivity(intent)
     }
 
     private fun changeToArithmeticIntent(gameKey: String) {
