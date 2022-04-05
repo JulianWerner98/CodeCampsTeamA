@@ -16,7 +16,6 @@ import de.uniks.ws2122.cc.teamA.Constant.INVITES
 import de.uniks.ws2122.cc.teamA.Constant.LOSE
 import de.uniks.ws2122.cc.teamA.Constant.MATCH_REQUEST
 import de.uniks.ws2122.cc.teamA.Constant.NICKNAME
-import de.uniks.ws2122.cc.teamA.Constant.PLAYERS
 import de.uniks.ws2122.cc.teamA.Constant.STATISTIC
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.Constant.WIN
@@ -182,46 +181,45 @@ class CompassRepository {
         var userId = appViewModel.getUID()
         var opponentId = ""
         opponentId = if (game!!.players[0] == userId) game!!.players[1] else game!!.players[0]
-        rootRef.child(USERS_PATH).child(opponentId).child(NICKNAME).get()
-            .addOnSuccessListener { opponentName ->
-                matchResult.currentuser = "You"
-                matchResult.gamename = COMPASS_GAME
-                matchResult.opponent = opponentName.value.toString()
-                if (game!!.winner == userId) {
-                    if (game.players[0] == userId) matchResult.points =
-                        1000 - ((game.player0Endtime!!.time - game.player0Starttime!!.time) / 1000).toInt() * 5
-                    if (game.players[1] == userId) matchResult.points =
-                        1000 - ((game.player1Endtime!!.time - game.player1Starttime!!.time) / 1000).toInt() * 5
-                    if (matchResult.points < 0) matchResult.points = 0
-                    matchResult.win = WIN
-                } else {
-                    matchResult.points = 0
-                    matchResult.win = LOSE
-                }
-                rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
-                    .child(COMPASS_GAME).get().addOnSuccessListener { dataSnapshot ->
-                        var highscore =
-                            dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
-                        if (highscore == null) highscore = Highscore()
-                        if (highscore.points < matchResult.points) highscore.points =
-                            matchResult.points
-                        if (matchResult.win == WIN) highscore.wins += 1
-                        if (matchResult.win == LOSE) highscore.loses += 1
-                        if (matchResult.win == DRAW) highscore.draws += 1
-                        rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
-                            .child(COMPASS_GAME).setValue(highscore)
-                    }
-                rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
-                    .child(HISTORIE).child(game!!.id.toString()).setValue(matchResult)
-                    .addOnSuccessListener {
-                        rootRef.child(USERS_PATH).child(opponentId).child(STATISTIC).child(HISTORIE)
-                            .child(game!!.id.toString()).get().addOnSuccessListener {
-                                if (it.value != null) {
-                                    compassGamesRef.child(game!!.id.toString()).removeValue()
-                                }
-                            }
-                    }
+        getUsername(opponentId) { opponentName ->
+            matchResult.currentuser = "You"
+            matchResult.gamename = COMPASS_GAME
+            matchResult.opponent = opponentName
+            if (game!!.winner == userId) {
+                if (game.players[0] == userId) matchResult.points =
+                    1000 - ((game.player0Endtime!!.time - game.player0Starttime!!.time) / 1000).toInt() * 5
+                if (game.players[1] == userId) matchResult.points =
+                    1000 - ((game.player1Endtime!!.time - game.player1Starttime!!.time) / 1000).toInt() * 5
+                if (matchResult.points < 0) matchResult.points = 0
+                matchResult.win = WIN
+            } else {
+                matchResult.points = 0
+                matchResult.win = LOSE
             }
+            rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
+                .child(COMPASS_GAME).get().addOnSuccessListener { dataSnapshot ->
+                    var highscore =
+                        dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
+                    if (highscore == null) highscore = Highscore()
+                    if (highscore.points < matchResult.points) highscore.points =
+                        matchResult.points
+                    if (matchResult.win == WIN) highscore.wins += 1
+                    if (matchResult.win == LOSE) highscore.loses += 1
+                    if (matchResult.win == DRAW) highscore.draws += 1
+                    rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
+                        .child(COMPASS_GAME).setValue(highscore)
+                }
+            rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(STATISTIC)
+                .child(HISTORIE).child(game!!.id.toString()).setValue(matchResult)
+                .addOnSuccessListener {
+                    rootRef.child(USERS_PATH).child(opponentId).child(STATISTIC).child(HISTORIE)
+                        .child(game!!.id.toString()).get().addOnSuccessListener {
+                            if (it.value != null) {
+                                compassGamesRef.child(game!!.id.toString()).removeValue()
+                            }
+                        }
+                }
+        }
     }
 
     fun setWinner(game: CompassGame?) {
@@ -235,22 +233,46 @@ class CompassRepository {
     }
 
     fun sendInvite(gameId: String, friendId: String, uid: String) {
-        rootRef.child(USERS_PATH).child(uid).child(NICKNAME).get().addOnSuccessListener {
-            rootRef.child(USERS_PATH).child(friendId).child(INVITES).child(COMPASS_GAME).child(it.value.toString())
+        getUsername(uid) {
+            rootRef.child(USERS_PATH).child(friendId).child(INVITES).child(COMPASS_GAME)
+                .child(it)
                 .setValue(gameId)
         }
 
     }
 
+    private fun getUsername(uid: String, callback: (String) -> Unit) {
+        rootRef.child(USERS_PATH).child(uid).child(NICKNAME).get().addOnSuccessListener {
+            callback.invoke(it.value.toString())
+        }
+    }
+
     fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
-        compassGamesRef.child(gameId).child(PLAYERS).child("1").setValue(appViewModel.getUID())
+        compassGamesRef.child(gameId).child("players").child("1").setValue(appViewModel.getUID())
             .addOnSuccessListener {
-                rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME).setValue(gameId).addOnSuccessListener {
-                    getGame(appViewModel) {
-                        callback.invoke(it)
+                rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME)
+                    .setValue(gameId).addOnSuccessListener {
+                        getGame(appViewModel, callback)
                     }
-                }
             }
+    }
+
+    fun deleteGame(game: CompassGame, uid: String, callback: () -> Unit) {
+        compassGamesRef.child(game.id!!).removeValue().addOnSuccessListener {
+            rootRef.child(USERS_PATH).child(uid).child(COMPASS_GAME).removeValue()
+                .addOnSuccessListener {
+                    callback.invoke()
+                }
+        }
+    }
+
+    fun deleteInvite(uid: String, friendId: String, callback: () -> Unit) {
+        getUsername(uid) {
+            rootRef.child(USERS_PATH).child(friendId).child(INVITES).child(COMPASS_GAME).child(it)
+                .removeValue().addOnSuccessListener {
+                    callback.invoke()
+                }
+        }
     }
 
 }

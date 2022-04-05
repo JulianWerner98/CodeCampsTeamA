@@ -206,7 +206,6 @@ class CompassViewModel : ViewModel() {
             floatOrientation[1] = map2.average().toFloat()
             floatOrientation[2] = map3.average().toFloat()
             sensorCallback.invoke(floatOrientation)
-            //imageView.rotation = (-floatOrientation[0] * 180 / Math.PI).toFloat() - 90F
         }
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
@@ -352,7 +351,18 @@ class CompassViewModel : ViewModel() {
     }
 
     fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
-        compassRepo.joinGame(appViewModel, gameId, callback)
+        compassRepo.joinGame(appViewModel, gameId) {
+            currentGame = it
+            callback.invoke(it)
+        }
+    }
+
+    fun deleteGame(game: CompassGame, uid: String, callback: () -> Unit) {
+        compassRepo.deleteGame(game, uid, callback)
+    }
+
+    fun deleteInvite(uid: String, friendId: String, callback: () -> Unit) {
+        compassRepo.deleteInvite(uid, friendId, callback)
     }
 
 }
