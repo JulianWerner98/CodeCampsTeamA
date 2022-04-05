@@ -22,6 +22,7 @@ import de.uniks.ws2122.cc.teamA.Constant.WIN
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.Highscore
 import de.uniks.ws2122.cc.teamA.model.MatchResult
+import de.uniks.ws2122.cc.teamA.model.Notification
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
 import de.uniks.ws2122.cc.teamA.model.compassGame.Feature
 import de.uniks.ws2122.cc.teamA.model.compassGame.GeoportalData
@@ -237,6 +238,10 @@ class CompassRepository {
             rootRef.child(USERS_PATH).child(friendId).child(INVITES).child(COMPASS_GAME)
                 .child(it)
                 .setValue(gameId)
+            
+            val notficationId =  gameId
+            val notification = Notification(notficationId.toString(), it, Constant.COMPASS_GAME)
+            rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(friendId).child(notficationId.toString()).setValue(notification)
         }
 
     }
