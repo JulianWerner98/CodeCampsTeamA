@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA.model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -44,8 +45,13 @@ class FriendRequestViewModel : ViewModel(){
     // Get friend request received list from database
     fun fetchReceivedRequestList(){
         friendRequestController.getReceivedList { result ->
+           //Log.d("Request", "Requestsize: ${result.size}")
+           // Log.d("Request", "Requestsize2: ${receivedList.size}")
             receivedList = result
+           // Log.d("Request", "Requestsize3: ${receivedList.size}")
+           // Log.d("Request", "Requestsize4: ${liveDataRequestList.value?.size}")
             setLiveDataRequestList()
+           // Log.d("Request", "Requestsize5: ${liveDataRequestList.value?.size}")
         }
     }
 

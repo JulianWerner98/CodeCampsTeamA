@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.model.TicTacToe
+import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToe
 import java.util.*
 
 class TicTacToeRepository {
@@ -81,7 +81,7 @@ class TicTacToeRepository {
         return snapshot.child(Constant.GAMES).child(Constant.TTTQ).hasChild(currentUser.uid)
     }
 
-    //check if the user has a game running and
+    //check if the user has a game running
     private fun hasRunningGame(snapshot: DataSnapshot): Boolean {
 
         var hasGame = false

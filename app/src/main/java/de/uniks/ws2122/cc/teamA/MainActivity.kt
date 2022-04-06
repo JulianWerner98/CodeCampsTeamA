@@ -55,6 +55,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun onBackPressed() {
+    }
+
     override fun onClick(v: View?) {
         when (v!!.id) {
             register.id -> {

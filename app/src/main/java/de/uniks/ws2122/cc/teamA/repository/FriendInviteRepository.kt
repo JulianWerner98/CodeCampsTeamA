@@ -8,37 +8,34 @@ import de.uniks.ws2122.cc.teamA.Constant
 class FriendInviteRepository {
 
     //References
-    private val rootRef: DatabaseReference = FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
+    private val rootRef: DatabaseReference =
+        FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
     private val currentUser = FirebaseAuth.getInstance().currentUser!!
     private val currentUserRef = rootRef.child(Constant.USERS_PATH).child(currentUser.uid).ref
     private var toastString = ""
     private lateinit var game: String
     private lateinit var friendID: String
-    private lateinit var friendNickname: String
 
-    fun privateMatchRequest(game: String, friendID: String, friendNickname: String) {
+    fun privateMatchRequest(game: String, friendID: String) {
 
         this.friendID = friendID
         this.game = game
-        this.friendNickname = friendNickname
 
-        rootRef.addListenerForSingleValueEvent(object: ValueEventListener {
+        rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
                 if (isInGame(snapshot)) {
 
                     toastString = Constant.ALREADY_INGAME_ERROR
-                }
-                else {
+                } else {
 
                     if (isInvited(snapshot)) {
 
                         acceptRequest()
-                    }
-                    else {
+                    } else {
 
                         createMatchRequest()
-                        when(game) {
+                        when (game) {
 
                             "TicTacToe" -> createPrivateTicTacToeMatch()
                         }
@@ -49,7 +46,7 @@ class FriendInviteRepository {
             override fun onCancelled(error: DatabaseError) {
                 toastString = "ERROR"
             }
-        } )
+        })
     }
 
     private fun isInGame(snapshot: DataSnapshot): Boolean {
@@ -61,9 +58,13 @@ class FriendInviteRepository {
 
         var isInvited = false
 
-        if (snapshot.child(Constant.GAMES).child(Constant.MATCH_REQUEST).hasChild(currentUser.uid)) {
+        if (snapshot.child(Constant.GAMES).child(Constant.MATCH_REQUEST)
+                .hasChild(currentUser.uid)
+        ) {
 
-            isInvited = snapshot.child(Constant.GAMES).child(Constant.MATCH_REQUEST).child(currentUser.uid).child(Constant.FROM).value.toString() == friendID
+            isInvited =
+                snapshot.child(Constant.GAMES).child(Constant.MATCH_REQUEST).child(currentUser.uid)
+                    .child(Constant.FROM).value.toString() == friendID
         }
 
         Log.d("FIRepo", "is invited: $isInvited")
@@ -75,29 +76,34 @@ class FriendInviteRepository {
         val friendRef = rootRef.child(Constant.USERS_PATH).child(friendID).ref
         var matchRefString: String
 
-        friendRef.child(Constant.INGAME).addListenerForSingleValueEvent(object: ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+        friendRef.child(Constant.INGAME)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
 
-                matchRefString = snapshot.value.toString()
-                currentUserRef.child(Constant.INGAME).setValue(matchRefString)
+                    matchRefString = snapshot.value.toString()
+                    currentUserRef.child(Constant.INGAME).setValue(matchRefString)
 
-                val matchRef = rootRef.child(Constant.GAMES).child(Constant.TTT).child(matchRefString)
-                matchRef.child(Constant.PLAYER2).child(Constant.ID).setValue(currentUser.uid)
+                    val matchRef =
+                        rootRef.child(Constant.GAMES).child(Constant.TTT).child(matchRefString)
+                    matchRef.child(Constant.PLAYER2).child(Constant.ID).setValue(currentUser.uid)
 
-                val matchRequestRef = rootRef.child(Constant.GAMES).child(Constant.MATCH_REQUEST).child(currentUser.uid).ref
-                matchRequestRef.removeValue()
-                Log.d("FIRepo", "accept: $matchRefString")
-            }
+                    val matchRequestRef =
+                        rootRef.child(Constant.GAMES).child(Constant.MATCH_REQUEST)
+                            .child(currentUser.uid).ref
+                    matchRequestRef.removeValue()
+                    Log.d("FIRepo", "accept: $matchRefString")
+                }
 
-            override fun onCancelled(error: DatabaseError) {
-                toastString = "ERROR"
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    toastString = "ERROR"
+                }
+            })
     }
 
     private fun createMatchRequest() {
 
-        val matchRequestRef = rootRef.child(Constant.GAMES).child(Constant.MATCH_REQUEST).child(friendID).ref
+        val matchRequestRef =
+            rootRef.child(Constant.GAMES).child(Constant.MATCH_REQUEST).child(friendID).ref
         matchRequestRef.child(Constant.FROM).setValue(currentUser.uid)
         matchRequestRef.child(Constant.GAME).setValue(game)
 
@@ -123,11 +129,15 @@ class FriendInviteRepository {
                 TODO("Not yet implemented")
             }
         })
+        rootRef.child(Constant.USERS_PATH).child(friendID).child(Constant.NICKNAME).get()
+            .addOnSuccessListener { nickname ->
+                matchRef.child(Constant.PLAYER2).child(Constant.NICKNAME).setValue(nickname)
+                matchRef.child(Constant.TTTFIELD).setValue(Constant.BLANKFIELD)
+                matchRef.child(Constant.LASTTURN).setValue(currentUser.uid)
 
-        matchRef.child(Constant.PLAYER2).child(Constant.NICKNAME).setValue(friendNickname)
-        matchRef.child(Constant.TTTFIELD).setValue(Constant.BLANKFIELD)
-        matchRef.child(Constant.LASTTURN).setValue(currentUser.uid)
+                Log.d("TTTRepo", "created private match: $matchRef")
+            }
 
-        Log.d("TTTRepo", "created private match: $matchRef")
+
     }
 }

@@ -11,7 +11,7 @@
         android:id="@+id/tvResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="112dp"
+        android:layout_marginTop="72dp"
         android:text="Result"
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="34sp"
@@ -21,29 +21,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tvNewHighscore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="New Highscore"
-        android:textColor="@color/material_on_primary_emphasis_high_type"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvResult" />
-
-    <TextView
         android:id="@+id/tvTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="16dp"
         android:text="Time"
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvNewHighscore" />
+        app:layout_constraintTop_toBottomOf="@+id/tvYourTime" />
 
     <TextView
         android:id="@+id/tvCorrectAnswers"
@@ -86,12 +74,12 @@
         android:id="@+id/tvWonGame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="40dp"
         android:text="Won"
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvWrongAnswers" />
 
@@ -99,21 +87,21 @@
         android:id="@+id/tvYourTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="40dp"
         android:text="Your Time: "
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvNewHighscore" />
+        app:layout_constraintTop_toBottomOf="@+id/tvResult" />
 
     <TextView
         android:id="@+id/tvYourCorrectAnswers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Your Correct Answers:"
+        android:text="Correct Answers and Points:"
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -126,7 +114,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="Your Wrong Answers:"
+        android:text="Wrong Answers:"
         android:textColor="@color/material_on_primary_emphasis_high_type"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
