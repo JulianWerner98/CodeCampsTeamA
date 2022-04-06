@@ -42,74 +42,11 @@ class StatisticActivity : AppCompatActivity() {
             val intent = Intent(this, HistorieActivity::class.java).apply {  }
             startActivity(intent)
         }
-        //initPieChart()
-        //initPieChart1()
-        //initPieChart2()
-        //initPieChart3()
-
+        
         setTicTacToeDataToPieChart()
         setArithmeticDataToPieChart()
         setCompassGameDataToPieChart()
         setSportChallengeDataToPieChart()
-    }
-
-    private fun initPieChart3() {
-        pieChartTicTacToe.setUsePercentValues(true)
-        pieChartTicTacToe.description.text = ""
-        //hollow pie chart
-        pieChartTicTacToe.isDrawHoleEnabled = false
-        pieChartTicTacToe.setTouchEnabled(false)
-        pieChartTicTacToe.setDrawEntryLabels(false)
-        //adding padding
-        pieChartTicTacToe.setExtraOffsets(20f, 0f, 20f, 20f)
-        pieChartTicTacToe.setUsePercentValues(true)
-        pieChartTicTacToe.isRotationEnabled = false
-        pieChartTicTacToe.setDrawEntryLabels(false)
-        pieChartTicTacToe.legend.orientation = Legend.LegendOrientation.VERTICAL
-        pieChartTicTacToe.legend.isWordWrapEnabled = true
-    }
-
-    private fun initPieChart2() {
-        pieChartSortChallenge.setUsePercentValues(true)
-        pieChartSortChallenge.description.text = ""
-        //hollow pie chart
-        pieChartSortChallenge.isDrawHoleEnabled = false
-        pieChartSortChallenge.setTouchEnabled(false)
-        pieChartSortChallenge.setDrawEntryLabels(false)
-        //adding padding
-        pieChartSortChallenge.setExtraOffsets(20f, 0f, 20f, 20f)
-        pieChartSortChallenge.setUsePercentValues(true)
-        pieChartSortChallenge.isRotationEnabled = false
-        pieChartSortChallenge.setDrawEntryLabels(false)
-        pieChartSortChallenge.legend.orientation = Legend.LegendOrientation.VERTICAL
-        pieChartSortChallenge.legend.isWordWrapEnabled = true
-    }
-
-    private fun initPieChart1() {
-        pieChartCompassGame.setUsePercentValues(true)
-        pieChartCompassGame.description.text = ""
-        //hollow pie chart
-        pieChartCompassGame.isDrawHoleEnabled = false
-        pieChartCompassGame.setTouchEnabled(false)
-        pieChartCompassGame.setDrawEntryLabels(false)
-        //adding padding
-        pieChartCompassGame.setExtraOffsets(20f, 0f, 20f, 20f)
-        pieChartCompassGame.setUsePercentValues(true)
-        pieChartCompassGame.isRotationEnabled = false
-        pieChartCompassGame.setDrawEntryLabels(false)
-        pieChartCompassGame.legend.orientation = Legend.LegendOrientation.VERTICAL
-        pieChartCompassGame.legend.isWordWrapEnabled = true
-    }
-
-    private fun initPieChart() {
-        pieChartArithmetic.setUsePercentValues(true)
-        pieChartArithmetic.description.text = ""
-        //hollow pie chart
-        pieChartArithmetic.isDrawHoleEnabled = false
-        //adding padding
-        //pieChartArithmetic.setExtraOffsets(20f, 0f, 20f, 20f)
-        pieChartArithmetic.setUsePercentValues(true)
-
     }
 
     private fun setTicTacToeDataToPieChart() {
