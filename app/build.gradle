@@ -75,4 +75,7 @@ dependencies {
     // optional - Kotlin Extensions and Coroutines support for Room
     //noinspection GradleDependency
     implementation "androidx.room:room-ktx:$room_version"
+
+    //charts
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

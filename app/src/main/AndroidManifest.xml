@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CCTeamA">
         <activity
+            android:name=".statistic.StatisticActivity"
+            android:exported="false" />
+        <activity
             android:name=".statistic.HistorieActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

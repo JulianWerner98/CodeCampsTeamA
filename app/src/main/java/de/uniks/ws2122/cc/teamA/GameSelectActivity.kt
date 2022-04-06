@@ -27,6 +27,7 @@ import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.util.Notifications
 import de.uniks.ws2122.cc.teamA.statistic.HistorieActivity
+import de.uniks.ws2122.cc.teamA.statistic.StatisticActivity
 
 class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var viewModel: AppViewModel
@@ -41,6 +42,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var gameInviteListBtn : Button
     private lateinit var sportBtn: Button
     private lateinit var historieBtn: Button
+    private lateinit var statisticBtn: Button
 
     private lateinit var notificationManager: NotificationManager
 
@@ -60,6 +62,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         mentalArithmeticBtn = binding.btnMentalArithmetic
         gameInviteListBtn = binding.btnGameInviteList
         historieBtn = binding.btnHistorie
+        statisticBtn = binding.btnStatistic
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
@@ -69,6 +72,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         mentalArithmeticBtn.setOnClickListener(this)
         gameInviteListBtn.setOnClickListener(this)
         historieBtn.setOnClickListener(this)
+        statisticBtn.setOnClickListener(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -130,7 +134,13 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             gameInviteListBtn.id -> changeToGameInviteList()
             sportBtn.id -> changeToSportChallenges()
             historieBtn.id -> changeToHistorie()
+            statisticBtn.id -> changeToStatistic()
         }
+    }
+
+    private fun changeToStatistic() {
+        val intent = Intent(this, StatisticActivity::class.java).apply {  }
+        startActivity(intent)
     }
 
     private fun changeToHistorie() {
