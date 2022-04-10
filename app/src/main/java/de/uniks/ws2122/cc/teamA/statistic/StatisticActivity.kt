@@ -12,8 +12,6 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
 import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.R
 import de.uniks.ws2122.cc.teamA.databinding.ActivityStatisticBinding

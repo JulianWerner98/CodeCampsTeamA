@@ -42,7 +42,7 @@ class FriendProfileActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
         btnUnfriend.setOnClickListener {
-            viewModel.getFriendListController().removeFriend(friendId) { result ->
+            viewModel.removeFriend(friendId) { result ->
                 if (result) {
                     Toast.makeText(
                         this@FriendProfileActivity,
