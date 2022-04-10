@@ -14,8 +14,8 @@ class NotificationRepository {
     init {
     }
 
-    // Write for a friend request in database to trigger the request notification
-    // and after that delete the notification path from database
+    // Add a listener to your friend request in database and if there is a new child
+    // make a callback and than delete notification from database
     fun notificationRequestList(callback: (result: Boolean, id: Int, name: String) -> Unit){
         val currentUser = FirebaseAuth.getInstance().currentUser!!
         rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONREQUEST).child(currentUser.uid).addChildEventListener(object : ChildEventListener{
@@ -25,6 +25,7 @@ class NotificationRepository {
                     val name = snapshot.child(Constant.NICKNAME).value.toString()
                     rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONREQUEST).child(currentUser.uid).child(id).removeValue()
                     callback.invoke(true, id.hashCode(), name)
+
                 }
             }
 
@@ -47,7 +48,7 @@ class NotificationRepository {
     }
 
     // Add a listener to your game invite in database and if there is a new child
-    // send a notification after that delete notification from database
+    // make a callback and than delete notification from database
     fun sendGameInviteNotification(callback: (result: Boolean, notification: Notification) -> Unit) {
         val currentUser = FirebaseAuth.getInstance().currentUser!!
         rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(currentUser.uid).addChildEventListener(object : ChildEventListener{

@@ -13,18 +13,15 @@ import de.uniks.ws2122.cc.teamA.repository.FriendInviteRepository
 
 class FriendGameInviteActivity : AppCompatActivity() {
     private lateinit var binding : ActivityFriendGameInviteBinding
-    private lateinit var inviteArithmeticBtn : Button
     private lateinit var friendId : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendGameInviteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        inviteArithmeticBtn = binding.btnInviteArithmetic
-
+        
         friendId = intent.extras?.getString("friendId").toString()
-        inviteArithmeticBtn.setOnClickListener {
+        binding.btnInviteArithmetic.setOnClickListener {
             val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
                 this.putExtra(Constant.FRIENDID, friendId)
                 this.putExtra(Constant.MATCHTYP, Constant.PRIVATE)

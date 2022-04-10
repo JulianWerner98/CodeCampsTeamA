@@ -26,8 +26,6 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     private lateinit var recyclerViewRequestList: RecyclerView
     private lateinit var recyclerViewSendList: RecyclerView
 
-    private var notificationId = 42
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendRequestBinding.inflate(layoutInflater)

@@ -87,6 +87,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             nicknameText.text = user.nickname
         }
 
+        // Add a listener to notification in database and if there is a new value
+        // send a notification with this specific values
         viewModel.notificationRequestList(){ result, id, name ->
             if (result) {
                 // Create intent which opens if you click on the notification
@@ -102,6 +104,9 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 notification.sendNotification(id, "Request notification", text, this, pendingIntent)
             }
         }
+
+        // Add a listener to notification in database and if there is a new value
+        // send a notification with this specific values
         viewModel.sendGameInviteNotification(){ result, noti ->
             if (result){
                 // Create intent which opens if you click on the notification
