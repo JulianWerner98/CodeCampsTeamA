@@ -1,10 +1,10 @@
 package de.uniks.ws2122.cc.teamA
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
@@ -12,6 +12,7 @@ import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
 
 class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
+    private var friendId: String? = null
     private lateinit var appViewModel: AppViewModel
     private lateinit var binding: ActivityTicTacToeBinding
     private lateinit var viewModel: TicTacToeViewModel
@@ -21,9 +22,14 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
         binding = ActivityTicTacToeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        friendId = intent.extras?.get(Constant.FRIENDID)?.toString()
+        if (friendId == "null") friendId = null
+
         //view model
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
         appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
+
+        viewModel.getOrCreateGame(friendId)
 
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
@@ -31,6 +37,8 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
         binding.surrenderBtn.setOnClickListener(this)
         binding.surrenderBtn.isEnabled = false
 
+        binding.smiley.isVisible = false
+        binding.symbole.isVisible = false
     }
 
     private fun initButtons(): List<ImageButton> {
@@ -48,18 +56,10 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
         )
 
         buttons.forEachIndexed { index, button ->
-
             button.setOnClickListener {
-
-                val data = viewModel.getTicTacToeData().value
-
-                if (data!!.fields[index] == '_') {
-
-                    viewModel.endTurn(index)
-                }
+                viewModel.turn(index)
             }
         }
-
         return buttons
     }
 
@@ -67,85 +67,66 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel.getTicTacToeData().observe(this) { tictactoe ->
 
-            Log.d("TTTActivity", tictactoe.players.toString())
-
             if (tictactoe.players.size < 2) {
-
                 binding.tvTurnMessage.text = "Waiting for Player"
                 buttons.forEach { button ->
-                    button.isEnabled = false
+                    button.isVisible = false
                 }
+                binding.spinner.isVisible = true
 
             } else {
+                binding.spinner.isVisible = false
                 binding.surrenderBtn.isEnabled = true
-                if (tictactoe.isMyTurn) {
-
-                    binding.tvTurnMessage.text = "Your turn"
-
-                    buttons.forEach { button ->
-                        button.isEnabled = true
-                    }
-
+                binding.symbole.isVisible = true
+                if (viewModel.isCircle()) {
+                    binding.symbole.setImageResource(R.drawable.circle)
                 } else {
-                    binding.tvTurnMessage.text = "${tictactoe.players[1]} turn"
-
-                    buttons.forEach { button ->
-                        button.isEnabled = false
-                    }
+                    binding.symbole.setImageResource(R.drawable.cross)
                 }
-
                 if (tictactoe.winner.isNotEmpty()) {
                     binding.surrenderBtn.isEnabled = false
-
-                    if (tictactoe.fields.equals("xxxxxxxxx") && !tictactoe.isCircle ||
-                        tictactoe.fields.equals("ooooooooo") && tictactoe.isCircle
-                    ) {
-                        binding.tvTurnMessage.text = "Enemy surrender"
-                    } else if (tictactoe.fields.equals("ooooooooo") && !tictactoe.isCircle ||
-                        tictactoe.fields.equals("xxxxxxxxx") && tictactoe.isCircle
-                    ) {
-                        binding.tvTurnMessage.text = "You surrender"
-
-
+                    binding.symbole.isVisible = false
+                    if (tictactoe.winner == "draw") {
+                        binding.tvTurnMessage.text = "Draw"
                     } else {
-                        if (tictactoe.winner == "Draw") {
-
-                            binding.tvTurnMessage.text = "Draw"
-
+                        binding.smiley.isVisible = true
+                        if (tictactoe.winner == appViewModel.getUID()) {
+                            binding.tvTurnMessage.text = "You won"
+                            binding.smiley.setImageResource(R.drawable.happy)
                         } else {
-
-                            binding.tvTurnMessage.text = "${tictactoe.winner} won"
+                            viewModel.getNameById(appViewModel) {
+                                binding.tvTurnMessage.text = "${it} won"
+                                binding.smiley.setImageResource(R.drawable.lame)
+                            }
                         }
                     }
-
                     buttons.forEach { button ->
-                        button.isEnabled = false
+                        button.isVisible = false
+                    }
+                } else {
+                    if (tictactoe.turn == appViewModel.getUID()) {
+                        binding.tvTurnMessage.text = "Your turn"
+                        buttons.forEach { button ->
+                            button.isEnabled = true
+                            button.isVisible = true
+                        }
+                    } else {
+                        viewModel.getNameById(appViewModel) {
+                            binding.tvTurnMessage.text = "${it}'s turn"
+                        }
+                        buttons.forEach { button ->
+                            button.isEnabled = false
+                            button.isVisible = true
+                        }
                     }
                 }
+
             }
-
-            val myIcon: Int
-            val enemyIcon: Int
-
-            if (tictactoe.isCircle) {
-
-                myIcon = R.drawable.circle
-                enemyIcon = R.drawable.cross
-            } else {
-
-                myIcon = R.drawable.cross
-                enemyIcon = R.drawable.circle
-            }
-
-            var counter = 0
-            buttons.forEach { button ->
-
-                when (tictactoe.fields[counter]) {
-                    'o' -> button.setImageResource(myIcon)
-                    'x' -> button.setImageResource(enemyIcon)
+            buttons.forEachIndexed { index, button ->
+                when (tictactoe.fields[index]) {
+                    "o" -> button.setImageResource(R.drawable.circle)
+                    "x" -> button.setImageResource(R.drawable.cross)
                 }
-
-                counter++
             }
         }
     }
