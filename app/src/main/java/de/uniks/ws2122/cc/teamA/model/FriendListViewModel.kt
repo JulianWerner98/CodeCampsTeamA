@@ -3,12 +3,14 @@ package de.uniks.ws2122.cc.teamA.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import de.uniks.ws2122.cc.teamA.friendlist.controller.FriendListController
+import de.uniks.ws2122.cc.teamA.repository.FriendSystemRepository
 
 class FriendListViewModel : ViewModel(){
     private var friendsList = mutableListOf<User>()
     private var liveDataFriendList = MutableLiveData<List<User>>()
-    private var friendListController = FriendListController()
+
+    // Repository
+    private var friendSystemRepo = FriendSystemRepository()
 
     init {
         liveDataFriendList.value = friendsList
@@ -24,17 +26,24 @@ class FriendListViewModel : ViewModel(){
         return liveDataFriendList
     }
 
-    fun getFriendListController(): FriendListController {
-        return friendListController
-    }
-
     // Logic
-
     // Get friendslist from database
     fun fetchFriendList(){
-        friendListController.getFriendList { friendList ->
+        friendSystemRepo.fetchFriendList { friendList ->
             friendsList = friendList
             setLiveDataFriendsList()
+        }
+    }
+
+    fun sendFriendRequest(nickName: String, callback: (result: String) -> Unit) {
+        friendSystemRepo.sendFriendRequest(nickName){ msg ->
+            callback.invoke(msg)
+        }
+    }
+
+    fun removeFriend(friendId: String, callback: (result: Boolean) -> Unit) {
+        friendSystemRepo.removeFriend(friendId) { result ->
+            callback.invoke(result)
         }
     }
 

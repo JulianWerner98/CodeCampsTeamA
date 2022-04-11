@@ -1,17 +1,19 @@
 package de.uniks.ws2122.cc.teamA.model
 
-import android.util.Log
+
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import de.uniks.ws2122.cc.teamA.friendlist.controller.FriendRequestController
+import de.uniks.ws2122.cc.teamA.repository.FriendSystemRepository
 
 class FriendRequestViewModel : ViewModel(){
     private var receivedList = mutableListOf<User>()
     private var liveDataRequestList = MutableLiveData<List<User>>()
     private var sendList = mutableListOf<User>()
     private var liveDataSendList = MutableLiveData<List<User>>()
-    private var friendRequestController = FriendRequestController()
+
+    // Repository
+    private var friendSystemRepo = FriendSystemRepository()
 
     init {
         liveDataRequestList.value = receivedList
@@ -36,30 +38,38 @@ class FriendRequestViewModel : ViewModel(){
         return liveDataSendList
     }
 
-    fun getFriendRequestController(): FriendRequestController{
-        return friendRequestController
-    }
-
     // Logic
-
     // Get friend request received list from database
     fun fetchReceivedRequestList(){
-        friendRequestController.getReceivedList { result ->
-           //Log.d("Request", "Requestsize: ${result.size}")
-           // Log.d("Request", "Requestsize2: ${receivedList.size}")
+        friendSystemRepo.fetchReceivedList { result ->
             receivedList = result
-           // Log.d("Request", "Requestsize3: ${receivedList.size}")
-           // Log.d("Request", "Requestsize4: ${liveDataRequestList.value?.size}")
             setLiveDataRequestList()
-           // Log.d("Request", "Requestsize5: ${liveDataRequestList.value?.size}")
         }
     }
 
     // Get friend request send list
     fun fetchSendRequestList(){
-        friendRequestController.getSendRequestList { result ->
+        friendSystemRepo.fetchSendRequestList { result ->
             sendList = result
             setLiveDateSendList()
+        }
+    }
+
+    fun acceptFriendRequest(friend: User, callback: (result: String) -> Unit) {
+        friendSystemRepo.acceptFriendRequest(friend) { msg ->
+            callback.invoke(msg)
+        }
+    }
+
+    fun declineFriendRequest(friend: User, callback: (result: String) -> Unit) {
+        friendSystemRepo.declineFriendRequest(friend) { msg ->
+            callback.invoke(msg)
+        }
+    }
+
+    fun cancelSendFriendRequest(friend: User, callback: (result: String) -> Unit) {
+        friendSystemRepo.cancelSendFriendRequest(friend) {  msg ->
+            callback.invoke(msg)
         }
     }
 }

@@ -32,7 +32,7 @@ object Constant {
     const val NICKNAME = "nickname"
     const val WINNER = "Winner"
     const val ID = "Id"
-    const val DRAW = "Draw"
+    const val DRAW = "draw"
     const val BLANKFIELD = "_________"
 
     // MentalArithmetic Path

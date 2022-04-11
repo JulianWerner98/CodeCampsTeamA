@@ -12,8 +12,8 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.PercentFormatter
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.R
 import de.uniks.ws2122.cc.teamA.databinding.ActivityStatisticBinding
 
 class StatisticActivity : AppCompatActivity() {
@@ -57,7 +57,13 @@ class StatisticActivity : AppCompatActivity() {
                 pieChartTicTacToe.isRotationEnabled = false
                 pieChartTicTacToe.legend.orientation = Legend.LegendOrientation.VERTICAL
                 pieChartTicTacToe.legend.isWordWrapEnabled = true
-                pieChartTicTacToe.description.text = ""
+                pieChartTicTacToe.legend.textColor = Color.WHITE
+                pieChartTicTacToe.description.text = Constant.TTT
+                pieChartTicTacToe.description.textColor = Color.WHITE
+                pieChartTicTacToe.setBackgroundResource(R.color.piechart)
+                pieChartTicTacToe.isDrawHoleEnabled = false
+                pieChartTicTacToe.setTouchEnabled(false)
+                pieChartTicTacToe.setDrawEntryLabels(false)
 
                 // Create data entries that you want show in your pie chart
                 val dataEntries = ArrayList<PieEntry>()
@@ -74,27 +80,14 @@ class StatisticActivity : AppCompatActivity() {
                 val dataSet = PieDataSet(dataEntries, "")
                 val data = PieData(dataSet)
 
-                // In Percentage
-                data.setValueFormatter(PercentFormatter())
+                // Value in integer format
+                data.setValueFormatter(MyValueFormatter())
                 dataSet.sliceSpace = 2f
                 dataSet.colors = colors
                 pieChartTicTacToe.data = data
                 data.setValueTextSize(15f)
                 pieChartTicTacToe.setExtraOffsets(5f, 10f, 5f, 5f)
                 pieChartTicTacToe.animateY(1400, Easing.EaseInOutQuad)
-
-                //create hole in center
-                pieChartTicTacToe.holeRadius = 58f
-                pieChartTicTacToe.transparentCircleRadius = 61f
-                pieChartTicTacToe.isDrawHoleEnabled = true
-                pieChartArithmetic.setTouchEnabled(false)
-                pieChartArithmetic.setDrawEntryLabels(false)
-                pieChartTicTacToe.setHoleColor(Color.WHITE)
-
-
-                //add text in center
-                pieChartTicTacToe.setDrawCenterText(true);
-                pieChartTicTacToe.centerText = Constant.TTT
 
                 pieChartTicTacToe.invalidate()
             }
@@ -109,7 +102,13 @@ class StatisticActivity : AppCompatActivity() {
                 pieChartArithmetic.isRotationEnabled = false
                 pieChartArithmetic.legend.orientation = Legend.LegendOrientation.VERTICAL
                 pieChartArithmetic.legend.isWordWrapEnabled = true
-                pieChartArithmetic.description.text = ""
+                pieChartArithmetic.legend.textColor = Color.WHITE
+                pieChartArithmetic.description.text = Constant.MENTALARITHMETIC
+                pieChartArithmetic.description.textColor = Color.WHITE
+                pieChartArithmetic.setBackgroundResource(R.color.piechart)
+                pieChartArithmetic.isDrawHoleEnabled = false
+                pieChartArithmetic.setTouchEnabled(false)
+                pieChartArithmetic.setDrawEntryLabels(false)
 
                 // Create data entries that you want show in your pie chart
                 val dataEntries = ArrayList<PieEntry>()
@@ -126,27 +125,14 @@ class StatisticActivity : AppCompatActivity() {
                 val dataSet = PieDataSet(dataEntries, "")
                 val data = PieData(dataSet)
 
-                // In Percentage
-                data.setValueFormatter(PercentFormatter())
+                // Value in integer format
+                data.setValueFormatter(MyValueFormatter())
                 dataSet.sliceSpace = 2f
                 dataSet.colors = colors
                 pieChartArithmetic.data = data
                 data.setValueTextSize(15f)
                 pieChartArithmetic.setExtraOffsets(5f, 10f, 5f, 5f)
                 pieChartArithmetic.animateY(1400, Easing.EaseInOutQuad)
-
-                //create hole in center
-                pieChartArithmetic.holeRadius = 58f
-                pieChartArithmetic.transparentCircleRadius = 61f
-                pieChartArithmetic.isDrawHoleEnabled = true
-                pieChartArithmetic.setTouchEnabled(false)
-                pieChartArithmetic.setDrawEntryLabels(false)
-                pieChartArithmetic.setHoleColor(Color.WHITE)
-
-
-                //add text in center
-                pieChartArithmetic.setDrawCenterText(true);
-                pieChartArithmetic.centerText = Constant.MENTALARITHMETIC
 
                 pieChartArithmetic.invalidate()
             }
@@ -161,7 +147,13 @@ class StatisticActivity : AppCompatActivity() {
                 pieChartCompassGame.isRotationEnabled = false
                 pieChartCompassGame.legend.orientation = Legend.LegendOrientation.VERTICAL
                 pieChartCompassGame.legend.isWordWrapEnabled = true
-                pieChartCompassGame.description.text = ""
+                pieChartCompassGame.legend.textColor = Color.WHITE
+                pieChartCompassGame.description.text = Constant.COMPASS_GAME
+                pieChartCompassGame.description.textColor = Color.WHITE
+                pieChartCompassGame.setBackgroundResource(R.color.piechart)
+                pieChartCompassGame.isDrawHoleEnabled = false
+                pieChartCompassGame.setTouchEnabled(false)
+                pieChartCompassGame.setDrawEntryLabels(false)
 
                 // Create data entries that you want show in your pie chart
                 val dataEntries = ArrayList<PieEntry>()
@@ -178,27 +170,14 @@ class StatisticActivity : AppCompatActivity() {
                 val dataSet = PieDataSet(dataEntries, "")
                 val data = PieData(dataSet)
 
-                // In Percentage
-                data.setValueFormatter(PercentFormatter())
+                // Value in integer format
+                data.setValueFormatter(MyValueFormatter())
                 dataSet.sliceSpace = 2f
                 dataSet.colors = colors
                 pieChartCompassGame.data = data
                 data.setValueTextSize(15f)
                 pieChartCompassGame.setExtraOffsets(5f, 10f, 5f, 5f)
                 pieChartCompassGame.animateY(1400, Easing.EaseInOutQuad)
-
-                //create hole in center
-                pieChartCompassGame.holeRadius = 58f
-                pieChartCompassGame.transparentCircleRadius = 61f
-                pieChartCompassGame.isDrawHoleEnabled = true
-                pieChartArithmetic.setTouchEnabled(false)
-                pieChartArithmetic.setDrawEntryLabels(false)
-                pieChartCompassGame.setHoleColor(Color.WHITE)
-
-
-                //add text in center
-                pieChartCompassGame.setDrawCenterText(true);
-                pieChartCompassGame.centerText = Constant.COMPASS_GAME
 
                 pieChartCompassGame.invalidate()
             }
@@ -213,7 +192,13 @@ class StatisticActivity : AppCompatActivity() {
                 pieChartSortChallenge.isRotationEnabled = false
                 pieChartSortChallenge.legend.orientation = Legend.LegendOrientation.VERTICAL
                 pieChartSortChallenge.legend.isWordWrapEnabled = true
-                pieChartSortChallenge.description.text = ""
+                pieChartSortChallenge.legend.textColor = Color.WHITE
+                pieChartSortChallenge.description.text = Constant.SPORT_CHALLENGE
+                pieChartSortChallenge.description.textColor = Color.WHITE
+                pieChartSortChallenge.setBackgroundResource(R.color.piechart)
+                pieChartSortChallenge.isDrawHoleEnabled = false
+                pieChartSortChallenge.setTouchEnabled(false)
+                pieChartSortChallenge.setDrawEntryLabels(false)
 
                 // Create data entries that you want show in your pie chart
                 val dataEntries = ArrayList<PieEntry>()
@@ -230,27 +215,14 @@ class StatisticActivity : AppCompatActivity() {
                 val dataSet = PieDataSet(dataEntries, "")
                 val data = PieData(dataSet)
 
-                // In Percentage
-                data.setValueFormatter(PercentFormatter())
+                // Value in integer format
+                data.setValueFormatter(MyValueFormatter())
                 dataSet.sliceSpace = 2f
                 dataSet.colors = colors
                 pieChartSortChallenge.data = data
                 data.setValueTextSize(15f)
                 pieChartSortChallenge.setExtraOffsets(5f, 10f, 5f, 5f)
                 pieChartSortChallenge.animateY(1400, Easing.EaseInOutQuad)
-
-                //create hole in center
-                pieChartSortChallenge.holeRadius = 58f
-                pieChartSortChallenge.transparentCircleRadius = 61f
-                pieChartSortChallenge.isDrawHoleEnabled = true
-                pieChartArithmetic.setTouchEnabled(false)
-                pieChartArithmetic.setDrawEntryLabels(false)
-                pieChartSortChallenge.setHoleColor(Color.WHITE)
-
-
-                //add text in center
-                pieChartSortChallenge.setDrawCenterText(true);
-                pieChartSortChallenge.centerText = Constant.SPORT_CHALLENGE
 
                 pieChartSortChallenge.invalidate()
             }
