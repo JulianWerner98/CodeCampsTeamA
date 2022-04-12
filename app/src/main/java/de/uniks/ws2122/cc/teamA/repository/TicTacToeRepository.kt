@@ -15,9 +15,9 @@ import de.uniks.ws2122.cc.teamA.Constant.STATISTIC
 import de.uniks.ws2122.cc.teamA.Constant.TTT
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
 import de.uniks.ws2122.cc.teamA.Constant.WIN
-import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.Highscore
 import de.uniks.ws2122.cc.teamA.model.MatchResult
+import de.uniks.ws2122.cc.teamA.model.Notification
 import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToe
 import java.util.*
 
@@ -109,10 +109,6 @@ class TicTacToeRepository {
         }
     }
 
-    fun setWinner(game: TicTacToe?) {
-        tttRef.child(game!!.id.toString()).child("winner").setValue(game!!.winner)
-    }
-
     fun exitGame(game: TicTacToe?) {
         var userId = currentUser.uid
         rootRef.child(USERS_PATH).child(userId).child(TTT).removeValue()
@@ -160,6 +156,55 @@ class TicTacToeRepository {
                             }
                         }
                 }
+        }
+    }
+
+    fun deleteGame(game: TicTacToe, callback: () -> Unit) {
+        rootRef.child(USERS_PATH).child(currentUser.uid).child(TTT).removeValue()
+            .addOnSuccessListener {
+                tttRef.child(game.id!!).removeValue().addOnSuccessListener {
+                    callback.invoke()
+                }
+            }
+    }
+
+    fun deleteInvite(friendId: String, callback: () -> Unit) {
+        getUsername(currentUser.uid) { ownUsername ->
+            rootRef.child(USERS_PATH).child(friendId).child(Constant.INVITES)
+                .child(TTT).child(ownUsername)
+                .removeValue().addOnSuccessListener {
+                    callback.invoke()
+                }
+        }
+    }
+
+    fun deleteRequest(callback: () -> Unit) {
+        gamesRef.child(MATCH_REQUEST).child(TTT).removeValue().addOnSuccessListener {
+            callback.invoke()
+        }
+    }
+
+    fun joinPrivateGame(inviteId: String, callback: (TicTacToe?) -> Unit) {
+        rootRef.child(USERS_PATH).child(currentUser.uid).child(TTT).setValue(inviteId)
+            .addOnSuccessListener {
+                getGame { game ->
+                    game!!.players.add(currentUser.uid)
+                    game!!.turn = currentUser.uid
+                    updateGame(game!!)
+                    callback.invoke(game)
+                }
+            }
+    }
+
+    fun sendInvite(gameId: String, friendId: String) {
+        getUsername(currentUser.uid) {
+            rootRef.child(USERS_PATH).child(friendId).child(Constant.INVITES).child(Constant.TTT)
+                .child(it)
+                .setValue(gameId)
+            val notficationId = gameId
+            val notification = Notification(notficationId, it, TTT)
+            rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE)
+                .child(friendId).child(notficationId.toString()).setValue(notification)
         }
     }
 }

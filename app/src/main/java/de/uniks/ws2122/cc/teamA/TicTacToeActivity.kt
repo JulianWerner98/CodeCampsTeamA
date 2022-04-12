@@ -3,15 +3,20 @@ package de.uniks.ws2122.cc.teamA
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.Constant.DRAW
+import de.uniks.ws2122.cc.teamA.Constant.FRIENDID
+import de.uniks.ws2122.cc.teamA.Constant.INVITEKEY
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
 
 class TicTacToeActivity : AppCompatActivity() {
 
+    private var inviteId: String? = null
     private var friendId: String? = null
     private lateinit var appViewModel: AppViewModel
     private lateinit var binding: ActivityTicTacToeBinding
@@ -22,14 +27,18 @@ class TicTacToeActivity : AppCompatActivity() {
         binding = ActivityTicTacToeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        friendId = intent.extras?.get(Constant.FRIENDID)?.toString()
+        friendId = intent.extras?.get(FRIENDID)?.toString()
         if (friendId == "null") friendId = null
+        inviteId = intent.extras?.get(INVITEKEY)?.toString()
+        if (inviteId == "null") inviteId = null
 
         //view model
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
         appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
-        viewModel.getOrCreateGame(friendId)
+        viewModel.getOrCreateGame(friendId, inviteId) { text ->
+            Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+        }
 
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
@@ -44,6 +53,13 @@ class TicTacToeActivity : AppCompatActivity() {
     override fun onBackPressed() {
         if (viewModel.getTicTacToeData().value!!.winner.isNotEmpty()) {
             exitGame()
+        }
+        if (friendId != null && viewModel.getTicTacToeData().value!!.players.size < 2) {
+            viewModel.deleteGame() {
+                viewModel.deleteInvite(friendId!!) {
+                    Toast.makeText(this, "Delete Game and Request", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
         super.onBackPressed()
     }
@@ -102,20 +118,26 @@ class TicTacToeActivity : AppCompatActivity() {
                     binding.surrenderBtn.setOnClickListener { exitGame() }
 
                     binding.symbole.isVisible = false
-                    if (tictactoe.winner == "draw") {
-                        binding.tvTurnMessage.text = "Draw"
-                    } else {
-                        binding.smiley.isVisible = true
-                        if (tictactoe.winner == appViewModel.getUID()) {
+                    binding.smiley.isVisible = true
+                    when (tictactoe.winner) {
+                        appViewModel.getUID() -> {
                             binding.tvTurnMessage.text = "You won"
                             binding.smiley.setImageResource(R.drawable.happy)
-                        } else {
+                        }
+                        DRAW -> {
+                            viewModel.getNameById(appViewModel) {
+                                binding.tvTurnMessage.text = "Draw"
+                                binding.smiley.setImageResource(R.drawable.neutral)
+                            }
+                        }
+                        else -> {
                             viewModel.getNameById(appViewModel) {
                                 binding.tvTurnMessage.text = "${it} won"
                                 binding.smiley.setImageResource(R.drawable.lame)
                             }
                         }
                     }
+
                     buttons.forEach { button ->
                         button.isVisible = false
                     }

@@ -30,8 +30,9 @@ class FriendGameInviteActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.btnInviteTTT.setOnClickListener(){
-            FriendInviteRepository().privateMatchRequest("TicTacToe", friendId)
-            val intent = Intent(this, GameSelectActivity::class.java)
+            val intent = Intent(this, TicTacToeActivity::class.java).apply {
+                this.putExtra(Constant.FRIENDID, friendId)
+            }
             startActivity(intent)
         }
 

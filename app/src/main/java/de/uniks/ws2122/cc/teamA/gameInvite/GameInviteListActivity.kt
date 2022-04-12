@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.uniks.ws2122.cc.teamA.CompassActivity
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.TicTacToeActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityGameInviteListBinding
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 
@@ -48,7 +49,15 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         when(gameName){
             Constant.MENTALARITHMETIC -> changeToArithmeticIntent(gameKey)
             Constant.COMPASS_GAME -> changeToCompassIntent(gameKey)
+            Constant.TTT -> changeToTTTIntent(gameKey)
         }
+    }
+
+    private fun changeToTTTIntent(gameKey: String) {
+        val intent = Intent(this, TicTacToeActivity::class.java).apply {
+            this.putExtra(Constant.INVITEKEY, gameKey)
+        }
+        startActivity(intent)
     }
 
     private fun changeToCompassIntent(gameKey: String) {

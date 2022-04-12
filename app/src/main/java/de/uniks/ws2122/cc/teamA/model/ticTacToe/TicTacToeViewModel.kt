@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
+import de.uniks.ws2122.cc.teamA.Constant.DRAW
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.repository.TicTacToeRepository
 
@@ -12,37 +13,73 @@ class TicTacToeViewModel : ViewModel() {
     private var tttRepo: TicTacToeRepository = TicTacToeRepository()
     private var tictactoeData: MutableLiveData<TicTacToe> = MutableLiveData()
 
-    fun getOrCreateGame(friendID: String?) {
+    fun getOrCreateGame(friendID: String?, inviteId: String?, callback: (String) -> Unit) {
         tttRepo.getGame() { ttt ->
             if (ttt != null) {
-                tictactoeData.value = ttt
-                setListenerToGame()
-            } else {
-                if (friendID != null) {
-                    tttRepo.createPrivateGame() { newTTT ->
-                        tictactoeData.value = newTTT
+                when {
+                    friendID != null -> {
+                        if(ttt.players.size > 1) {
+                            callback.invoke("No Invite! You are already in a game")
+                        } else {
+                            tttRepo.deleteRequest {
+                                tttRepo.sendInvite(ttt.id!!, friendID)
+                            }
+                        }
+                        tictactoeData.value = ttt
                         setListenerToGame()
                     }
-                } else {
-                    tttRepo.joinGame() { game ->
-                        if (game == null) {
-                            tttRepo.createGame() { newTTT ->
-                                tictactoeData.value = newTTT
+                    inviteId != null -> {
+                        tttRepo.deleteRequest {
+                            tttRepo.deleteGame(ttt){
+                                tttRepo.joinPrivateGame(inviteId) {
+                                    tictactoeData.value = it
+                                    setListenerToGame()
+                                }
+                            }
+                        }
+                    }
+                    else -> {
+                        tictactoeData.value = ttt
+                        setListenerToGame()
+                    }
+                }
+
+            } else {
+                when {
+                    inviteId != null -> {
+                        tttRepo.joinPrivateGame(inviteId) {
+                            tictactoeData.value = it
+                            setListenerToGame()
+                        }
+                    }
+                    friendID != null -> {
+                        tttRepo.createPrivateGame() { newTTT ->
+                            tttRepo.sendInvite(newTTT.id!!, friendID)
+                            tictactoeData.value = newTTT
+                            setListenerToGame()
+                        }
+                    }
+                    else -> {
+                        tttRepo.joinGame() { game ->
+                            if (game == null) {
+                                tttRepo.createGame() { newTTT ->
+                                    tictactoeData.value = newTTT
+                                    setListenerToGame()
+                                }
+                            } else {
+                                tictactoeData.value = game
                                 setListenerToGame()
                             }
-                        } else {
-                            tictactoeData.value = game
-                            setListenerToGame()
+
                         }
 
                     }
-
                 }
             }
         }
     }
 
-    fun setListenerToGame() {
+    private fun setListenerToGame() {
         tttRepo.setListenerToGame(tictactoeData.value!!.id) {
             if (it != null) {
                 tictactoeData.value = it
@@ -65,7 +102,7 @@ class TicTacToeViewModel : ViewModel() {
         } else {
             currentGame!!.winner = currentGame!!.players[0]
         }
-        tttRepo.setWinner(currentGame)
+        setTicTacToeData(currentGame)
     }
 
     fun turn(index: Int) {
@@ -77,7 +114,7 @@ class TicTacToeViewModel : ViewModel() {
                 if (hasWon(symbol, game.fields))
                     FirebaseAuth.getInstance().currentUser!!.uid
                 else ""
-            if (game!!.winner.isBlank() && checkDraw()) game.winner = "draw"
+            if (game!!.winner.isBlank() && checkDraw()) game.winner = DRAW
             game.turn = if (isCircle()) game.players[1] else game.players[0]
             setTicTacToeData(game)
         }
@@ -135,6 +172,14 @@ class TicTacToeViewModel : ViewModel() {
 
     fun exitGame() {
         tttRepo.exitGame(tictactoeData.value)
+    }
+
+    fun deleteGame(callback: () -> Unit) {
+        tttRepo.deleteGame(tictactoeData.value!!, callback)
+    }
+
+    fun deleteInvite(friendId: String, callback: () -> Unit) {
+        tttRepo.deleteInvite(friendId, callback)
     }
 
 }
