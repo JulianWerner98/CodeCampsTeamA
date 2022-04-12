@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA
 
+import android.app.PendingIntent
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
@@ -12,7 +13,9 @@ import de.uniks.ws2122.cc.teamA.Constant.FRIENDID
 import de.uniks.ws2122.cc.teamA.Constant.INVITEKEY
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
+import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
 import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
+import de.uniks.ws2122.cc.teamA.model.util.Notifications
 
 class TicTacToeActivity : AppCompatActivity() {
 
@@ -21,6 +24,7 @@ class TicTacToeActivity : AppCompatActivity() {
     private lateinit var appViewModel: AppViewModel
     private lateinit var binding: ActivityTicTacToeBinding
     private lateinit var viewModel: TicTacToeViewModel
+    private val notificationId = 6541968
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,6 +97,12 @@ class TicTacToeActivity : AppCompatActivity() {
     }
 
     private fun createTicTacToeDataObserver(buttons: List<ImageButton>) {
+        val intent = Intent(this, CompassGame::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent =
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val notifications = Notifications()
 
         viewModel.getTicTacToeData().observe(this) { tictactoe ->
 
@@ -121,17 +131,26 @@ class TicTacToeActivity : AppCompatActivity() {
                     binding.smiley.isVisible = true
                     when (tictactoe.winner) {
                         appViewModel.getUID() -> {
+                            notifications.sendNotification(
+                                notificationId, Constant.TTT, "You won", this, pendingIntent
+                            )
                             binding.tvTurnMessage.text = "You won"
                             binding.smiley.setImageResource(R.drawable.happy)
                         }
                         DRAW -> {
                             viewModel.getNameById(appViewModel) {
+                                notifications.sendNotification(
+                                    notificationId, Constant.TTT, "Draw", this, pendingIntent
+                                )
                                 binding.tvTurnMessage.text = "Draw"
                                 binding.smiley.setImageResource(R.drawable.neutral)
                             }
                         }
                         else -> {
                             viewModel.getNameById(appViewModel) {
+                                notifications.sendNotification(
+                                    notificationId, Constant.TTT, "You lose", this, pendingIntent
+                                )
                                 binding.tvTurnMessage.text = "${it} won"
                                 binding.smiley.setImageResource(R.drawable.lame)
                             }
@@ -144,6 +163,9 @@ class TicTacToeActivity : AppCompatActivity() {
 
                 } else {
                     if (tictactoe.turn == appViewModel.getUID()) {
+                        notifications.sendNotification(
+                            notificationId, Constant.TTT, "Your turn", this, pendingIntent
+                        )
                         binding.tvTurnMessage.text = "Your turn"
                         buttons.forEach { button ->
                             button.isEnabled = true
