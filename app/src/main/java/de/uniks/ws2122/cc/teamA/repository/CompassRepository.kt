@@ -243,7 +243,6 @@ class CompassRepository {
             val notification = Notification(notficationId.toString(), it, Constant.COMPASS_GAME)
             rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(friendId).child(notficationId.toString()).setValue(notification)
         }
-
     }
 
     private fun getUsername(uid: String, callback: (String) -> Unit) {

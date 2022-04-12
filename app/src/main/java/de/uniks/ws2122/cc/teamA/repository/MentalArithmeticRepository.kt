@@ -289,7 +289,6 @@ class MentalArithmeticRepository {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
                     maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
                     maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
-
                     snapshot.child(Constant.DELETEGAME).children.forEach{
                         if (it.key.toString() != currentUser.uid){
                             if (it.value as Boolean){
@@ -321,7 +320,6 @@ class MentalArithmeticRepository {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
                     maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
                     maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
-
                     snapshot.child(Constant.DELETEGAME).children.forEach{
                         if (it.key.toString() != currentUser.uid){
                             if (it.value as Boolean){

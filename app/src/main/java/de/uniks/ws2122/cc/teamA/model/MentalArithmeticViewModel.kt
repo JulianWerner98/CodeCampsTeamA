@@ -109,16 +109,32 @@ class MentalArithmeticViewModel : ViewModel() {
     }
 
     private fun makeDivisionTask() {
-        val n1 = (1..20).random()
-        val n2 = (1..20).random()
+        var n1 = (1..20).random()
+        var n2 = (1..20).random()
         if (n1 >= n2){
-            val answer = n1 / n2
-            arithmeticTasks.add("$n1 / $n2")
-            arithmeticAnswers.add(answer.toString())
+            val mod = n1 % n2
+            if (mod != 0){
+                n1 -= mod
+                val answer = n1 / n2
+                arithmeticTasks.add("$n1 / $n2")
+                arithmeticAnswers.add(answer.toString())
+            } else {
+                val answer = n1 / n2
+                arithmeticTasks.add("$n1 / $n2")
+                arithmeticAnswers.add(answer.toString())
+            }
         } else {
-            val answer = n2 / n1
-            arithmeticTasks.add("$n2 / $n1")
-            arithmeticAnswers.add(answer.toString())
+            val mod = n2 % n1
+            if (mod != 0){
+                n2 -= mod
+                val answer = n2 / n1
+                arithmeticTasks.add("$n2 / $n1")
+                arithmeticAnswers.add(answer.toString())
+            } else {
+                val answer = n2 / n1
+                arithmeticTasks.add("$n2 / $n1")
+                arithmeticAnswers.add(answer.toString())
+            }
         }
     }
 

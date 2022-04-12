@@ -48,7 +48,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         binding.btnSendFriendRequest.setOnClickListener {
             if (enterNickNameField.text.isNotEmpty()) {
                 val nickName = enterNickNameField.text.toString()
-                viewModel.getFriendListController().sendFriendRequest(nickName) { msg ->
+                viewModel.sendFriendRequest(nickName) { msg ->
                     Toast.makeText(this@FriendListActivity, msg, Toast.LENGTH_SHORT).show()
                 }
                 enterNickNameField.text.clear()
