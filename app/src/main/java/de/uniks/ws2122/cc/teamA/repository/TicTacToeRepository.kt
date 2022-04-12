@@ -2,15 +2,24 @@ package de.uniks.ws2122.cc.teamA.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.Constant.DRAW
 import de.uniks.ws2122.cc.teamA.Constant.FIREBASE_URL
 import de.uniks.ws2122.cc.teamA.Constant.GAME
 import de.uniks.ws2122.cc.teamA.Constant.GAMES
+import de.uniks.ws2122.cc.teamA.Constant.HISTORIE
+import de.uniks.ws2122.cc.teamA.Constant.LOSE
 import de.uniks.ws2122.cc.teamA.Constant.MATCH_REQUEST
 import de.uniks.ws2122.cc.teamA.Constant.NICKNAME
+import de.uniks.ws2122.cc.teamA.Constant.STATISTIC
 import de.uniks.ws2122.cc.teamA.Constant.TTT
 import de.uniks.ws2122.cc.teamA.Constant.USERS_PATH
+import de.uniks.ws2122.cc.teamA.Constant.WIN
+import de.uniks.ws2122.cc.teamA.model.AppViewModel
+import de.uniks.ws2122.cc.teamA.model.Highscore
+import de.uniks.ws2122.cc.teamA.model.MatchResult
 import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToe
-import java.util.HashMap
+import java.util.*
 
 class TicTacToeRepository {
 
@@ -81,11 +90,11 @@ class TicTacToeRepository {
 
     fun joinGame(callback: (TicTacToe?) -> Unit) {
         gamesRef.child(MATCH_REQUEST).child(TTT).get().addOnSuccessListener { gameIdSnapshot ->
-            if(gameIdSnapshot.value != null) {
+            if (gameIdSnapshot.value != null) {
                 val gameId = (gameIdSnapshot.value as HashMap<String, String>)["game"].toString()
                 gamesRef.child(MATCH_REQUEST).child(TTT).removeValue().addOnSuccessListener {
                     currentUserRef.child(TTT).setValue(gameId).addOnSuccessListener {
-                        getGame(){ ttt ->
+                        getGame() { ttt ->
                             ttt!!.players.add(currentUser.uid)
                             ttt!!.turn = currentUser.uid
                             updateGame(ttt)
@@ -97,6 +106,60 @@ class TicTacToeRepository {
                 callback.invoke(null)
             }
 
+        }
+    }
+
+    fun setWinner(game: TicTacToe?) {
+        tttRef.child(game!!.id.toString()).child("winner").setValue(game!!.winner)
+    }
+
+    fun exitGame(game: TicTacToe?) {
+        var userId = currentUser.uid
+        rootRef.child(USERS_PATH).child(userId).child(TTT).removeValue()
+        var matchResult = MatchResult()
+        var opponentId = ""
+        opponentId = if (game!!.players[0] == userId) game!!.players[1] else game!!.players[0]
+        getUsername(opponentId) { opponentName ->
+            matchResult.currentuser = "You"
+            matchResult.gamename = TTT
+            matchResult.opponent = opponentName
+            when (game!!.winner) {
+                userId -> {
+                    matchResult.points = 3
+                    matchResult.win = WIN
+                }
+                DRAW -> {
+                    matchResult.points = 1
+                    matchResult.win = DRAW
+                }
+                else -> {
+                    matchResult.points = 0
+                    matchResult.win = LOSE
+                }
+            }
+            rootRef.child(USERS_PATH).child(userId).child(Constant.STATISTIC)
+                .child(TTT).get().addOnSuccessListener { dataSnapshot ->
+                    var highscore =
+                        dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
+                    if (highscore == null) highscore = Highscore()
+                    if (highscore.points < matchResult.points) highscore.points =
+                        matchResult.points
+                    if (matchResult.win == WIN) highscore.wins += 1
+                    if (matchResult.win == LOSE) highscore.loses += 1
+                    if (matchResult.win == DRAW) highscore.draws += 1
+                    rootRef.child(USERS_PATH).child(userId).child(STATISTIC)
+                        .child(TTT).setValue(highscore)
+                }
+            rootRef.child(USERS_PATH).child(userId).child(STATISTIC)
+                .child(HISTORIE).child(game!!.id.toString()).setValue(matchResult)
+                .addOnSuccessListener {
+                    rootRef.child(USERS_PATH).child(opponentId).child(STATISTIC).child(HISTORIE)
+                        .child(game!!.id.toString()).get().addOnSuccessListener {
+                            if (it.value != null) {
+                                tttRef.child(game!!.id.toString()).removeValue()
+                            }
+                        }
+                }
         }
     }
 }

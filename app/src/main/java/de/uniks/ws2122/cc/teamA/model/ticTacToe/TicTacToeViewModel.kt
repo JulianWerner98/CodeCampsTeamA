@@ -25,7 +25,7 @@ class TicTacToeViewModel : ViewModel() {
                     }
                 } else {
                     tttRepo.joinGame() { game ->
-                        if(game == null) {
+                        if (game == null) {
                             tttRepo.createGame() { newTTT ->
                                 tictactoeData.value = newTTT
                                 setListenerToGame()
@@ -58,8 +58,14 @@ class TicTacToeViewModel : ViewModel() {
         tttRepo.updateGame(value)
     }
 
-    fun surrenderGame() {
-
+    fun surrenderGame(appViewModel: AppViewModel) {
+        var currentGame = tictactoeData.value
+        if (appViewModel.getUID() == currentGame!!.players[0]) {
+            currentGame!!.winner = currentGame!!.players[1]
+        } else {
+            currentGame!!.winner = currentGame!!.players[0]
+        }
+        tttRepo.setWinner(currentGame)
     }
 
     fun turn(index: Int) {
@@ -71,8 +77,8 @@ class TicTacToeViewModel : ViewModel() {
                 if (hasWon(symbol, game.fields))
                     FirebaseAuth.getInstance().currentUser!!.uid
                 else ""
-            if(game!!.winner.isBlank() && checkDraw()) game.winner = "draw"
-            game.turn = if(isCircle()) game.players[1] else game.players[0]
+            if (game!!.winner.isBlank() && checkDraw()) game.winner = "draw"
+            game.turn = if (isCircle()) game.players[1] else game.players[0]
             setTicTacToeData(game)
         }
     }
@@ -125,6 +131,10 @@ class TicTacToeViewModel : ViewModel() {
 
     fun isCircle(): Boolean {
         return tictactoeData.value!!.players[0] == FirebaseAuth.getInstance().currentUser!!.uid
+    }
+
+    fun exitGame() {
+        tttRepo.exitGame(tictactoeData.value)
     }
 
 }

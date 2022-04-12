@@ -1,7 +1,7 @@
 package de.uniks.ws2122.cc.teamA
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -10,7 +10,7 @@ import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
 
-class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
+class TicTacToeActivity : AppCompatActivity() {
 
     private var friendId: String? = null
     private lateinit var appViewModel: AppViewModel
@@ -34,11 +34,24 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
 
-        binding.surrenderBtn.setOnClickListener(this)
+        binding.surrenderBtn.setOnClickListener { viewModel.surrenderGame(appViewModel) }
         binding.surrenderBtn.isEnabled = false
 
         binding.smiley.isVisible = false
         binding.symbole.isVisible = false
+    }
+
+    override fun onBackPressed() {
+        if (viewModel.getTicTacToeData().value!!.winner.isNotEmpty()) {
+            exitGame()
+        }
+        super.onBackPressed()
+    }
+
+    private fun exitGame() {
+        viewModel.exitGame()
+        val intent = Intent(this, GameSelectActivity::class.java).apply { }
+        startActivity(intent)
     }
 
     private fun initButtons(): List<ImageButton> {
@@ -84,7 +97,10 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                     binding.symbole.setImageResource(R.drawable.cross)
                 }
                 if (tictactoe.winner.isNotEmpty()) {
-                    binding.surrenderBtn.isEnabled = false
+                    binding.surrenderBtn.isEnabled = true
+                    binding.surrenderBtn.text = "Exit Game"
+                    binding.surrenderBtn.setOnClickListener { exitGame() }
+
                     binding.symbole.isVisible = false
                     if (tictactoe.winner == "draw") {
                         binding.tvTurnMessage.text = "Draw"
@@ -103,6 +119,7 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                     buttons.forEach { button ->
                         button.isVisible = false
                     }
+
                 } else {
                     if (tictactoe.turn == appViewModel.getUID()) {
                         binding.tvTurnMessage.text = "Your turn"
@@ -127,14 +144,6 @@ class TicTacToeActivity : AppCompatActivity(), View.OnClickListener {
                     "o" -> button.setImageResource(R.drawable.circle)
                     "x" -> button.setImageResource(R.drawable.cross)
                 }
-            }
-        }
-    }
-
-    override fun onClick(v: View?) {
-        if (v != null) {
-            when (v.id) {
-                binding.surrenderBtn.id -> viewModel.surrenderGame()
             }
         }
     }
