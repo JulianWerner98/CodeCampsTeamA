@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -38,8 +39,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var tttBtn: Button
     private lateinit var compassBtn: Button
     private lateinit var nicknameText: TextView
-    private lateinit var mentalArithmeticBtn : Button
-    private lateinit var gameInviteListBtn : Button
+    private lateinit var mentalArithmeticBtn: Button
+    private lateinit var gameInviteListBtn: Button
     private lateinit var sportBtn: Button
     private lateinit var historieBtn: Button
     private lateinit var statisticBtn: Button
@@ -76,7 +77,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
-        if(!viewModel.isLoggedIn()) {
+        if (!viewModel.isLoggedIn()) {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
@@ -95,7 +96,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 val intent = Intent(this, FriendRequestActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
-                val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+                val pendingIntent: PendingIntent =
+                    PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
                 // Create notification and send it
                 val notification = Notifications()
@@ -113,7 +115,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 val intent = Intent(this, GameInviteListActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }
-                val pendingIntent: PendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+                val pendingIntent: PendingIntent =
+                    PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
                 // Create notification and send it
                 val notification = Notifications()
@@ -123,7 +126,6 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 notification.sendNotification(id, "${noti.gamename} game invite", text, this, pendingIntent)
             }
         }
-        requestPermissions()
     }
 
     override fun onBackPressed() {}
@@ -155,7 +157,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun changeToGameInviteList() {
-        val intent = Intent(this, GameInviteListActivity::class.java).apply {  }
+        val intent = Intent(this, GameInviteListActivity::class.java).apply { }
         startActivity(intent)
     }
 
@@ -185,6 +187,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         val intent = Intent(this, TicTacToeActivity::class.java)
         startActivity(intent)
     }
+
     private fun changeToCompassScreen() {
         val intent = Intent(this, CompassActivity::class.java)
         startActivity(intent)
@@ -192,22 +195,48 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun changeToSportChallenges() {
 
-        val intent = Intent(this, SelectSportModeActivity::class.java)
-        startActivity(intent)
+        if (hasPhysicalActivityPermission()) {
+
+            val intent = Intent(this, SelectSportModeActivity::class.java)
+            startActivity(intent)
+
+        } else {
+
+            requestPhysicalActivityPermission {
+
+                if (!hasPhysicalActivityPermission()) {
+
+                    Toast.makeText(
+                        this,
+                        "Allow physical activity permission in the app settings",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
     }
 
-    private fun requestPermissions() {
+    private fun requestPhysicalActivityPermission(callback: () -> Unit) {
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION) != PackageManager.PERMISSION_GRANTED) {
+        Log.d("STEP", "Permission Request")
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACTIVITY_RECOGNITION),
+            0
+        )
 
-            Log.d("STEP", "Permission Request")
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACTIVITY_RECOGNITION), 1337)
-        }
+        callback.invoke()
+    }
+
+    private fun hasPhysicalActivityPermission(): Boolean {
+
+        return (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
+                == PackageManager.PERMISSION_GRANTED)
     }
 
     private fun createNotificationChannel() {
         // Create the NotificationChannel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "CodeCampTeamA"
             val descriptionText = "CodeCampTeamA game app"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -215,7 +244,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 description = descriptionText
             }
             // Register the channel with the system
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }
