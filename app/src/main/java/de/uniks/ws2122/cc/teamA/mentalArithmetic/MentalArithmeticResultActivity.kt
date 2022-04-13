@@ -45,7 +45,7 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
 
     private fun initializeObserver() {
         viewModel.getLiveCurrentUserCorrectAnswersData().observe(this, Observer {
-            val points = it.toInt() * 5
+            val points = it.toInt() * 100
             val text = ("$it correct answers and $points points")
             correctAnswers.text = text
         })

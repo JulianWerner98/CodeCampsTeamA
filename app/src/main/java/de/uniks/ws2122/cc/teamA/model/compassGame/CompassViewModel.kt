@@ -206,7 +206,6 @@ class CompassViewModel : ViewModel() {
             floatOrientation[1] = map2.average().toFloat()
             floatOrientation[2] = map3.average().toFloat()
             sensorCallback.invoke(floatOrientation)
-            //imageView.rotation = (-floatOrientation[0] * 180 / Math.PI).toFloat() - 90F
         }
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
@@ -293,7 +292,7 @@ class CompassViewModel : ViewModel() {
             }
         } else {
             currentGame!!.winner = currentGame!!.players[0]
-            compassRepo.surrender(currentGame, "0"){
+            compassRepo.surrender(currentGame, "0") {
                 compassRepo.setWinner(currentGame)
             }
         }
@@ -328,4 +327,42 @@ class CompassViewModel : ViewModel() {
     fun exitGame(appViewModel: AppViewModel) {
         compassRepo.exitGame(appViewModel, currentGame)
     }
+
+    fun createPrivateGame(
+        compassActivity: CompassActivity,
+        appViewModel: AppViewModel,
+        friendId: String,
+        callback: (CompassGame?) -> Unit
+    ) {
+        createGame(compassActivity, appViewModel) { newGame ->
+            deleteRequest() {
+                sendInvite(newGame!!.id!!, friendId, appViewModel.getUID())
+                callback.invoke(newGame)
+            }
+        }
+    }
+
+    fun sendInvite(gameId: String, friendId: String, uid: String) {
+        compassRepo.sendInvite(gameId, friendId, uid)
+    }
+
+    fun deleteRequest(callback: () -> Unit) {
+        compassRepo.deleteRequest(callback)
+    }
+
+    fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
+        compassRepo.joinGame(appViewModel, gameId) {
+            currentGame = it
+            callback.invoke(it)
+        }
+    }
+
+    fun deleteGame(game: CompassGame, uid: String, callback: () -> Unit) {
+        compassRepo.deleteGame(game, uid, callback)
+    }
+
+    fun deleteInvite(uid: String, friendId: String, callback: () -> Unit) {
+        compassRepo.deleteInvite(uid, friendId, callback)
+    }
+
 }

@@ -1,5 +1,6 @@
 package de.uniks.ws2122.cc.teamA
 
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -8,10 +9,12 @@ import android.os.Vibrator
 import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
+import de.uniks.ws2122.cc.teamA.Constant.COMPASS_GAME
 import de.uniks.ws2122.cc.teamA.Constant.LOSE
 import de.uniks.ws2122.cc.teamA.Constant.READYTOSTART
 import de.uniks.ws2122.cc.teamA.Constant.SURRENDER
@@ -22,6 +25,7 @@ import de.uniks.ws2122.cc.teamA.databinding.ActivityCompassBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
 import de.uniks.ws2122.cc.teamA.model.compassGame.CompassViewModel
+import de.uniks.ws2122.cc.teamA.model.util.Notifications
 
 
 class CompassActivity : AppCompatActivity() {
@@ -36,6 +40,9 @@ class CompassActivity : AppCompatActivity() {
     private var searchedDegree: Double = 0F.toDouble()
     private var currentObjectCount: Int = 0
     private var firstDetection: Int = 0
+    private val notificationId = 123456
+    private var friendId: String? = null
+    private var inviteId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +54,11 @@ class CompassActivity : AppCompatActivity() {
         background = binding.background
         binding.curvedArrowLeft.isVisible = false
         binding.curvedArrowRight.isVisible = false
+
+        friendId = intent.extras?.get(Constant.FRIENDID)?.toString()
+        inviteId = intent.extras?.get(Constant.INVITEKEY)?.toString()
+        if (friendId == "null") friendId = null
+        if (inviteId == "null") inviteId = null
 
         //ViewModel
         viewModel = ViewModelProvider(this)[CompassViewModel::class.java]
@@ -60,30 +72,90 @@ class CompassActivity : AppCompatActivity() {
 
         viewModel.getGame(appViewModel) { game ->
             if (game == null) {
-                viewModel.getRequest(appViewModel) { gameFromMatchRequest ->
-                    if (gameFromMatchRequest == null) {
-                        viewModel.createGame(this, appViewModel) {
-                            viewModel.setListenerToGame() { gameChanged(it) }
-                            gameChanged(it)
+                when {
+                    inviteId != null -> {
+                        viewModel.joinGame(appViewModel, inviteId!!) { game ->
+                            if (game != null) {
+                                viewModel.setListenerToGame() { gameChanged(it) }
+                                gameChanged(game)
+                            }
                         }
-                    } else {
-                        viewModel.setListenerToGame() { gameChanged(it) }
-                        gameChanged(gameFromMatchRequest)
+                    }
+                    friendId == null -> {
+                        viewModel.getRequest(appViewModel) { gameFromMatchRequest ->
+                            if (gameFromMatchRequest == null) {
+                                viewModel.createGame(this, appViewModel) {
+                                    viewModel.setListenerToGame() { gameChanged(it) }
+                                    gameChanged(it)
+                                }
+                            } else {
+                                viewModel.setListenerToGame() { gameChanged(it) }
+                                gameChanged(gameFromMatchRequest)
+                            }
+                        }
+                    }
+                    else -> {
+                        viewModel.createPrivateGame(this, appViewModel, friendId!!) { privateGame ->
+                            viewModel.setListenerToGame() { gameChanged(it) }
+                            gameChanged(privateGame)
+                        }
                     }
                 }
 
+
             } else {
-                viewModel.setListenerToGame() { gameChanged(it) }
-                gameChanged(game)
+                if (inviteId != null) {
+                    if (game.players.size >= 2) {
+                        Toast.makeText(
+                            this,
+                            "Not Joined! You are already in a game.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        viewModel.deleteRequest {
+                            viewModel.deleteGame(game, appViewModel.getUID()) {
+                                viewModel.joinGame(appViewModel, inviteId!!) { game ->
+                                    if (game != null) {
+                                        viewModel.setListenerToGame() { gameChanged(it) }
+                                        gameChanged(game)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    if (friendId != null) {
+                        if (game.players.size >= 2) {
+                            Toast.makeText(
+                                this,
+                                "No Invite! You are already in a game",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            viewModel.deleteRequest {
+                                viewModel.sendInvite(game!!.id!!, friendId!!, appViewModel.getUID())
+                            }
+                        }
+                    }
+                    viewModel.setListenerToGame() { gameChanged(it) }
+                    gameChanged(game)
+                }
             }
         }
-
-
     }
 
     override fun onBackPressed() {
         if (viewModel.currentGame!!.winner.isNotEmpty()) {
             exitGame()
+        }
+        if (friendId != null && viewModel.currentGame!!.players.size < 2) {
+            viewModel.deleteGame(viewModel.currentGame!!, appViewModel.getUID()) {
+                viewModel.deleteInvite(appViewModel.getUID(), friendId!!) {
+                    Toast.makeText(this, "Delete Game and Request", Toast.LENGTH_SHORT).show()
+                }
+            }
+
         }
         super.onBackPressed()
     }
@@ -91,6 +163,12 @@ class CompassActivity : AppCompatActivity() {
     private fun gameChanged(game: CompassGame?) {
         if (game == null) return
         var started: Boolean
+        val intent = Intent(this, CompassGame::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent: PendingIntent =
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val notifications = Notifications()
 
         //Check Winner
         if (game.winner == appViewModel.getUID()) {
@@ -98,12 +176,25 @@ class CompassActivity : AppCompatActivity() {
             objectLabel.text = "You " + WIN
             binding.arrow.setImageResource(R.drawable.happy)
             binding.arrow.rotation = 0f
-
+            notifications.sendNotification(
+                notificationId,
+                COMPASS_GAME,
+                "You won the game",
+                this,
+                pendingIntent
+            )
         } else if (game.winner.isNotEmpty()) {
             viewModel.stopSensor()
             binding.arrow.setImageResource(R.drawable.lame)
             objectLabel.text = "You " + LOSE
             binding.arrow.rotation = 0f
+            notifications.sendNotification(
+                notificationId,
+                COMPASS_GAME,
+                "You lost the game",
+                this,
+                pendingIntent
+            )
         }
         // Return if their is a winner
         if (game.winner.isNotEmpty()) {
@@ -130,6 +221,13 @@ class CompassActivity : AppCompatActivity() {
                 binding.arrow.isVisible = false
                 binding.btnStart.setOnClickListener() {}
             } else {
+                notifications.sendNotification(
+                    notificationId,
+                    COMPASS_GAME,
+                    "Opponent found",
+                    this,
+                    pendingIntent
+                )
                 objectLabel.text = READYTOSTART
                 binding.btnStart.isVisible = true
                 binding.spinner.isVisible = false

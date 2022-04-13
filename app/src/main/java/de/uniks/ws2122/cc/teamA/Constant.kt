@@ -32,7 +32,7 @@ object Constant {
     const val NICKNAME = "nickname"
     const val WINNER = "Winner"
     const val ID = "Id"
-    const val DRAW = "Draw"
+    const val DRAW = "draw"
     const val BLANKFIELD = "_________"
 
     // MentalArithmetic Path
@@ -87,7 +87,7 @@ object Constant {
     const val NOTIFICATION = "Notification"
     const val NOTIFICATIONREQUEST = "NotificationRequest"
     const val CHANNEL_ID = "TeamAChannel"
-    const val NOTIFICATIONARITHMETIC = "NotificationArithmetic"
+    const val NOTIFICATIONGAMEINVITE = "NotificationGameInvite"
 
     // Statistics
     const val STATISTIC = "Statistic"

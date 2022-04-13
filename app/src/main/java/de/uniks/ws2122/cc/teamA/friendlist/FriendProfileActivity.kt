@@ -41,18 +41,8 @@ class FriendProfileActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
-        binding.btnGameInvite.setOnClickListener {
-
-            //TODO Eine bessere Lösung finden
-
-            FriendInviteRepository().privateMatchRequest("TicTacToe", friendId, nickName)
-
-            val intent = Intent(this, GameSelectActivity::class.java)
-            startActivity(intent)
-        }
-
         btnUnfriend.setOnClickListener {
-            viewModel.getFriendListController().removeFriend(friendId) { result ->
+            viewModel.removeFriend(friendId) { result ->
                 if (result) {
                     Toast.makeText(
                         this@FriendProfileActivity,

@@ -13,6 +13,7 @@ class HistorieActivity : AppCompatActivity() {
     private lateinit var rvHistorie: RecyclerView
     private lateinit var myHistorieAdapter: MyHistorieAdapter
     private lateinit var viewModel: HistorieViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHistorieBinding.inflate(layoutInflater)

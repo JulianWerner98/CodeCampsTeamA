@@ -28,6 +28,7 @@ import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 import de.uniks.ws2122.cc.teamA.model.util.Notifications
 import de.uniks.ws2122.cc.teamA.statistic.HistorieActivity
+import de.uniks.ws2122.cc.teamA.statistic.StatisticActivity
 
 class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var viewModel: AppViewModel
@@ -42,6 +43,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var gameInviteListBtn: Button
     private lateinit var sportBtn: Button
     private lateinit var historieBtn: Button
+    private lateinit var statisticBtn: Button
 
     private lateinit var notificationManager: NotificationManager
 
@@ -61,6 +63,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         mentalArithmeticBtn = binding.btnMentalArithmetic
         gameInviteListBtn = binding.btnGameInviteList
         historieBtn = binding.btnHistorie
+        statisticBtn = binding.btnStatistic
 
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
@@ -70,6 +73,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         mentalArithmeticBtn.setOnClickListener(this)
         gameInviteListBtn.setOnClickListener(this)
         historieBtn.setOnClickListener(this)
+        statisticBtn.setOnClickListener(this)
 
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
@@ -84,7 +88,9 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             nicknameText.text = user.nickname
         }
 
-        viewModel.notificationRequestList() { result, id, name ->
+        // Add a listener to notification in database and if there is a new value
+        // send a notification with this specific values
+        viewModel.notificationRequestList(){ result, id, name ->
             if (result) {
                 // Create intent which opens if you click on the notification
                 val intent = Intent(this, FriendRequestActivity::class.java).apply {
@@ -100,8 +106,11 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 notification.sendNotification(id, "Request notification", text, this, pendingIntent)
             }
         }
-        viewModel.sendGameInviteNotification() { result, id, name ->
-            if (result) {
+
+        // Add a listener to notification in database and if there is a new value
+        // send a notification with this specific values
+        viewModel.sendGameInviteNotification(){ result, noti ->
+            if (result){
                 // Create intent which opens if you click on the notification
                 val intent = Intent(this, GameInviteListActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -111,17 +120,13 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
                 // Create notification and send it
                 val notification = Notifications()
-                val text = ("$name has send you a game invite to mental arithmetics")
+                val text = ("${noti.nickname} has send you a game invite to ${noti.gamename}")
                 // Notification id should be unique
-                notification.sendNotification(
-                    id,
-                    "Mental arithmetic game invite",
-                    text,
-                    this,
-                    pendingIntent
-                )
+                val id = noti.id.hashCode()
+                notification.sendNotification(id, "${noti.gamename} game invite", text, this, pendingIntent)
             }
         }
+        requestPermissions()
     }
 
     override fun onBackPressed() {}
@@ -137,7 +142,13 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             gameInviteListBtn.id -> changeToGameInviteList()
             sportBtn.id -> changeToSportChallenges()
             historieBtn.id -> changeToHistorie()
+            statisticBtn.id -> changeToStatistic()
         }
+    }
+
+    private fun changeToStatistic() {
+        val intent = Intent(this, StatisticActivity::class.java).apply {  }
+        startActivity(intent)
     }
 
     private fun changeToHistorie() {

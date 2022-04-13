@@ -26,8 +26,6 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
     private lateinit var recyclerViewRequestList: RecyclerView
     private lateinit var recyclerViewSendList: RecyclerView
 
-    private var notificationId = 42
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendRequestBinding.inflate(layoutInflater)
@@ -65,21 +63,21 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
 
     override fun onRequestAcceptClick(position: Int) {
         val friend = viewModel.getLiveDataRequestList().value!![position]
-        viewModel.getFriendRequestController().acceptFriendRequest(friend) { msg ->
+        viewModel.acceptFriendRequest(friend) { msg ->
             Toast.makeText(this@FriendRequestActivity, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onRequestDeclineClick(position: Int) {
         val friend = viewModel.getLiveDataRequestList().value!![position]
-        viewModel.getFriendRequestController().declineFriendRequest(friend) { msg ->
+        viewModel.declineFriendRequest(friend) { msg ->
             Toast.makeText(this@FriendRequestActivity, msg, Toast.LENGTH_SHORT).show()
         }
     }
 
     override fun onSendCancelClick(position: Int) {
         val friend = viewModel.getLiveDataSendList().value!![position]
-        viewModel.getFriendRequestController().cancelSendFriendRequest(friend) { msg ->
+        viewModel.cancelSendFriendRequest(friend) { msg ->
             Toast.makeText(this@FriendRequestActivity, msg, Toast.LENGTH_SHORT).show()
         }
     }

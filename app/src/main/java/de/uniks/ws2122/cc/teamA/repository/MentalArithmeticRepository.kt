@@ -3,6 +3,7 @@ package de.uniks.ws2122.cc.teamA.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import de.uniks.ws2122.cc.teamA.Constant
+import de.uniks.ws2122.cc.teamA.model.Highscore
 import de.uniks.ws2122.cc.teamA.model.MatchResult
 import de.uniks.ws2122.cc.teamA.model.Notification
 
@@ -30,8 +31,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-
-                TODO("Not yet implemented")
             }
         })
 
@@ -74,7 +73,6 @@ class MentalArithmeticRepository {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
 
             })
@@ -89,7 +87,6 @@ class MentalArithmeticRepository {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
                     }
 
                 })
@@ -108,7 +105,6 @@ class MentalArithmeticRepository {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
                     }
 
                 })
@@ -136,12 +132,11 @@ class MentalArithmeticRepository {
 
                 // Write in database to send a notification to opponent that you have him invite to a game
                 val notficationId =  gameKey
-                val notification = Notification(notficationId.toString(), currentUserName)
-                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONARITHMETIC).child(friendId).child(notficationId.toString()).setValue(notification)
+                val notification = Notification(notficationId.toString(), currentUserName, Constant.MENTALARITHMETIC)
+                rootRef.child(Constant.NOTIFICATION).child(Constant.NOTIFICATIONGAMEINVITE).child(friendId).child(notficationId.toString()).setValue(notification)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -161,7 +156,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -177,7 +171,6 @@ class MentalArithmeticRepository {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
                 }
 
             })
@@ -209,7 +202,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -227,7 +219,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -245,7 +236,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -279,7 +269,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -300,7 +289,6 @@ class MentalArithmeticRepository {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
                     maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
                     maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
-
                     snapshot.child(Constant.DELETEGAME).children.forEach{
                         if (it.key.toString() != currentUser.uid){
                             if (it.value as Boolean){
@@ -312,7 +300,6 @@ class MentalArithmeticRepository {
                 }
             }
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -333,7 +320,6 @@ class MentalArithmeticRepository {
                     maRef.child(gameKey).child(Constant.FINISHED).child(currentUser.uid).child(Constant.FINISHEDTIME).setValue(time)
                     maRef.child(gameKey).child(Constant.DELETEGAME).child(currentUser.uid).setValue(true)
                     maRef.child(gameKey).child(Constant.READY).child(currentUser.uid).setValue(true)
-
                     snapshot.child(Constant.DELETEGAME).children.forEach{
                         if (it.key.toString() != currentUser.uid){
                             if (it.value as Boolean){
@@ -345,7 +331,6 @@ class MentalArithmeticRepository {
                 }
             }
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -368,7 +353,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -390,7 +374,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -411,40 +394,34 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
     }
 
-    // If you have won the game update your points in database
+    // Set in your historie that you have won
     fun setMentalArithmeticWin(currentUserCorrectAnswers: Int, gameKey: String) {
-        currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).addListenerForSingleValueEvent(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // Update your current points
-                if (snapshot.exists()){
-                    fetchCurrentPoints(){ result ->
-                        var points = result.toInt()
-                        points += 5* currentUserCorrectAnswers
-                        currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).setValue(points)
+        fetchOpponentName(gameKey) { name ->
+            val points = 100 * currentUserCorrectAnswers
+            val matchResult = MatchResult(Constant.WIN, "You", name, Constant.MENTALARITHMETIC, points)
+            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult).addOnSuccessListener {
+                // Remove game key from user in database
+                currentUserRef.child(Constant.MENTALARITHMETIC).removeValue()
+                // Write highscore and database and check if the current points are higher then the highscore
+                // when yes, then update it
+                rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC)
+                    .child(Constant.MENTALARITHMETIC).get().addOnSuccessListener { dataSnapshot ->
+                        var highscore =
+                            dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
+                        if (highscore == null) highscore = Highscore()
+                        if (highscore.points < matchResult.points) highscore.points =
+                            matchResult.points
+                        highscore.wins += 1
+                        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC)
+                            .child(Constant.MENTALARITHMETIC).setValue(highscore)
                     }
-                } else {
-                    val points =+ 5 * currentUserCorrectAnswers
-                    currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).setValue(points)
-                }
-                // Set you win in match historie
-                fetchOpponentName(gameKey) { name ->
-                    val winPoints = 5 * currentUserCorrectAnswers
-                    val matchResult = MatchResult(Constant.WIN, currentUserName, name, Constant.MENTALARITHMETIC, winPoints)
-                    currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult)
-                }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
+        }
     }
 
     private fun fetchOpponentName(gameKey: String, callback: (result: String) -> Unit) {
@@ -459,21 +436,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
-
-        })
-    }
-
-    // fetch your current points
-    private fun fetchCurrentPoints(callback: (result: String) -> Unit) {
-        currentUserRef.child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).child(Constant.POINTS).addListenerForSingleValueEvent(object : ValueEventListener{
-            override fun onDataChange(snapshot: DataSnapshot) {
-                callback.invoke(snapshot.value.toString())
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
@@ -482,16 +444,55 @@ class MentalArithmeticRepository {
     // Set in your historie that you have lost
     fun setMentalArithmeticLose(gameKey: String) {
         fetchOpponentName(gameKey) { name ->
-            val matchResult = MatchResult(Constant.LOSE, currentUserName, name, Constant.MENTALARITHMETIC, 0)
-            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult)
+            val matchResult =
+                MatchResult(Constant.LOSE, "You", name, Constant.MENTALARITHMETIC, 0)
+            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey)
+                .setValue(matchResult).addOnSuccessListener {
+                // Remove game key from user in database
+                currentUserRef.child(Constant.MENTALARITHMETIC).removeValue()
+                // Write highscore and database and check if the current points are higher then the highscore
+                // when yes, then update it
+                rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC)
+                    .child(Constant.MENTALARITHMETIC).get().addOnSuccessListener { dataSnapshot ->
+                        var highscore =
+                            dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
+                        if (highscore == null) highscore = Highscore()
+                        if (highscore.points < matchResult.points) highscore.points =
+                            matchResult.points
+                        highscore.loses += 1
+                        rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
+                            .child(Constant.STATISTIC)
+                            .child(Constant.MENTALARITHMETIC).setValue(highscore)
+                    }
+            }
         }
     }
 
     // Set in your historie that it is a draw
     fun setMentalArithmeticDraw(gameKey: String) {
+        // Set your draw in match historie
         fetchOpponentName(gameKey) { name ->
-            val matchResult = MatchResult(Constant.DRAW, currentUserName, name, Constant.MENTALARITHMETIC, 0)
-            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey).setValue(matchResult)
+            val matchResult =
+                MatchResult(Constant.DRAW, "You", name, Constant.MENTALARITHMETIC, 0)
+            currentUserRef.child(Constant.STATISTIC).child(Constant.HISTORIE).child(gameKey)
+                .setValue(matchResult).addOnSuccessListener {
+                    // Remove game key from user in database
+                    currentUserRef.child(Constant.MENTALARITHMETIC).removeValue()
+                    // Write highscore and database and check if the current points are higher then the highscore
+                    // when yes, then update it
+                    rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC)
+                        .child(Constant.MENTALARITHMETIC).get().addOnSuccessListener { dataSnapshot ->
+                            var highscore =
+                                dataSnapshot.getValue(de.uniks.ws2122.cc.teamA.model.Highscore::class.java)
+                            if (highscore == null) highscore = Highscore()
+                            if (highscore.points < matchResult.points) highscore.points =
+                                matchResult.points
+                            highscore.draws += 1
+                            rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
+                                .child(Constant.STATISTIC)
+                                .child(Constant.MENTALARITHMETIC).setValue(highscore)
+                        }
+                }
         }
     }
 
@@ -516,7 +517,6 @@ class MentalArithmeticRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
             }
 
         })
