@@ -126,7 +126,6 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
                 notification.sendNotification(id, "${noti.gamename} game invite", text, this, pendingIntent)
             }
         }
-        requestPermissions()
     }
 
     override fun onBackPressed() {}
