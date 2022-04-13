@@ -16,8 +16,6 @@ class StepCounter(private val context: Context) : SensorEventListener {
     private var previousTotalSteps = .0f
     private lateinit var callback: (steps: Int) -> Unit
 
-
-
     fun startSteps(callback: (steps: Int) -> Unit) {
 
         this.callback = callback
