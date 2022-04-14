@@ -29,17 +29,22 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         recyclerInviteView.layoutManager = LinearLayoutManager(this)
         recyclerInviteView.setHasFixedSize(true)
 
+        // Create ViewModel
         viewModel = ViewModelProvider(this)[GameInviteViewModel::class.java]
 
+        // Create invite adapter
         myInviteAdapter = MyInviteAdapter(viewModel.getLiveGameInviteListData(), this)
 
+        // Fetch invite list from database
         viewModel.fetchInvitesList()
 
+        // Add observer on list
         viewModel.getLiveGameInviteListData().observe(this, Observer {
             recyclerInviteView.adapter = myInviteAdapter
         })
     }
 
+    // If item is clicked, check game name and change to that game
     override fun onItemClicked(position: Int) {
         val gameInvite = viewModel.getLiveGameInviteListData().value!![position]
         val gameName = gameInvite.gameName
@@ -53,6 +58,7 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         }
     }
 
+    // Change to TicTacToe
     private fun changeToTTTIntent(gameKey: String) {
         val intent = Intent(this, TicTacToeActivity::class.java).apply {
             this.putExtra(Constant.INVITEKEY, gameKey)
@@ -60,6 +66,7 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         startActivity(intent)
     }
 
+    // Change to CompassGame
     private fun changeToCompassIntent(gameKey: String) {
         val intent = Intent(this, CompassActivity::class.java).apply {
             this.putExtra(Constant.INVITEKEY, gameKey)
@@ -67,6 +74,7 @@ class GameInviteListActivity : AppCompatActivity(), MyInviteAdapter.OnItemClickL
         startActivity(intent)
     }
 
+    // Change to MentalArithmetic
     private fun changeToArithmeticIntent(gameKey: String) {
         val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
             this.putExtra(Constant.FRIENDID, Constant.DEFAULT)

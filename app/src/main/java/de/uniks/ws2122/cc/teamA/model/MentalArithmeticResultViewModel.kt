@@ -82,12 +82,12 @@ class MentalArithmeticResultViewModel : ViewModel() {
     }
 
     // Logic
+    // Fetch your answers
     private fun fetchAnswers(gameKey: String) {
         mentalArithmeticRepo.fetchCurrentUserAnswers(gameKey) {
             currentUserAnswers = it
             setLiveCurrentUserAnswersData()
             getCorrectAndWrongAnswers(currentUserAnswers)
-            //getWrongAnswers(currentUserAnswers)
             mentalArithmeticRepo.fetchOpponentAnswers(gameKey) { answer ->
                 opponentAnswers = answer
                 getWonGame(opponentAnswers)
@@ -95,6 +95,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         }
     }
 
+    // Fetch your time
     private fun fetchTime(gameKey: String) {
         mentalArithmeticRepo.fetchTime(gameKey) {
             time = it[0]
@@ -102,7 +103,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         }
     }
 
-
+    // Get your correct and wrong answers number
     fun getCorrectAndWrongAnswers(currentUserAnswers: MutableList<Boolean>){
         for (answer in currentUserAnswers) {
             if (answer) {
@@ -115,15 +116,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         setLiveCurrentUserWrongAnswersData()
     }
 
-    fun getWrongAnswers(currentUserAnswers: MutableList<Boolean>){
-        for (answer in currentUserAnswers){
-            if (!answer) {
-                currentUserWrongAnswers += 1
-            }
-        }
-        setLiveCurrentUserWrongAnswersData()
-    }
-
+    // Check the winner
     fun getWonGame(opponentAnswers: MutableList<Boolean>){
         for (answer in opponentAnswers){
             if (answer) {
@@ -133,6 +126,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
             }
         }
 
+        // Calculate your and opponents time and set winner of that game
         when(calculateTime()){
             Constant.MORETIME -> {
                 if(currentUserCorrectAnswers > opponentCorrectAnswers) {
@@ -187,12 +181,14 @@ class MentalArithmeticResultViewModel : ViewModel() {
         currentUserSec += currentUserTimePenalty
         opponentSec += opponentTimePenalty
 
+        // Add 5sec penalty for every wrong answer to your time
         if (currentUserSec >= 60){
             val minute = currentUserSec / 60
             currentUserMinutes += minute
             currentUserSec -= 60 * minute
         }
 
+        // Add 5sec penalty for every wrong answer to your opponents
         if (opponentSec >= 60){
             val minute = opponentSec / 60
             opponentMinutes += minute
@@ -216,6 +212,7 @@ class MentalArithmeticResultViewModel : ViewModel() {
         }
     }
 
+    // Finished the game
     fun finishedGame() {
         mentalArithmeticRepo.finishedGame(gameKey)
     }

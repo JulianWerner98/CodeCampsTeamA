@@ -32,10 +32,13 @@ class MentalArithmeticResultActivity : AppCompatActivity() {
         backToGameSelectBtn = binding.btnBackToGameSelect
         wonGame = binding.tvWonGame
 
+        // Create ViewModel
         viewModel = ViewModelProvider(this)[MentalArithmeticResultViewModel::class.java]
 
+        // Initialize all observer
         initializeObserver()
 
+        // Change to GameSelect
         backToGameSelectBtn.setOnClickListener {
             val intent = Intent(this, GameSelectActivity::class.java)
             startActivity(intent)

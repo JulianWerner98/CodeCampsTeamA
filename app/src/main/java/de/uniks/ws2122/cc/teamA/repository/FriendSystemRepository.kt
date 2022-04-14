@@ -17,6 +17,7 @@ class FriendSystemRepository {
 
 
     // Friend list View model
+    // Fetch friend list
     fun fetchFriendList(callback: (result: ArrayList<User>) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.FRIENDS_PATH)
             .addValueEventListener(object : ValueEventListener {
@@ -39,6 +40,7 @@ class FriendSystemRepository {
             })
     }
 
+    // Send your friend request
     fun sendFriendRequest(nickName: String, callback: (result: String) -> Unit) {
         rootRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -105,6 +107,7 @@ class FriendSystemRepository {
         }
     }
 
+    // Remove friend
     fun removeFriend(friendId: String, callback: (result: Boolean) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid)
             .child(Constant.FRIENDS_PATH).child(friendId).removeValue().addOnCompleteListener {
@@ -120,6 +123,7 @@ class FriendSystemRepository {
     }
 
     // Friend request view model
+    // Fetch received list
     fun fetchReceivedList(callback: (result: ArrayList<User>) -> Unit) {
         rootRef.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
             .child(currentUser.uid)
@@ -142,6 +146,7 @@ class FriendSystemRepository {
             })
     }
 
+    // Fetch send list
     fun fetchSendRequestList(callback: (result: ArrayList<User>) -> Unit) {
         rootRef.child(Constant.FRIEND_REQUEST_PATH).child(Constant.SEND_PATH)
             .child(currentUser.uid)
@@ -164,6 +169,7 @@ class FriendSystemRepository {
             })
     }
 
+    // Fetch current user
     fun fetchCurrentUser(callback: (result: User) -> Unit) {
         rootRef.child(Constant.USERS_PATH)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -179,6 +185,7 @@ class FriendSystemRepository {
             })
     }
 
+    // Accept friend request
     fun acceptFriendRequest(friend: User, callback: (result: String) -> Unit) {
         fetchCurrentUser { user ->
             // Set friends in database
@@ -205,6 +212,7 @@ class FriendSystemRepository {
 
     }
 
+    // Decline friend request
     fun declineFriendRequest(friend: User, callback: (result: String) -> Unit) {
         // Delete friend request in your received and friend send path
         rootRef.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)
@@ -221,6 +229,7 @@ class FriendSystemRepository {
             }
     }
 
+    // Cancel your friend request
     fun cancelSendFriendRequest(friend: User, callback: (result: String) -> Unit) {
         // Delete friend request in friend received and your send path
         rootRef.child(Constant.FRIEND_REQUEST_PATH).child(Constant.RECEIVED_PATH)

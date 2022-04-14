@@ -12,7 +12,7 @@ import de.uniks.ws2122.cc.teamA.model.GameInvites
 class MyInviteAdapter( private val gameInviteList: LiveData<List<GameInvites>>,
 private val listener: OnItemClickListener
 ) : RecyclerView.Adapter<MyInviteAdapter.MyViewHolder>() {
-
+    // Create Items that will show on the recycler view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
 
         val itemView = LayoutInflater.from(parent.context).inflate(

@@ -14,6 +14,7 @@ class MySendRequestAdapter(
     private val userList: LiveData<List<User>>,
     private val listener: OnItemClickListener
 ) : RecyclerView.Adapter<MySendRequestAdapter.MyViewHolder>() {
+    // Create Items that will show on the recycler view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
 
         val itemView = LayoutInflater.from(parent.context).inflate(

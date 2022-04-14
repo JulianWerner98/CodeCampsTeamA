@@ -28,6 +28,7 @@ class HistorieViewModel: ViewModel() {
         return matchResultLiveData
     }
 
+    // Fetch history list
     fun fetchHistorieList() {
         statisticRepository.fetchHistorieList(){ matchList ->
             matchResultList = matchList

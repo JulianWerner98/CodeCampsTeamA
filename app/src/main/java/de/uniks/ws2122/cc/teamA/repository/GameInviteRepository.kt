@@ -12,10 +12,12 @@ class GameInviteRepository {
     private val rootRef: DatabaseReference =
         FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
+    // Delete invite
     fun deleteInvite(gameName: String, friendName: String) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.INVITES).child(gameName).child(friendName).removeValue()
     }
 
+    // Fetch invite list
     fun fetchInvitesList(callback: (result: ArrayList<GameInvites>) -> Unit ) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.INVITES).addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {

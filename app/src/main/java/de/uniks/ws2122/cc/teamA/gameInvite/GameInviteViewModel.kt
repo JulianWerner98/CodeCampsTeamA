@@ -29,10 +29,12 @@ class GameInviteViewModel: ViewModel() {
     }
 
     // Logic
+    // Delete invite
     fun deleteInvite(gameName: String, friendName: String) {
         gameInviteRepo.deleteInvite(gameName, friendName)
     }
 
+    // Fetch invite list
     fun fetchInvitesList() {
         gameInviteRepo.fetchInvitesList(){ inviteList ->
             gameInviteList = inviteList

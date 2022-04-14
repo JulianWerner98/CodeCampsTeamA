@@ -35,17 +35,22 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.setHasFixedSize(true)
 
+        //Create ViewModel
         viewModel = ViewModelProvider(this)[FriendListViewModel::class.java]
 
+        // Create friendsAdapter
         friendsAdapter = MyFriendsAdapter(viewModel.getLiveDataFriendList(), this)
 
+        // Fetch friends list from database
         viewModel.fetchFriendList()
 
+        // Add observer on friends list
         viewModel.getLiveDataFriendList().observe(this, Observer {
             recyclerView.adapter = friendsAdapter
         })
 
         binding.btnSendFriendRequest.setOnClickListener {
+            // If there is a nickname send a friend request, else show an error
             if (enterNickNameField.text.isNotEmpty()) {
                 val nickName = enterNickNameField.text.toString()
                 viewModel.sendFriendRequest(nickName) { msg ->
@@ -58,10 +63,13 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
             }
         }
 
+        // Change to GameSelect
         binding.btnBackToMain.setOnClickListener {
             val intent = Intent(this, GameSelectActivity::class.java).apply { }
             startActivity(intent)
         }
+
+        // Change to Friend request
         binding.btnRequestList.setOnClickListener {
             startActivity(Intent(this@FriendListActivity, FriendRequestActivity::class.java))
         }
@@ -77,6 +85,7 @@ class FriendListActivity : AppCompatActivity(), MyFriendsAdapter.OnItemClickList
         }
     }
 
+    // Change to friend profile if you click on a friend in your list
     override fun onItemClick(position: Int) {
         val friend = viewModel.getLiveDataFriendList().value!![position]
         val intent = Intent(this@FriendListActivity, FriendProfileActivity::class.java)

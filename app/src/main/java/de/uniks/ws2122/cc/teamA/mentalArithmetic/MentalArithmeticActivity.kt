@@ -49,12 +49,15 @@ class MentalArithmeticActivity : AppCompatActivity() {
         matchTyp = intent.extras?.getString(Constant.MATCHTYP).toString()
         inviteKey = intent.extras?.getString(Constant.INVITEKEY).toString()
 
+        // Create ViewModel
         viewModel = ViewModelProvider(this)[MentalArithmeticViewModel::class.java].apply {
             this.setMatchTyp(friendId, matchTyp, inviteKey)
         }
 
+        // Make a game
         viewModel.makeGame()
 
+        // Start or surrender your game
         startButton.setOnClickListener {
             if (startButton.text == Constant.START){
                 viewModel.readyUpToStartGame()
@@ -66,25 +69,31 @@ class MentalArithmeticActivity : AppCompatActivity() {
             }
         }
 
+        // Send your answer
         sendAnswerBtn.setOnClickListener {
             if (answer.text.isNotEmpty()){
                 viewModel.sendTaskAnswer(answer.text.toString())
                 answer.text.clear()
             }
         }
+
+        // Set chronometer
         pauseOffset = SystemClock.elapsedRealtime() - chronometer.base
         viewModel.chronometer(chronometer, pauseOffset)
 
+        // Add observer on user answer and change if there is a new answer
         viewModel.getLiveCurrentUserAnswersData().observe(this, Observer {
             val currentTask = viewModel.getCurrentTask(){ result->
                 if (result){
                     sendAnswerBtn.isEnabled = true
                 }
             }
+            // Stop timer and wait for opponent
             if (currentTask == Constant.WAITINGFOROPPONENT){
                 arithmeticTask.text = currentTask
                 sendAnswerBtn.isEnabled = false
                 chronometer.stop()
+                // Change to match result
                 viewModel.goToResultActivity(){ it ->
                     if (it) {
                         val intent = Intent(this, MentalArithmeticResultActivity::class.java).apply {  }

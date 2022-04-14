@@ -39,14 +39,18 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
         recyclerViewSendList.layoutManager = LinearLayoutManager(this)
         recyclerViewSendList.setHasFixedSize(true)
 
+        // Create ViewModel
         viewModel = ViewModelProvider(this).get(FriendRequestViewModel::class.java)
 
+        // Create adapter
         myRequestAdapter = MyRequestAdapter(viewModel.getLiveDataRequestList(), this)
         mySendRequestAdapter = MySendRequestAdapter(viewModel.getLiveDataSendList(), this)
 
+        // Fetch received and send list from database
         viewModel.fetchReceivedRequestList()
         viewModel.fetchSendRequestList()
 
+        // Add observer on these lists
         viewModel.getLiveDataRequestList().observe(this, Observer {
             recyclerViewRequestList.adapter = myRequestAdapter
         })
@@ -55,12 +59,14 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
             recyclerViewSendList.adapter = mySendRequestAdapter
         })
 
+        // Change to FriendsList
         binding.btnFriendList.setOnClickListener {
             startActivity(Intent(this@FriendRequestActivity, FriendListActivity::class.java))
             finish()
         }
     }
 
+    // Accept friend request
     override fun onRequestAcceptClick(position: Int) {
         val friend = viewModel.getLiveDataRequestList().value!![position]
         viewModel.acceptFriendRequest(friend) { msg ->
@@ -68,6 +74,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
         }
     }
 
+    // Decline friend request
     override fun onRequestDeclineClick(position: Int) {
         val friend = viewModel.getLiveDataRequestList().value!![position]
         viewModel.declineFriendRequest(friend) { msg ->
@@ -75,6 +82,7 @@ class FriendRequestActivity : AppCompatActivity(), MyRequestAdapter.OnItemClickL
         }
     }
 
+    // Cancel your friend request
     override fun onSendCancelClick(position: Int) {
         val friend = viewModel.getLiveDataSendList().value!![position]
         viewModel.cancelSendFriendRequest(friend) { msg ->

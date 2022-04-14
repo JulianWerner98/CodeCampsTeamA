@@ -38,9 +38,10 @@ class FriendProfileActivity : AppCompatActivity() {
         nickName = intent.extras?.get(Constant.NICKNAME).toString()
         friendNickName.text = nickName
 
-
+        // Create ViewModel
         viewModel = ViewModelProvider(this).get(FriendListViewModel::class.java)
 
+        // Remove friend
         btnUnfriend.setOnClickListener {
             viewModel.removeFriend(friendId) { result ->
                 if (result) {
@@ -58,6 +59,7 @@ class FriendProfileActivity : AppCompatActivity() {
             }
         }
 
+        // Change to GameInvite
         gameListBtn.setOnClickListener {
             val intent = Intent(this, FriendGameInviteActivity::class.java).apply {
                 this.putExtra(Constant.FRIENDID, friendId)

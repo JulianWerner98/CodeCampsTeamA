@@ -78,6 +78,7 @@ class MentalArithmeticViewModel : ViewModel() {
         setLiveArithmeticAnswersData()
     }
 
+    // Create additions task
     private fun makeAdditionTask() {
         val n1 = (1..20).random()
         val n2 = (1..20).random()
@@ -86,6 +87,7 @@ class MentalArithmeticViewModel : ViewModel() {
         arithmeticAnswers.add(answer.toString())
     }
 
+    // Create subtraction task
     private fun makeSubtractionTask() {
         val n1 = (1..20).random()
         val n2 = (1..20).random()
@@ -100,6 +102,7 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Create multiplication task
     private fun makeMultiplicationTask() {
         val n1 = (1..20).random()
         val n2 = (1..20).random()
@@ -108,6 +111,7 @@ class MentalArithmeticViewModel : ViewModel() {
         arithmeticAnswers.add(answer.toString())
     }
 
+    // Create division task
     private fun makeDivisionTask() {
         var n1 = (1..20).random()
         var n2 = (1..20).random()
@@ -138,6 +142,7 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Create the game or join a game
     fun makeGame() {
         Log.d("MentalArithmetic", "friendID:  $inviteKey")
         if (inviteKey == Constant.DEFAULT){
@@ -161,15 +166,15 @@ class MentalArithmeticViewModel : ViewModel() {
             if (answer){
                 chronometer.base = SystemClock.elapsedRealtime() - pauseOffset
                 chronometer.start()
-                //currentUserAnswers.add(false)
                 setLiveCurrentUserAnswersData()
-                //currentUserAnswers.removeAt(0)
             }
         }
     }
 
+    // Get the current task
     fun getCurrentTask(callback: (result: Boolean) -> Unit): String {
         if (running) {
+            // If user answers 10 task don't get another one
             if (counter == 10){
                 return Constant.WAITINGFOROPPONENT
             }
@@ -182,6 +187,7 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Fetch arithmetic tasks
     fun fetchArithmeticTasks(){
         mentalArithmeticRepo.fetchArithmeticTasks(gameKey) { tasks ->
             arithmeticTasks = tasks
@@ -189,6 +195,7 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Fetch arithmetics answers
     fun fetchArithmeticAnswers(){
         mentalArithmeticRepo.fetchArithmeticAnswers(gameKey) { answers ->
             arithmeticAnswers = answers
@@ -211,11 +218,13 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Set chronometer
     fun chronometer(chronometer: Chronometer, pauseOffset: Long) {
         this.chronometer = chronometer
         this.pauseOffset = pauseOffset
     }
 
+    // Change to match result
     fun goToResultActivity(callback: (result: Boolean) -> Unit){
         val time = chronometer.text
         mentalArithmeticRepo.goToResultActivity(gameKey, currentUserAnswers, time as String){ answer ->
@@ -223,12 +232,14 @@ class MentalArithmeticViewModel : ViewModel() {
         }
     }
 
+    // Set the match typ
     fun setMatchTyp(friendId: String, matchTyp: String, inviteKey: String) {
         this.friendId = friendId
         this.matchTyp = matchTyp
         this.inviteKey = inviteKey
     }
 
+    // End the game
     fun destroyGame() {
         if (matchTyp == Constant.PRIVATE){
             mentalArithmeticRepo.destroyPrivateGame(gameKey, friendId)

@@ -85,6 +85,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
             startActivity(intent)
         }
 
+        // Create a notification channel
         createNotificationChannel()
 
         //Change the nickname dynamic

@@ -36,13 +36,16 @@ class StatisticActivity : AppCompatActivity() {
         pieChartSortChallenge = binding.pieChartSportChallenge
         toHistorieBtn = binding.btnToHistorie
 
+        // Create ViewModel
         viewModel = ViewModelProvider(this)[StatisticViewModel::class.java]
 
+        // Change to history
         toHistorieBtn.setOnClickListener {
             val intent = Intent(this, HistorieActivity::class.java).apply {  }
             startActivity(intent)
         }
-        
+
+        // Set all game statistics
         setTicTacToeDataToPieChart()
         setArithmeticDataToPieChart()
         setCompassGameDataToPieChart()
@@ -50,6 +53,7 @@ class StatisticActivity : AppCompatActivity() {
     }
 
     private fun setTicTacToeDataToPieChart() {
+        // Fetch TicTacToe statistic from database
         viewModel.fetchTicTacToeStatistic(){ statistic ->
             if (statistic != null){
                 // Init some values for your pie chart
@@ -95,6 +99,7 @@ class StatisticActivity : AppCompatActivity() {
     }
 
     private fun setArithmeticDataToPieChart() {
+        // Fetch MentalArithmetic statistic from database
         viewModel.fetchMentalArithmeticStatistic(){ statistic ->
             if (statistic != null){
                 // Init some values for your pie chart
@@ -140,6 +145,7 @@ class StatisticActivity : AppCompatActivity() {
     }
 
     private fun setCompassGameDataToPieChart() {
+        // Fetch CompassGame statistic from database
         viewModel.fetchCompassGameStatistic(){ statistic ->
             if (statistic != null){
                 // Init some values for your pie chart
@@ -185,6 +191,7 @@ class StatisticActivity : AppCompatActivity() {
     }
 
     private fun setSportChallengeDataToPieChart() {
+        // Fetch SportChallenge statistic from database
         viewModel.fetchSportChallengeStatistic(){ statistic ->
             if (statistic != null){
                 // Init some values for your pie chart

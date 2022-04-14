@@ -14,7 +14,7 @@ class StatisticRepository {
     private val rootRef: DatabaseReference =
         FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
 
-
+    // Fetch history list
     fun fetchHistorieList(callback: (result: ArrayList<MatchResult>) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.HISTORIE).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -34,6 +34,7 @@ class StatisticRepository {
         })
     }
 
+    // Fetch tic tac toe statistic
     fun fetchTicTacToeStatistic(callback: (result: Highscore?) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.TTT).get().addOnSuccessListener {
             val statistic = it.getValue(Highscore::class.java)
@@ -41,6 +42,7 @@ class StatisticRepository {
         }
     }
 
+    // Fetch mental arithmetic statistic
     fun fetchMentalArithmeticStatistic(callback: (result: Highscore?) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.MENTALARITHMETIC).get().addOnSuccessListener {
             val statistic = it.getValue(Highscore::class.java)
@@ -48,6 +50,7 @@ class StatisticRepository {
         }
     }
 
+    // Fetch compass game statistic
     fun fetchCompassGameStatistic(callback: (result: Highscore?) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.COMPASS_GAME).get().addOnSuccessListener {
             val statistic = it.getValue(Highscore::class.java)
@@ -55,6 +58,7 @@ class StatisticRepository {
         }
     }
 
+    // Fetch sport challenge statistic
     fun fetchSportChallengeStatistic(callback: (result: Highscore?) -> Unit) {
         rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.SPORT_CHALLENGE).get().addOnSuccessListener {
             val statistic = it.getValue(Highscore::class.java)

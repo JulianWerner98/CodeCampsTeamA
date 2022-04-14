@@ -23,7 +23,7 @@ import de.uniks.ws2122.cc.teamA.R
 import de.uniks.ws2122.cc.teamA.model.MatchResult
 
 class MyHistorieAdapter( val matchResultList: LiveData<List<MatchResult>>, ) : RecyclerView.Adapter<MyHistorieAdapter.MyViewHolder>() {
-
+    // Create Items that will show on the recycler view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
 
         val itemView = LayoutInflater.from(parent.context).inflate(

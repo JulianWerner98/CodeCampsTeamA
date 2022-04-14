@@ -35,12 +35,14 @@ class FriendListViewModel : ViewModel(){
         }
     }
 
+    // Send your friend request
     fun sendFriendRequest(nickName: String, callback: (result: String) -> Unit) {
         friendSystemRepo.sendFriendRequest(nickName){ msg ->
             callback.invoke(msg)
         }
     }
 
+    // Remove your friend
     fun removeFriend(friendId: String, callback: (result: Boolean) -> Unit) {
         friendSystemRepo.removeFriend(friendId) { result ->
             callback.invoke(result)

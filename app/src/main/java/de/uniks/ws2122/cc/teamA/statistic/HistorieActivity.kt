@@ -23,12 +23,16 @@ class HistorieActivity : AppCompatActivity() {
         rvHistorie.layoutManager = LinearLayoutManager(this)
         rvHistorie.setHasFixedSize(true)
 
+        // Create ViewModel
         viewModel = ViewModelProvider(this)[HistorieViewModel::class.java]
 
+        // Create adapter
         myHistorieAdapter = MyHistorieAdapter(viewModel.getLiveMatchResultListData())
 
+        // Fetch history list from database
         viewModel.fetchHistorieList()
 
+        // Add observer on match result
         viewModel.getLiveMatchResultListData().observe(this, Observer {
             rvHistorie.adapter = myHistorieAdapter
         })

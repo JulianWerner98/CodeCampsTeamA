@@ -112,6 +112,7 @@ class MentalArithmeticRepository {
         }
     }
 
+    // Create new private game
     private fun createNewPrivateGame(
         arithmeticTasks: MutableList<String>,
         arithmeticAnswers: MutableList<String>,
@@ -142,6 +143,7 @@ class MentalArithmeticRepository {
         })
     }
 
+    // Create new default game
     private fun createNewGame(arithmeticTasks: MutableList<String>, arithmeticAnswers: MutableList<String>, callback: (result: String) -> Unit) {
         maRef.addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -305,7 +307,7 @@ class MentalArithmeticRepository {
         })
     }
 
-
+    // End private game
     fun destroyPrivateGame(gameKey: String, friendId: String) {
         maRef.child(gameKey).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -424,6 +426,7 @@ class MentalArithmeticRepository {
         }
     }
 
+    // Fetch opponent nickname
     private fun fetchOpponentName(gameKey: String, callback: (result: String) -> Unit) {
         maRef.child(gameKey).child(Constant.RESULT).addListenerForSingleValueEvent(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {

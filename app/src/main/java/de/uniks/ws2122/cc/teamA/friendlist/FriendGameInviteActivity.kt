@@ -19,8 +19,10 @@ class FriendGameInviteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityFriendGameInviteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         friendId = intent.extras?.getString("friendId").toString()
+
+        // Change to MentalArithmetic
         binding.btnInviteArithmetic.setOnClickListener {
             val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
                 this.putExtra(Constant.FRIENDID, friendId)
@@ -29,6 +31,8 @@ class FriendGameInviteActivity : AppCompatActivity() {
             }
             startActivity(intent)
         }
+
+        // Change to TicTacToe
         binding.btnInviteTTT.setOnClickListener(){
             val intent = Intent(this, TicTacToeActivity::class.java).apply {
                 this.putExtra(Constant.FRIENDID, friendId)
@@ -36,12 +40,15 @@ class FriendGameInviteActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        // Change to CompassGame
         binding.btnInviteCompass.setOnClickListener {
             val intent = Intent(this, CompassActivity::class.java).apply {
                 this.putExtra(Constant.FRIENDID, friendId)
             }
             startActivity(intent)
         }
+
+        // Change to SportChallenge
         binding.btnInviteSport.setOnClickListener {
             val intent = Intent(this, SportChallengesActivity::class.java).apply {
                 this.putExtra(Constant.FRIENDID, friendId)

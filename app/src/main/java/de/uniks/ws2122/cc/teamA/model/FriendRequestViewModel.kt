@@ -39,7 +39,7 @@ class FriendRequestViewModel : ViewModel(){
     }
 
     // Logic
-    // Get friend request received list from database
+    // Fetch friend request received list from database
     fun fetchReceivedRequestList(){
         friendSystemRepo.fetchReceivedList { result ->
             receivedList = result
@@ -47,7 +47,7 @@ class FriendRequestViewModel : ViewModel(){
         }
     }
 
-    // Get friend request send list
+    // Fetch friend request send list
     fun fetchSendRequestList(){
         friendSystemRepo.fetchSendRequestList { result ->
             sendList = result
@@ -55,18 +55,21 @@ class FriendRequestViewModel : ViewModel(){
         }
     }
 
+    // Accept friend request
     fun acceptFriendRequest(friend: User, callback: (result: String) -> Unit) {
         friendSystemRepo.acceptFriendRequest(friend) { msg ->
             callback.invoke(msg)
         }
     }
 
+    // Decline friend request
     fun declineFriendRequest(friend: User, callback: (result: String) -> Unit) {
         friendSystemRepo.declineFriendRequest(friend) { msg ->
             callback.invoke(msg)
         }
     }
 
+    // Cancel your friend request
     fun cancelSendFriendRequest(friend: User, callback: (result: String) -> Unit) {
         friendSystemRepo.cancelSendFriendRequest(friend) {  msg ->
             callback.invoke(msg)
