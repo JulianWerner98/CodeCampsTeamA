@@ -22,6 +22,7 @@ class SportChallengeRepository {
     private lateinit var stepListener: ValueEventListener
     private lateinit var waitForPlayerListener: ValueEventListener
 
+    /** start match making +*/
     fun startMatchMaking(
         mode: String,
         option: String,
@@ -32,6 +33,7 @@ class SportChallengeRepository {
         this.mode = mode
         this.option = option
 
+        //when mode is empty a match exists
         if (mode.isEmpty()) {
 
             loadRunningGame()
@@ -41,8 +43,10 @@ class SportChallengeRepository {
         }
     }
 
+    /** looks if the user already has a game running **/
     fun hasRunningGame(callback: (hasGame: Boolean) -> Unit) {
 
+        //checks if a game is stored in the database for the user
         rootRef.child(Constant.USERS_PATH)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -53,11 +57,12 @@ class SportChallengeRepository {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Log.d("SportRepo", "hasRunningGame cancelled")
                 }
             })
     }
 
+    /** fetches the match reference in the database **/
     private fun determineSportChallengeReference(callback: (result: Boolean) -> Unit) {
 
         rootRef.child(Constant.USERS_PATH)
@@ -71,14 +76,15 @@ class SportChallengeRepository {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Log.d("SportRepo", "determineSportChallengeReference cancelled")
                 }
             })
     }
 
-    //load the running game
+    /** load running game **/
     private fun loadRunningGame() {
 
+        // get match reference
         determineSportChallengeReference() { foundRef ->
 
             if (foundRef) {
@@ -86,8 +92,10 @@ class SportChallengeRepository {
                 matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
 
+                        //is there an opponent?
                         if (snapshot.hasChild(Constant.PLAYER2)) {
 
+                            //who is player 2?
                             if (snapshot.child(Constant.PLAYER1)
                                     .child(Constant.ID).value.toString() == currentUser.uid
                             ) {
@@ -104,7 +112,7 @@ class SportChallengeRepository {
                     }
 
                     override fun onCancelled(error: DatabaseError) {
-                        TODO("Not yet implemented")
+                        Log.d("SportRepo",  "loadRunningGame cancelled")
                     }
                 })
             }
@@ -113,7 +121,7 @@ class SportChallengeRepository {
         Log.d("SPORTRepo", "loaded game")
     }
 
-    //looks for match if not it creates one
+    /** looks for match if not it creates one **/
     private fun searchMatch() {
 
         sportRef.child(Constant.OPENMATCHES).orderByKey()
@@ -124,6 +132,7 @@ class SportChallengeRepository {
                     val openMatches = snapshot.children.iterator()
                     var matchKey = ""
 
+                    //check the open match list
                     while (openMatches.hasNext()) {
 
                         val openMatch = openMatches.next()
@@ -140,6 +149,7 @@ class SportChallengeRepository {
                         }
                     }
 
+                    //open match found?
                     if (matchKey.isNotEmpty()) {
 
                         joinMatch(matchKey)
@@ -150,16 +160,17 @@ class SportChallengeRepository {
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Log.d("SportRepo",  "searchMatch cancelled")
                 }
             })
     }
 
-    //join a match
+    /** join a match **/
     private fun joinMatch(openMatchRefKey: String) {
 
         matchRef = sportRef.child(openMatchRefKey)
 
+        //get nickname
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -168,10 +179,11 @@ class SportChallengeRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.d("SportRepo",  "joinMatch cancelled")
             }
         })
 
+        //set user as player 2
         matchRef.child(Constant.PLAYER2).child(Constant.ID).setValue(currentUser.uid)
         matchRef.child(Constant.PLAYER2).child(Constant.STEPS).setValue(0)
         matchRef.child(Constant.PLAYER2).child(Constant.METERS).setValue(0)
@@ -188,11 +200,12 @@ class SportChallengeRepository {
         callbackEnemy.invoke(Constant.PLAYER1, Constant.PLAYER2)
     }
 
-    //create new Match
+    /** create new Match **/
     private fun createNewMatch() {
 
         matchRef = sportRef.push()
 
+        //get nickname
         currentUserRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -201,10 +214,11 @@ class SportChallengeRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.d("SportRepo",  "createNewMatch cancelled")
             }
         })
 
+        //set user as player 1
         matchRef.child(Constant.PLAYER1).child(Constant.ID).setValue(currentUser.uid)
         matchRef.child(Constant.PLAYER1).child(Constant.STEPS).setValue(0)
         matchRef.child(Constant.PLAYER1).child(Constant.METERS).setValue(0)
@@ -227,9 +241,8 @@ class SportChallengeRepository {
         waitForPlayer2()
     }
 
+    /** wait for second player **/
     private fun waitForPlayer2() {
-
-        //show Waiting for Player
 
         waitForPlayerListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -242,12 +255,15 @@ class SportChallengeRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
+
+                Log.d("SportRepo",  "waitForPlayer2 cancelled")
             }
         }
 
         matchRef.addValueEventListener(waitForPlayerListener)
     }
 
+    /** create listener on the opponent steps in the database **/
     fun createStepListener(enemy: String, callback: (steps: Int, meters: Float) -> Unit) {
 
         stepListener = object : ValueEventListener {
@@ -259,30 +275,34 @@ class SportChallengeRepository {
                     val meters = snapshot.child(Constant.METERS).value.toString().toFloat()
 
                     Log.d("SportRepo", "Steps: $steps")
+                    //returns the steps and meters of the opponent when changed
                     callback.invoke(steps, meters)
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.d("SportRepo",  "createStepListener cancelled")
             }
         }
 
         matchRef.child(enemy).addValueEventListener(stepListener)
     }
 
+    /** send user steps and meters to the database **/
     fun sendData(user: String, steps: Int, meters: Float) {
 
         matchRef.child(user).child(Constant.STEPS).setValue(steps)
         matchRef.child(user).child(Constant.METERS).setValue(meters)
     }
 
+    /** save the time of the user in the database **/
     fun saveTime(countedTime: Double, user: String) {
 
         matchRef.child(user).child(Constant.COUNTED_TIME).setValue(countedTime)
         matchRef.child(user).child(Constant.SYSTEM_TIME).setValue(System.currentTimeMillis())
     }
 
+    /** load the time of the user from the database **/
     fun loadTime(user: String, callback: (countedTime: Double, oldSystemTime: Long) -> Unit) {
 
         matchRef.child(user).addListenerForSingleValueEvent(object : ValueEventListener {
@@ -306,13 +326,15 @@ class SportChallengeRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.d("SportRepo",  "loadTime cancelled")
             }
         })
     }
 
+    /** get mode and option from a game **/
     fun getModeAndOption(callback: (mode: String, option: String) -> Unit) {
 
+        //get match reference
         rootRef.child(Constant.USERS_PATH)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -321,6 +343,7 @@ class SportChallengeRepository {
                         .child(Constant.SPORT_CHALLENGE).value.toString()
                     matchRef = sportRef.child(sportRefKey)
 
+                    //get mode and option
                     matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
 
@@ -331,18 +354,19 @@ class SportChallengeRepository {
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            TODO("Not yet implemented")
+                            Log.d("SportRepo",  "getModeAndOption mode/option cancelled")
                         }
 
                     })
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+                    Log.d("SportRepo",  "getModeAndOption matchref cancelled")
                 }
             })
     }
 
+    /** send final result from user **/
     fun sendResult(user: String, countedTime: Double, steps: Int, meters: Float) {
 
         sendData(user, steps, meters)
@@ -350,6 +374,7 @@ class SportChallengeRepository {
         matchRef.child(user).child(Constant.FINISHED).setValue(Constant.FINISHED)
     }
 
+    /** get final result from opponent **/
     fun getEnemyResults(
         enemy: String,
         callback: (time: Double, steps: Int, meters: Float) -> Unit
@@ -359,8 +384,10 @@ class SportChallengeRepository {
 
             override fun onDataChange(snapshot: DataSnapshot) {
 
+                //opponent finished?
                 if (snapshot.hasChild(Constant.FINISHED)) {
 
+                    //opponent surrendered?
                     if (snapshot.child(Constant.FINISHED).value.toString() == Constant.SURRENDER) {
 
                         callback.invoke(0.0, 0, 0.0f)
@@ -373,17 +400,19 @@ class SportChallengeRepository {
                         callback.invoke(time, steps, meters)
                     }
 
+                    //remove listener
                     matchRef.child(enemy).removeEventListener(this)
                     matchRef.child(enemy).removeEventListener(stepListener)
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.d("SportRepo",  "getEnemyResults cancelled")
             }
         })
     }
 
+    /** deletes the game from the database **/
     fun deleteMatch(enemy: String) {
 
         matchRef.child(enemy).removeEventListener(stepListener)
@@ -391,6 +420,7 @@ class SportChallengeRepository {
         matchRef.removeValue()
     }
 
+    /** removes the game from the match search **/
     fun cancelMatch() {
 
         matchRef.removeEventListener(waitForPlayerListener)
@@ -399,12 +429,14 @@ class SportChallengeRepository {
         sportRef.child(Constant.OPENMATCHES).child(matchRef.key.toString()).removeValue()
     }
 
+    /** surrender match **/
     fun surrenderMatch(user: String) {
 
         matchRef.child(user).child(Constant.FINISHED).setValue(Constant.SURRENDER)
         currentUserRef.child(Constant.SPORT_CHALLENGE).removeValue()
     }
 
+    /** get opponent name **/
     fun getEnemyName(enemy: String, callback: (name: String) -> Unit) {
 
         matchRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -415,13 +447,15 @@ class SportChallengeRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.d("SportRepo",  "getEnemyName cancelled")
             }
         })
     }
 
+    /** save match results for the match history **/
     fun saveMatchResult(matchResult: MatchResult) {
 
-        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC).child(Constant.HISTORIE).child(matchRef.key.toString()).setValue(matchResult)
+        rootRef.child(Constant.USERS_PATH).child(currentUser.uid).child(Constant.STATISTIC)
+            .child(Constant.HISTORIE).child(matchRef.key.toString()).setValue(matchResult)
     }
 }

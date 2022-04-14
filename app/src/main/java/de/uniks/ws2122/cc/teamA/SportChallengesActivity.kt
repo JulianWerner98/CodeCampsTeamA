@@ -44,12 +44,14 @@ class SportChallengesActivity : AppCompatActivity() {
         }
     }
 
+    /** create live data observer to keep the UI up to date **/
     private fun createDataObserver() {
 
         viewModel.getSportChallengeData().observe(this) { sportChallenge ->
 
             binding.tvTimeCounter.text = getTimeStringFromDouble(sportChallenge)
 
+            //which mode is played?
             if (sportChallenge!!.mode == Constant.METERS) {
 
                 showMetersText(sportChallenge)
@@ -58,6 +60,7 @@ class SportChallengesActivity : AppCompatActivity() {
                 showStepsText(sportChallenge)
             }
 
+            // Changes the function of the button to "surrender" when there is a second player
             if (sportChallenge.players.size == 2) {
 
                 binding.tvInfo.text = "Run"
@@ -73,6 +76,7 @@ class SportChallengesActivity : AppCompatActivity() {
         }
     }
 
+    /** sets the UI for step mode **/
     private fun showStepsText(sportChallenge: SportChallenge) {
 
         binding.tvUserCounterText.text = "My Steps"
@@ -87,6 +91,7 @@ class SportChallengesActivity : AppCompatActivity() {
 
     }
 
+    /** sets the UI for meter mode **/
     private fun showMetersText(sportChallenge: SportChallenge) {
 
         binding.tvUserCounterText.text = "My Meters"
@@ -100,8 +105,10 @@ class SportChallengesActivity : AppCompatActivity() {
         binding.tvCounterStats2.text = "${sportChallenge.userSpeed}"
     }
 
+    /** shows the winner  **/
     private fun showWinner(sportChallenge: SportChallenge) {
 
+        //is there a winner?
         if (sportChallenge.winner.isNotEmpty()) {
 
             if (sportChallenge.players[0] == sportChallenge.winner) {
@@ -128,6 +135,7 @@ class SportChallengesActivity : AppCompatActivity() {
         }
     }
 
+    /** Converts the counted seconds in hh:mm:ss representation **/
     private fun getTimeStringFromDouble(sportChallenge: SportChallenge): String {
 
         val time = sportChallenge.userTime
@@ -140,6 +148,7 @@ class SportChallengesActivity : AppCompatActivity() {
         return "$hours : $minutes : $seconds"
     }
 
+    /** saves the time when the acitivty is closed in game **/
     override fun onDestroy() {
 
         if (!dontSaveTime) {

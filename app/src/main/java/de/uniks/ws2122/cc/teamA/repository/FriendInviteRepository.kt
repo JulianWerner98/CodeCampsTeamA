@@ -137,7 +137,5 @@ class FriendInviteRepository {
 
                 Log.d("TTTRepo", "created private match: $matchRef")
             }
-
-
     }
 }

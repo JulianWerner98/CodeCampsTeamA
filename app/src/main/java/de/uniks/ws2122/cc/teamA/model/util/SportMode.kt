@@ -8,6 +8,7 @@ class SportMode() {
     private val metersOptions: Map<String, Int>
     private val stepsOptions: Map<String, Int>
 
+    /** option -> the challenge target value **/
     init {
 
         timeOptions = mapOf("1 Minute" to 60,"5 Minutes" to 5*60,"10 Minutes" to 10*60, "30 Minutes" to 30*60, "60 Minutes" to 60*60)
@@ -17,6 +18,7 @@ class SportMode() {
         stepsOptions = mapOf("100 Steps" to 100, "200 Steps" to 200, "500 Steps" to 500, "1000 Steps" to 1000, "10.000 Steps" to 10000)
     }
 
+    /** returns the value of the selected option **/
     fun getOptionValue(mode: String, option: String): Int {
 
         return when(mode) {
@@ -28,6 +30,7 @@ class SportMode() {
         }
     }
 
+    /** returns all options of the selected mode **/
     fun getOptions(mode: String): ArrayList<String> {
 
         when(mode) {
@@ -40,6 +43,7 @@ class SportMode() {
         return ArrayList()
     }
 
+    /** returns all time options **/
     private fun getTimeOptions(): ArrayList<String> {
 
         val options = ArrayList<String>()
@@ -52,6 +56,7 @@ class SportMode() {
         return options
     }
 
+    /** returns all meter options **/
     private fun getMetersOptions(): ArrayList<String> {
 
         val options = ArrayList<String>()
@@ -64,6 +69,7 @@ class SportMode() {
         return options
     }
 
+    /** returns all step options **/
     private fun getStepsOptions(): ArrayList<String> {
 
         val options = ArrayList<String>()

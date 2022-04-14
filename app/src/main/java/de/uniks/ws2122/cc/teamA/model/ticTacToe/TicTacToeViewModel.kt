@@ -13,6 +13,7 @@ class TicTacToeViewModel : ViewModel() {
     private var tttRepo: TicTacToeRepository = TicTacToeRepository()
     private var tictactoeData: MutableLiveData<TicTacToe> = MutableLiveData()
 
+    /** checks if the player is already in game, if not creates a new one **/
     fun getOrCreateGame(friendID: String?, inviteId: String?, callback: (String) -> Unit) {
         // Try to get game
         tttRepo.getGame() { ttt ->

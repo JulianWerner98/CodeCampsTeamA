@@ -22,6 +22,7 @@ class SelectSportModeActivity : AppCompatActivity() {
 
         binding.btnStart.isClickable = false
 
+        //checks if a game already exists
         sportRepo.hasRunningGame { isRunning ->
 
             if (isRunning) {
@@ -31,6 +32,7 @@ class SelectSportModeActivity : AppCompatActivity() {
 
             } else {
 
+                //shows the options for the selected mode
                 binding.radioGroupMode.setOnCheckedChangeListener { radioGroup, _ ->
 
                     var mode = ""
@@ -44,6 +46,7 @@ class SelectSportModeActivity : AppCompatActivity() {
                     showOption(SportMode().getOptions(mode))
                 }
 
+                //start the SportChallengesActivity and pass the mode and option
                 binding.btnStart.isClickable = true
                 binding.btnStart.setOnClickListener {
 
@@ -64,6 +67,7 @@ class SelectSportModeActivity : AppCompatActivity() {
         }
     }
 
+    /** Displays the options for the selected mode **/
     private fun showOption(options: ArrayList<String>) {
 
         for (i in 0 until binding.radioGroupOptions.size) {
