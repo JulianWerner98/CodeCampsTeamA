@@ -9,7 +9,7 @@ import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import de.uniks.ws2122.cc.teamA.CompassActivity
 import java.util.*
-
+/** Timerservice that count every second **/
 class TimerService : Service()
 {
     private lateinit var timerCallback: (Double) -> Unit

@@ -28,12 +28,15 @@ class ForgotPasswordActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityForgotPasswordBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //Create Viewmodel
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
+        //Bind elements to variables
         requestNewPasswordBtn = binding.btnNewPassword
         emailField = binding.editTextEmailAdress
         spinner = binding.spinner
 
+        //Set visibility and listener
         spinner.isVisible = false
 
         requestNewPasswordBtn.setOnClickListener(this)
@@ -41,11 +44,13 @@ class ForgotPasswordActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(v: View?) {
         var email = emailField.text.trim().toString()
+        //Is there an email?
         if (email.isBlank() or email.isEmpty()) {
             emailField.setError("Email is required")
             emailField.requestFocus()
             return
         }
+        //Is the email valid?
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailField.setError("Please provide valid Email")
             emailField.requestFocus()
@@ -53,7 +58,7 @@ class ForgotPasswordActivity : AppCompatActivity(), View.OnClickListener {
         }
         spinner.isVisible = true
         requestNewPasswordBtn.isEnabled = false
-
+        //Start sending password forgot mail
         if (v!!.id == requestNewPasswordBtn.id) {
             viewModel.newPasswordMail(email) { msg ->
                 if (msg.equals(NEW_PASSWORD_SUCCESS_MSG)) {
@@ -67,6 +72,8 @@ class ForgotPasswordActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    /** Change to login Screen
+     */
     private fun changeToLoginScreen() {
         val intent = Intent(this, MainActivity::class.java).apply { }
         startActivity(intent)

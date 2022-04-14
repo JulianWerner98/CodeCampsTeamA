@@ -52,6 +52,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         binding = ActivityGameSelectBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Bind elements to variables
         logoutBtn = binding.btnLogout
         spinner = binding.spinner
         spinner.isVisible = false
@@ -65,6 +66,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         historieBtn = binding.btnHistorie
         statisticBtn = binding.btnStatistic
 
+        //Set visibility and listener
         tttBtn.setOnClickListener(this)
         friendlistBtn.setOnClickListener(this)
         logoutBtn.setOnClickListener(this)
@@ -75,6 +77,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         historieBtn.setOnClickListener(this)
         statisticBtn.setOnClickListener(this)
 
+        //Create Viewmodel
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
         if (!viewModel.isLoggedIn()) {
@@ -84,6 +87,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
 
         createNotificationChannel()
 
+        //Change the nickname dynamic
         viewModel.getLiveValueUser().observe(this) { user ->
             nicknameText.text = user.nickname
         }
@@ -128,6 +132,7 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    //Disable back button
     override fun onBackPressed() {}
 
     override fun onClick(v: View?) {
@@ -135,32 +140,36 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         when (v!!.id) {
             logoutBtn.id -> logout()
             tttBtn.id -> changeToTicTacToeScreen()
-            friendlistBtn.id -> changeToFriendslist()
+            friendlistBtn.id -> changeToFriendList()
             compassBtn.id -> changeToCompassScreen()
             mentalArithmeticBtn.id -> changeToMentalArithmetic()
             gameInviteListBtn.id -> changeToGameInviteList()
             sportBtn.id -> changeToSportChallenges()
-            historieBtn.id -> changeToHistorie()
+            historieBtn.id -> changeToHistory()
             statisticBtn.id -> changeToStatistic()
         }
     }
 
+    /** Change to Statistic **/
     private fun changeToStatistic() {
         val intent = Intent(this, StatisticActivity::class.java).apply {  }
         startActivity(intent)
     }
 
-    private fun changeToHistorie() {
+    /** Change to History **/
+    private fun changeToHistory() {
         val intent = Intent(this, HistorieActivity::class.java).apply {
         }
         startActivity(intent)
     }
 
+    /** Change to Game Invite **/
     private fun changeToGameInviteList() {
         val intent = Intent(this, GameInviteListActivity::class.java).apply { }
         startActivity(intent)
     }
 
+    /** Change to MentalArithmetic **/
     private fun changeToMentalArithmetic() {
         val intent = Intent(this, MentalArithmeticActivity::class.java).apply {
             this.putExtra(Constant.FRIENDID, Constant.DEFAULT)
@@ -170,29 +179,28 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         startActivity(intent)
     }
 
-    private fun logout() {
-        viewModel.logoutUser()
-        val intent = Intent(this, MainActivity::class.java).apply { }
-        startActivity(intent)
-    }
 
-    private fun changeToFriendslist() {
+    /** Change to Friend List **/
+    private fun changeToFriendList() {
         val intent = Intent(this, FriendListActivity::class.java).apply {
             this.putExtra("nickname", nicknameText.text)
         }
         startActivity(intent)
     }
 
+    /** Change to TicTacToe **/
     private fun changeToTicTacToeScreen() {
         val intent = Intent(this, TicTacToeActivity::class.java)
         startActivity(intent)
     }
 
+    /** Change to Compass Game **/
     private fun changeToCompassScreen() {
         val intent = Intent(this, CompassActivity::class.java)
         startActivity(intent)
     }
 
+    /** Change to Sport Challenge **/
     private fun changeToSportChallenges() {
 
         if (hasPhysicalActivityPermission()) {
@@ -216,8 +224,8 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    /** Request the Permission for Physical Activity for the Sport Game **/
     private fun requestPhysicalActivityPermission(callback: () -> Unit) {
-
         Log.d("STEP", "Permission Request")
         ActivityCompat.requestPermissions(
             this,
@@ -228,12 +236,19 @@ class GameSelectActivity : AppCompatActivity(), View.OnClickListener {
         callback.invoke()
     }
 
+    /**  Check if the physical activity permission already exists **/
     private fun hasPhysicalActivityPermission(): Boolean {
-
         return (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
                 == PackageManager.PERMISSION_GRANTED)
     }
 
+    /** logout User **/
+    private fun logout() {
+        viewModel.logoutUser()
+        val intent = Intent(this, MainActivity::class.java).apply { }
+        startActivity(intent)
+    }
+    /**  Create a channel to send notifications **/
     private fun createNotificationChannel() {
         // Create the NotificationChannel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

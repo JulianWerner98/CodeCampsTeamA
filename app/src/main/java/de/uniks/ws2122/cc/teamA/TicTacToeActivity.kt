@@ -13,7 +13,6 @@ import de.uniks.ws2122.cc.teamA.Constant.FRIENDID
 import de.uniks.ws2122.cc.teamA.Constant.INVITEKEY
 import de.uniks.ws2122.cc.teamA.databinding.ActivityTicTacToeBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
-import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
 import de.uniks.ws2122.cc.teamA.model.ticTacToe.TicTacToeViewModel
 import de.uniks.ws2122.cc.teamA.model.util.Notifications
 
@@ -31,6 +30,7 @@ class TicTacToeActivity : AppCompatActivity() {
         binding = ActivityTicTacToeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Get Intent Extras
         friendId = intent.extras?.get(FRIENDID)?.toString()
         if (friendId == "null") friendId = null
         inviteId = intent.extras?.get(INVITEKEY)?.toString()
@@ -40,13 +40,16 @@ class TicTacToeActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
         appViewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
+        //Load or Create Game
         viewModel.getOrCreateGame(friendId, inviteId) { text ->
             Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
         }
 
+        //Init Buttons
         val buttons = initButtons()
         createTicTacToeDataObserver(buttons)
 
+        //Set Listeners and Visibility
         binding.surrenderBtn.setOnClickListener { viewModel.surrenderGame(appViewModel) }
         binding.surrenderBtn.isEnabled = false
 
@@ -54,6 +57,10 @@ class TicTacToeActivity : AppCompatActivity() {
         binding.symbole.isVisible = false
     }
 
+    /**
+     * Override the onBackPressed Function
+     * Used to save statics and history and delete private game
+     * */
     override fun onBackPressed() {
         if (viewModel.getTicTacToeData().value!!.winner.isNotEmpty()) {
             exitGame()
@@ -68,12 +75,17 @@ class TicTacToeActivity : AppCompatActivity() {
         super.onBackPressed()
     }
 
+    /** Save statics and history
+     *  Change to Game Select Screen
+     * */
     private fun exitGame() {
         viewModel.exitGame()
         val intent = Intent(this, GameSelectActivity::class.java).apply { }
         startActivity(intent)
     }
 
+    /** Bind Buttons to Variables and Set Listeners
+     **/
     private fun initButtons(): List<ImageButton> {
 
         val buttons: List<ImageButton> = listOf(
@@ -87,7 +99,7 @@ class TicTacToeActivity : AppCompatActivity() {
             binding.ibtnField8,
             binding.ibtnField9
         )
-
+        // Set Listeners to all Field buttons
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 viewModel.turn(index)
@@ -96,16 +108,21 @@ class TicTacToeActivity : AppCompatActivity() {
         return buttons
     }
 
+    /** Listen to the current TTT Object
+     * */
     private fun createTicTacToeDataObserver(buttons: List<ImageButton>) {
-        val intent = Intent(this, CompassGame::class.java).apply {
+        //Setup for Notification
+        val intent = Intent(this, TicTacToeActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         val pendingIntent: PendingIntent =
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val notifications = Notifications()
 
+        //Set observer to Livedata
         viewModel.getTicTacToeData().observe(this) { tictactoe ->
 
+            //Waiting for opponent
             if (tictactoe.players.size < 2) {
                 binding.tvTurnMessage.text = "Waiting for Player"
                 buttons.forEach { button ->
@@ -113,7 +130,8 @@ class TicTacToeActivity : AppCompatActivity() {
                 }
                 binding.spinner.isVisible = true
 
-            } else {
+            } else { //In game
+                //Set showing elements visibility
                 binding.spinner.isVisible = false
                 binding.surrenderBtn.isEnabled = true
                 binding.symbole.isVisible = true
@@ -122,14 +140,16 @@ class TicTacToeActivity : AppCompatActivity() {
                 } else {
                     binding.symbole.setImageResource(R.drawable.cross)
                 }
+                //There is a winner
                 if (tictactoe.winner.isNotEmpty()) {
+                    //Change Button listener and visibilities
                     binding.surrenderBtn.isEnabled = true
                     binding.surrenderBtn.text = "Exit Game"
                     binding.surrenderBtn.setOnClickListener { exitGame() }
-
                     binding.symbole.isVisible = false
                     binding.smiley.isVisible = true
                     when (tictactoe.winner) {
+                        //The current player won
                         appViewModel.getUID() -> {
                             notifications.sendNotification(
                                 notificationId, Constant.TTT, "You won", this, pendingIntent
@@ -137,6 +157,7 @@ class TicTacToeActivity : AppCompatActivity() {
                             binding.tvTurnMessage.text = "You won"
                             binding.smiley.setImageResource(R.drawable.happy)
                         }
+                        //It´s a draw
                         DRAW -> {
                             viewModel.getNameById(appViewModel) {
                                 notifications.sendNotification(
@@ -146,6 +167,7 @@ class TicTacToeActivity : AppCompatActivity() {
                                 binding.smiley.setImageResource(R.drawable.neutral)
                             }
                         }
+                        //Opponent won
                         else -> {
                             viewModel.getNameById(appViewModel) {
                                 notifications.sendNotification(
@@ -156,12 +178,13 @@ class TicTacToeActivity : AppCompatActivity() {
                             }
                         }
                     }
-
+                    //Hide Buttons
                     buttons.forEach { button ->
                         button.isVisible = false
                     }
-
+                // No winner
                 } else {
+                    // Set Labels and button status
                     if (tictactoe.turn == appViewModel.getUID()) {
                         notifications.sendNotification(
                             notificationId, Constant.TTT, "Your turn", this, pendingIntent
@@ -181,8 +204,8 @@ class TicTacToeActivity : AppCompatActivity() {
                         }
                     }
                 }
-
             }
+            //Show the correct symbol in button
             buttons.forEachIndexed { index, button ->
                 when (tictactoe.fields[index]) {
                     "o" -> button.setImageResource(R.drawable.circle)

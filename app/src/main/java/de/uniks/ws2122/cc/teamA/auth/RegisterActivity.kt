@@ -36,14 +36,17 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //Create Viewmodel
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
+        //Bind elements to variables
         nickname = binding.editTextNickname
         emailAddress = binding.editTextEmailAdresse
         pwdField = binding.editTextPassword
         registerButton = binding.btnRegister
         spinner = binding.spinner
 
+        //Set visibility and listener
         spinner.isVisible = false
         registerButton.isEnabled = false
 
@@ -55,17 +58,26 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
 
     override fun onClick(v: View?) {
         var email = emailAddress.text.trim().toString()
+        //Is there an email?
+        if (email.isEmpty() or email.isBlank()) {
+            emailAddress.error = "Email is required"
+            emailAddress.requestFocus()
+            return
+        }
+        //Is the email valid?
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailAddress.error = "Please provide valid Email"
             emailAddress.requestFocus()
             return
         }
         var pwd = pwdField.text.trim().toString()
+        //Is the password long enough
         if (pwd.length < 6) {
             pwdField.error = "Password muss be longer than 6"
             pwdField.requestFocus()
             return
         }
+        //Change visibilities
         emailAddress.error = null
         pwdField.error = null
 
@@ -76,6 +88,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
         registerButton.isEnabled = false
 
         val name = nickname.text.trim().toString()
+        //Check if the nickname is already used. Otherwise create user
         viewModel.registerUser(email, pwd, name) { user ->
             var toastText: String
             if (user != null) {
@@ -120,6 +133,7 @@ class RegisterActivity : AppCompatActivity(), View.OnClickListener, TextWatcher 
         startActivity(intent)
     }
 
+    //Change button status with every change
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
         registerButton.isEnabled =
             nickname.text.isNotEmpty() && nickname.text.isNotBlank() &&

@@ -26,6 +26,7 @@ class AuthRepository {
         return FirebaseAuth.getInstance().currentUser
     }
 
+    /** Try to login user and call the callback with the given message **/
     fun loginUser(email: String, pwd: String, callback: (result: String) -> Unit) {
         if (email.isNotEmpty() && email.isNotEmpty() && pwd.isNotEmpty() && pwd.isNotBlank()) {
             mAuth.signInWithEmailAndPassword(email, pwd)
@@ -41,10 +42,12 @@ class AuthRepository {
         }
     }
 
+    /** User is logged in? **/
     fun isLoggedIn(): Boolean {
         return getCurrentFBUser() != null
     }
 
+    /** Check unique nickname and register user **/
     fun registerUser(
         email: String, pwd: String, nickname: String, callback: (result: User?) -> Unit
     ) {
@@ -81,12 +84,14 @@ class AuthRepository {
 
     }
 
+    /** logout user **/
     fun logoutUser() {
         if (isLoggedIn()) {
             mAuth.signOut()
         }
     }
 
+    /** send password forgot mail **/
     fun resetMail(email: String, callback: (result: String) -> Unit) {
         FirebaseAuth.getInstance().sendPasswordResetEmail(email)
             .addOnCompleteListener {
@@ -98,7 +103,8 @@ class AuthRepository {
             }
     }
 
-    fun getAllUserNicknames(callback: (result: ArrayList<String>) -> Unit) {
+    /** get all nicknames from the database, to check if the name exists **/
+    private fun getAllUserNicknames(callback: (result: ArrayList<String>) -> Unit) {
         getAllUsers { userList ->
             val userStringList = ArrayList<String>()
             userList.forEach { it ->
@@ -108,7 +114,8 @@ class AuthRepository {
         }
     }
 
-    fun getAllUsers(callback: (result: ArrayList<User>) -> Unit) {
+    /** Get All User from Database **/
+    private fun getAllUsers(callback: (result: ArrayList<User>) -> Unit) {
         dbref.child(USERS_PATH).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val array = ArrayList<User>()
@@ -125,6 +132,7 @@ class AuthRepository {
         })
     }
 
+    /** get Current User **/
     fun getCurrentUser(uid: String, callback: (result: User?) -> Unit) {
         dbref.child(USERS_PATH).child(uid).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
