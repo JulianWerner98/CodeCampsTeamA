@@ -10,6 +10,7 @@ import de.uniks.ws2122.cc.teamA.Constant
 import de.uniks.ws2122.cc.teamA.Constant.COMPASS_API_URL
 import de.uniks.ws2122.cc.teamA.Constant.COMPASS_GAME
 import de.uniks.ws2122.cc.teamA.Constant.DRAW
+import de.uniks.ws2122.cc.teamA.Constant.FIREBASE_URL
 import de.uniks.ws2122.cc.teamA.Constant.GAMES
 import de.uniks.ws2122.cc.teamA.Constant.HISTORIE
 import de.uniks.ws2122.cc.teamA.Constant.INVITES
@@ -32,15 +33,12 @@ import kotlin.random.Random
 
 class CompassRepository {
     private val rootRef: DatabaseReference =
-        FirebaseDatabase.getInstance(Constant.FIREBASE_URL).reference
-    private var gamesRef: DatabaseReference
-    private var compassGamesRef: DatabaseReference
+        FirebaseDatabase.getInstance(FIREBASE_URL).reference
+    private var gamesRef: DatabaseReference = rootRef.child(GAMES).ref
+    private var compassGamesRef: DatabaseReference = gamesRef.child(COMPASS_GAME)
 
-    init {
-        gamesRef = rootRef.child(Constant.GAMES).ref
-        compassGamesRef = gamesRef.child(Constant.COMPASS_GAME)
-    }
 
+    /** Get object from geoportal api**/
     fun getApiObject(
         compassActivity: CompassActivity,
         howMuch: Int,
@@ -66,6 +64,7 @@ class CompassRepository {
         requestQueue.add(objectRequest)
     }
 
+    /** Create Normal public game**/
     fun createGame(compassGame: CompassGame?, callback: (CompassGame?) -> Unit) {
         if (compassGame != null) {
             val matchRef = compassGamesRef.push()
@@ -87,6 +86,7 @@ class CompassRepository {
         }
     }
 
+    /** Try to get current game **/
     fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME).get()
             .addOnCompleteListener { get ->
@@ -113,6 +113,7 @@ class CompassRepository {
             }
     }
 
+    /** Look for a Match Request in the Match query **/
     fun getRequest(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         gamesRef.child(MATCH_REQUEST).child(COMPASS_GAME).get().addOnCompleteListener {
             if (it.isSuccessful) {
@@ -137,6 +138,7 @@ class CompassRepository {
         }
     }
 
+    /** Set listener to current game to detect changes **/
     fun setListenerToGame(
         currentGameId: String?,
         callback: (CompassGame?) -> Unit
@@ -152,16 +154,19 @@ class CompassRepository {
             })
     }
 
+    /** Write current Start Time in Database **/
     fun startTime(currentGame: CompassGame, playerNumber: String) {
         compassGamesRef.child(currentGame.id!!).child("player" + playerNumber + "Starttime")
             .setValue(Date())
     }
 
+    /** Write current End Time in Database **/
     fun endTime(currentGame: CompassGame, playerNumber: String) {
         compassGamesRef.child(currentGame.id!!).child("player" + playerNumber + "Endtime")
             .setValue(Date())
     }
 
+    /** Surrender Game **/
     fun surrender(currentGame: CompassGame?, opponentPlayerNumber: String, function: () -> Unit) {
         val date = Date()
         date.time = 0
@@ -176,6 +181,7 @@ class CompassRepository {
 
     }
 
+    /** Leave the game with statistic and history and calculate points **/
     fun exitGame(appViewModel: AppViewModel, game: CompassGame?) {
         rootRef.child(USERS_PATH).child(appViewModel.getUID()).child(COMPASS_GAME).removeValue()
         var matchResult = MatchResult()
@@ -223,16 +229,19 @@ class CompassRepository {
         }
     }
 
+    /** Set winner **/
     fun setWinner(game: CompassGame?) {
         compassGamesRef.child(game!!.id.toString()).child("winner").setValue(game!!.winner)
     }
 
+    /** Delete Request from match request query **/
     fun deleteRequest(callback: () -> Unit) {
         gamesRef.child(MATCH_REQUEST).child(COMPASS_GAME).removeValue().addOnSuccessListener {
             callback.invoke()
         }
     }
 
+    /** Send a game invite to a friend **/
     fun sendInvite(gameId: String, friendId: String, uid: String) {
         getUsername(uid) {
             rootRef.child(USERS_PATH).child(friendId).child(INVITES).child(COMPASS_GAME)
@@ -245,12 +254,14 @@ class CompassRepository {
         }
     }
 
+    /** Get Username by Id**/
     private fun getUsername(uid: String, callback: (String) -> Unit) {
         rootRef.child(USERS_PATH).child(uid).child(NICKNAME).get().addOnSuccessListener {
             callback.invoke(it.value.toString())
         }
     }
 
+    /** Join a game with als dependencies **/
     fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
         compassGamesRef.child(gameId).child("players").child("1").setValue(appViewModel.getUID())
             .addOnSuccessListener {
@@ -261,6 +272,7 @@ class CompassRepository {
             }
     }
 
+    /** Delete game **/
     fun deleteGame(game: CompassGame, uid: String, callback: () -> Unit) {
         compassGamesRef.child(game.id!!).removeValue().addOnSuccessListener {
             rootRef.child(USERS_PATH).child(uid).child(COMPASS_GAME).removeValue()
@@ -269,7 +281,7 @@ class CompassRepository {
                 }
         }
     }
-
+    /** Delete friend invite **/
     fun deleteInvite(uid: String, friendId: String, callback: () -> Unit) {
         getUsername(uid) {
             rootRef.child(USERS_PATH).child(friendId).child(INVITES).child(COMPASS_GAME).child(it)

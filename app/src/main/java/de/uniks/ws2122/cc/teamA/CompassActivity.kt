@@ -49,12 +49,14 @@ class CompassActivity : AppCompatActivity() {
         binding = ActivityCompassBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Bind elements to variables
         imageView = binding.arrow
         objectLabel = binding.objectTV
         background = binding.background
         binding.curvedArrowLeft.isVisible = false
         binding.curvedArrowRight.isVisible = false
 
+        //Get Intent Extra Variables
         friendId = intent.extras?.get(Constant.FRIENDID)?.toString()
         inviteId = intent.extras?.get(Constant.INVITEKEY)?.toString()
         if (friendId == "null") friendId = null
@@ -67,12 +69,20 @@ class CompassActivity : AppCompatActivity() {
         viewModel.timerService = TimerService().setupTimer(this) { newTimerValue(it.toInt()) }
         viewModel.setupSensors(this) { newSensorValue(it) }
 
+        //Set visibility and listener
         binding.btnStart.isVisible = false
         binding.arrow.isVisible = false
 
+        getOrCreateOrJoinGame()
+    }
+
+    private fun getOrCreateOrJoinGame() {
+        //Try to get game
         viewModel.getGame(appViewModel) { game ->
+            //There is no game
             if (game == null) {
                 when {
+                    // Join a private game
                     inviteId != null -> {
                         viewModel.joinGame(appViewModel, inviteId!!) { game ->
                             if (game != null) {
@@ -81,6 +91,7 @@ class CompassActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    //Create a private game
                     friendId == null -> {
                         viewModel.getRequest(appViewModel) { gameFromMatchRequest ->
                             if (gameFromMatchRequest == null) {
@@ -94,6 +105,7 @@ class CompassActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    //Create normal game
                     else -> {
                         viewModel.createPrivateGame(this, appViewModel, friendId!!) { privateGame ->
                             viewModel.setListenerToGame() { gameChanged(it) }
@@ -101,10 +113,11 @@ class CompassActivity : AppCompatActivity() {
                         }
                     }
                 }
-
-
+                //there is a current game
             } else {
+                // There is a invitation
                 if (inviteId != null) {
+                    //Can not join private game, already in a current game
                     if (game.players.size >= 2) {
                         Toast.makeText(
                             this,
@@ -112,6 +125,7 @@ class CompassActivity : AppCompatActivity() {
                             Toast.LENGTH_SHORT
                         ).show()
                     } else {
+                        //Delete current game and join the private game
                         viewModel.deleteRequest {
                             viewModel.deleteGame(game, appViewModel.getUID()) {
                                 viewModel.joinGame(appViewModel, inviteId!!) { game ->
@@ -125,7 +139,9 @@ class CompassActivity : AppCompatActivity() {
                     }
 
                 } else {
+                    //Want to create a privite game
                     if (friendId != null) {
+                        //Can not create private game, already in a current game
                         if (game.players.size >= 2) {
                             Toast.makeText(
                                 this,
@@ -133,6 +149,7 @@ class CompassActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
                         } else {
+                            //Delete match query to make a private game
                             viewModel.deleteRequest {
                                 viewModel.sendInvite(game!!.id!!, friendId!!, appViewModel.getUID())
                             }
@@ -145,6 +162,10 @@ class CompassActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Override the onBackPressed Function
+     * Used to save statics and history and delete private game
+     * */
     override fun onBackPressed() {
         if (viewModel.currentGame!!.winner.isNotEmpty()) {
             exitGame()
@@ -162,6 +183,7 @@ class CompassActivity : AppCompatActivity() {
 
     private fun gameChanged(game: CompassGame?) {
         if (game == null) return
+        //Setup for Notification
         var started: Boolean
         val intent = Intent(this, CompassGame::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -171,6 +193,7 @@ class CompassActivity : AppCompatActivity() {
         val notifications = Notifications()
 
         //Check Winner
+        //Current User won
         if (game.winner == appViewModel.getUID()) {
             viewModel.stopSensor()
             objectLabel.text = "You " + WIN
@@ -183,6 +206,7 @@ class CompassActivity : AppCompatActivity() {
                 this,
                 pendingIntent
             )
+            //Opponent won
         } else if (game.winner.isNotEmpty()) {
             viewModel.stopSensor()
             binding.arrow.setImageResource(R.drawable.lame)
@@ -207,12 +231,16 @@ class CompassActivity : AppCompatActivity() {
             binding.time.isVisible = false
             return
         }
+        //Check winner
         if (game.player0Endtime != null && game.player1Endtime != null) viewModel.checkWinner()
-        if (appViewModel.getUID() == game.players[0]) {
-            started = game.player0Starttime != null && game.player0Starttime!!.time != 0L
+
+        //Check if the game is started
+        started = if (appViewModel.getUID() == game.players[0]) {
+            game.player0Starttime != null && game.player0Starttime!!.time != 0L
         } else {
-            started = game.player1Starttime != null && game.player1Starttime!!.time != 0L
+            game.player1Starttime != null && game.player1Starttime!!.time != 0L
         }
+        //Game not started
         if (!started) {
             if (game.players.size < 2) {
                 objectLabel.text = WAITINGFOROPPONENT
@@ -235,7 +263,7 @@ class CompassActivity : AppCompatActivity() {
                 binding.btnStart.setOnClickListener { startGame() }
             }
         } else {
-            // Joined Again
+            // Joined Again -> Surrender Game
             if (timer <= 0) {
                 viewModel.surrender(appViewModel)
             }
@@ -243,23 +271,30 @@ class CompassActivity : AppCompatActivity() {
 
     }
 
+    /** Save statics and history
+     *  Change to Game Select Screen
+     * */
     private fun exitGame() {
         viewModel.exitGame(appViewModel)
         val intent = Intent(this, GameSelectActivity::class.java).apply { }
         startActivity(intent)
     }
 
+    /** Start game  **/
     private fun startGame() {
         timer = 1
+        // Set visibilities
         binding.btnStart.isVisible = false
         binding.spinner.isVisible = true
         binding.arrow.isVisible = false
+        //Get first searched Object
         viewModel.nextObject(this, currentObjectCount) { next ->
             binding.spinner.isVisible = false
             binding.arrow.isVisible = true
             searchedDegree = next
             objectLabel.text =
                 viewModel.currentGame!!.objectList[currentObjectCount].properties.Objekt
+            //Start timer
             viewModel.timerService?.resetTimer(this)
             viewModel.startTime(appViewModel)
             viewModel.timerService?.startTimer(this)
@@ -272,24 +307,30 @@ class CompassActivity : AppCompatActivity() {
         super.finish()
     }
 
-    fun newSensorValue(floatOrientation: FloatArray) {
+    private fun newSensorValue(floatOrientation: FloatArray) {
         if (searchedDegree != 0F.toDouble()) {
+            //Set arrow to North
             angle = floatOrientation[0] * 180 / Math.PI
             binding.arrow.rotation = angle.toFloat()
             Log.d(
                 "Debug for Presentation",
                 "Aktuell:" + angle + " Gesucht:" + searchedDegree + " Erste:" + firstDetection
             )
+            // Check if the angle is in the searched range
             if (searchedDegree + 15 >= angle && searchedDegree - 15 <= angle) {
                 if (firstDetection == 0) {
                     firstDetection = timer
+                    //Check if the angle is correct for 2 to 5 seconds
                 } else if (timer - firstDetection in 2..5) {
+                    //vibrate
                     val vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                     if (vibrator.hasVibrator()) {
                         vibrator.vibrate(500)
                     }
+                    //Stop timer
                     viewModel.timerService?.stopTimer(this)
                     viewModel.stopSensor()
+                    //Get next Object
                     if (++currentObjectCount < viewModel.currentGame!!.objectList.size) {
                         viewModel.nextObject(this, currentObjectCount) { next ->
                             searchedDegree = next
@@ -309,13 +350,14 @@ class CompassActivity : AppCompatActivity() {
                     }
                     background.setBackgroundColor(Color.parseColor("#05930A"))
                 }
+                //Out of range
             } else {
                 firstDetection = 0
                 background.setBackgroundColor(Color.parseColor("#393E46"))
             }
         }
     }
-
+    /** Timer listener **/
     fun newTimerValue(timer: Int) {
         this.timer = timer
         binding.time.text = timer.toString() + "sec"

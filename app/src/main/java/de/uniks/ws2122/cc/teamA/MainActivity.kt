@@ -14,7 +14,8 @@ import de.uniks.ws2122.cc.teamA.auth.RegisterActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityMainBinding
 import de.uniks.ws2122.cc.teamA.model.AppViewModel
 
-
+/** Shows all Authentication possibilities
+ * */
 class MainActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: AppViewModel
@@ -30,8 +31,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //Create Viewmodel
         viewModel = ViewModelProvider(this)[AppViewModel::class.java]
 
+        //Bind elements to variables
         loginButton = binding.btnLogin
         emailField = binding.editTextEmail
         pwdField = binding.editTextPassword
@@ -39,8 +42,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         register = binding.textRegister
         spinner = binding.spinner
 
+        //Set visibility and listener
         spinner.isVisible = false
-
         register.setOnClickListener(this)
         forgotPwd.setOnClickListener(this)
         loginButton.setOnClickListener(this)
@@ -48,6 +51,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onStart() {
+        // Change to Game Select Screen if the User is already logged in
         super.onStart()
         if (viewModel.isLoggedIn()) {
             println("Already logged in")
@@ -56,9 +60,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onBackPressed() {
+        //Disable Back Button
     }
 
     override fun onClick(v: View?) {
+        //Start Register, Forgot password and login User
         when (v!!.id) {
             register.id -> {
                 val intent = Intent(this, RegisterActivity::class.java).apply { }
@@ -75,24 +81,31 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     }
 
+    /** Checks if the input is correct and then login in the user
+     * */
     private fun loginUser() {
+        // Get input
         val email = emailField.text.trim().toString()
         val pwd = pwdField.text.trim().toString()
+        //Is there an email?
         if (email.isEmpty() or email.isBlank()) {
             emailField.error = "Email is required"
             emailField.requestFocus()
             return
         }
+        //Is the email valid?
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailField.error = "Please provide valid Email"
             emailField.requestFocus()
             return
         }
+        //Is there a password?
         if (pwd.isEmpty() or pwd.isBlank()) {
             pwdField.error = "Password is required"
             pwdField.requestFocus()
             return
         }
+        //Start login in
         spinner.isVisible = true
         loginButton.isEnabled = false
         viewModel.loginUser(email, pwd) { statusMsg ->
@@ -105,7 +118,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
-
+    /** Change to Game Select Screen
+     */
     private fun changeToGameSelectScreen() {
         val intent = Intent(this, GameSelectActivity::class.java).apply { }
         startActivity(intent)

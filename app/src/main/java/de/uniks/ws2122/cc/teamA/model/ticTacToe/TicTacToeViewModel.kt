@@ -14,13 +14,17 @@ class TicTacToeViewModel : ViewModel() {
     private var tictactoeData: MutableLiveData<TicTacToe> = MutableLiveData()
 
     fun getOrCreateGame(friendID: String?, inviteId: String?, callback: (String) -> Unit) {
+        // Try to get game
         tttRepo.getGame() { ttt ->
+            //There is a game
             if (ttt != null) {
                 when {
+                    // Want to have a private game
                     friendID != null -> {
                         if(ttt.players.size > 1) {
                             callback.invoke("No Invite! You are already in a game")
                         } else {
+                            // Make public game to private and send request to friend
                             tttRepo.deleteRequest {
                                 tttRepo.sendInvite(ttt.id!!, friendID)
                             }
@@ -28,6 +32,7 @@ class TicTacToeViewModel : ViewModel() {
                         tictactoeData.value = ttt
                         setListenerToGame()
                     }
+                    //Want to join a private game
                     inviteId != null -> {
                         tttRepo.deleteRequest {
                             tttRepo.deleteGame(ttt){
@@ -45,6 +50,8 @@ class TicTacToeViewModel : ViewModel() {
                 }
 
             } else {
+                //There is no current game
+                //Create or join a game
                 when {
                     inviteId != null -> {
                         tttRepo.joinPrivateGame(inviteId) {
@@ -79,6 +86,7 @@ class TicTacToeViewModel : ViewModel() {
         }
     }
 
+    /** Listen to changes at the game **/
     private fun setListenerToGame() {
         tttRepo.setListenerToGame(tictactoeData.value!!.id) {
             if (it != null) {
@@ -87,14 +95,17 @@ class TicTacToeViewModel : ViewModel() {
         }
     }
 
+    /** Getter **/
     fun getTicTacToeData(): LiveData<TicTacToe> {
         return tictactoeData
     }
 
+    /** Setter **/
     fun setTicTacToeData(value: TicTacToe) {
         tttRepo.updateGame(value)
     }
 
+    /** Surrender Game **/
     fun surrenderGame(appViewModel: AppViewModel) {
         var currentGame = tictactoeData.value
         if (appViewModel.getUID() == currentGame!!.players[0]) {
@@ -105,6 +116,7 @@ class TicTacToeViewModel : ViewModel() {
         setTicTacToeData(currentGame)
     }
 
+    /** Make a possible turn **/
     fun turn(index: Int) {
         val game = tictactoeData.value!!
         val symbol = if (isCircle()) "o" else "x"
@@ -120,6 +132,7 @@ class TicTacToeViewModel : ViewModel() {
         }
     }
 
+    /** Check if every field has a symbol**/
     private fun checkDraw(): Boolean {
         for (i in 0..8) {
             if (tictactoeData.value!!.fields[i].isBlank()) return false
@@ -127,7 +140,7 @@ class TicTacToeViewModel : ViewModel() {
         return true
     }
 
-    //check if the user has won
+    /** check if the user has won **/
     private fun hasWon(icon: String, fields: ArrayList<String>): Boolean {
 
         /*
@@ -154,6 +167,7 @@ class TicTacToeViewModel : ViewModel() {
         return false
     }
 
+    /** get username by id **/
     fun getNameById(appViewModel: AppViewModel, callback: (String) -> Unit) {
         if (tictactoeData.value!!.players[0] == appViewModel.getUID()) {
             tttRepo.getUsername(tictactoeData.value!!.players[1]) {
@@ -166,18 +180,22 @@ class TicTacToeViewModel : ViewModel() {
         }
     }
 
+    /** check if the own symbol is the circle **/
     fun isCircle(): Boolean {
         return tictactoeData.value!!.players[0] == FirebaseAuth.getInstance().currentUser!!.uid
     }
 
+    /** exit game **/
     fun exitGame() {
         tttRepo.exitGame(tictactoeData.value)
     }
 
+    /** delete game **/
     fun deleteGame(callback: () -> Unit) {
         tttRepo.deleteGame(tictactoeData.value!!, callback)
     }
 
+    /** delete friend invite **/
     fun deleteInvite(friendId: String, callback: () -> Unit) {
         tttRepo.deleteInvite(friendId, callback)
     }

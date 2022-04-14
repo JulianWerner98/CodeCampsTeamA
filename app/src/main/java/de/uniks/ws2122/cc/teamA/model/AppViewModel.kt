@@ -12,13 +12,13 @@ class AppViewModel : ViewModel() {
     private var authRepository = AuthRepository()
     private var notificationRepository = NotificationRepository()
 
-    //Setter
-    fun setUser(user: User): User {
+    /** Setter **/
+    private fun setUser(user: User): User {
         liveValueUser.value = user
         return user
     }
 
-    //Getter
+    /** Getter **/
     fun getLiveValueUser(): LiveData<User> {
         if (authRepository.isLoggedIn() && liveValueUser.value == null) {
             val uid = authRepository.getCurrentFBUser()!!.uid
@@ -30,20 +30,22 @@ class AppViewModel : ViewModel() {
         }
         return liveValueUser
     }
-
+    /** Get uid from current user **/
     fun getUID(): String {
         return authRepository.getCurrentFBUser()!!.uid
     }
 
-    //Auth Functions
+    /** login user **/
     fun loginUser(email: String, pwd: String, callback: (result: String) -> Unit) {
         authRepository.loginUser(email, pwd, callback)
     }
 
+    /** logout user **/
     fun logoutUser() {
         authRepository.logoutUser()
     }
 
+    /** register user **/
     fun registerUser(
         email: String,
         pwd: String,
@@ -58,14 +60,17 @@ class AppViewModel : ViewModel() {
         }
     }
 
+    /** check if user is logged in **/
     fun isLoggedIn(): Boolean {
         return authRepository.isLoggedIn()
     }
 
+    /** Send new password mail **/
     fun newPasswordMail(email: String, callback: (result: String) -> Unit) {
         authRepository.resetMail(email, callback)
     }
 
+    /** Get Notifications from Database **/
     fun notificationRequestList(callback: (result: Boolean, id: Int, name: String) -> Unit) {
         notificationRepository.notificationRequestList(){ result, id, name ->
             if (result) {
@@ -74,6 +79,7 @@ class AppViewModel : ViewModel() {
         }
     }
 
+    /** Send game invite Notification **/
     fun sendGameInviteNotification(callback: (result: Boolean, notification: Notification) -> Unit) {
         notificationRepository.sendGameInviteNotification() { result, notification ->
             if (result){

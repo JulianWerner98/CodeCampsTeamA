@@ -32,6 +32,7 @@ class TicTacToeRepository {
     private val currentUserRef = rootRef.child(USERS_PATH).child(currentUser.uid).ref
 
 
+    /** Get game from Database **/
     fun getGame(callback: (TicTacToe?) -> Unit) {
         currentUserRef.child(TTT).get().addOnSuccessListener { gameIdSnapshot ->
             if (gameIdSnapshot.value != null) {
@@ -44,7 +45,7 @@ class TicTacToeRepository {
             }
         }
     }
-
+    /** Get Username by Id**/
     fun getUsername(uid: String, callback: (String) -> Unit) {
         rootRef.child(USERS_PATH).child(uid).child(NICKNAME).get()
             .addOnSuccessListener {
@@ -52,6 +53,7 @@ class TicTacToeRepository {
             }
     }
 
+    /** Create Private Game **/
     fun createPrivateGame(callback: (TicTacToe) -> Unit) {
         val newGame = TicTacToe()
         newGame.players.add(currentUser.uid)
@@ -64,6 +66,7 @@ class TicTacToeRepository {
         }
     }
 
+    /** Create game with request **/
     fun createGame(callback: (TicTacToe) -> Unit) {
         createPrivateGame() { ttt ->
             gamesRef.child(MATCH_REQUEST).child(TTT).child(GAME).setValue(ttt.id)
@@ -72,7 +75,7 @@ class TicTacToeRepository {
                 }
         }
     }
-
+    /** Set listener to current game to detect changes **/
     fun setListenerToGame(id: String?, callback: (TicTacToe?) -> Unit) {
         tttRef.child(id.toString()).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -88,6 +91,7 @@ class TicTacToeRepository {
         tttRef.child(game.id!!).setValue(game)
     }
 
+    /** Join a game with als dependencies **/
     fun joinGame(callback: (TicTacToe?) -> Unit) {
         gamesRef.child(MATCH_REQUEST).child(TTT).get().addOnSuccessListener { gameIdSnapshot ->
             if (gameIdSnapshot.value != null) {
@@ -109,6 +113,7 @@ class TicTacToeRepository {
         }
     }
 
+    /** Leave the game with statistic and history and calculate points **/
     fun exitGame(game: TicTacToe?) {
         var userId = currentUser.uid
         rootRef.child(USERS_PATH).child(userId).child(TTT).removeValue()
@@ -159,6 +164,7 @@ class TicTacToeRepository {
         }
     }
 
+    /** Delete game **/
     fun deleteGame(game: TicTacToe, callback: () -> Unit) {
         rootRef.child(USERS_PATH).child(currentUser.uid).child(TTT).removeValue()
             .addOnSuccessListener {
@@ -168,6 +174,7 @@ class TicTacToeRepository {
             }
     }
 
+    /** Delete friend invite **/
     fun deleteInvite(friendId: String, callback: () -> Unit) {
         getUsername(currentUser.uid) { ownUsername ->
             rootRef.child(USERS_PATH).child(friendId).child(Constant.INVITES)
@@ -178,12 +185,14 @@ class TicTacToeRepository {
         }
     }
 
+    /** Delete Match request query **/
     fun deleteRequest(callback: () -> Unit) {
         gamesRef.child(MATCH_REQUEST).child(TTT).removeValue().addOnSuccessListener {
             callback.invoke()
         }
     }
 
+    /** Join an private game **/
     fun joinPrivateGame(inviteId: String, callback: (TicTacToe?) -> Unit) {
         rootRef.child(USERS_PATH).child(currentUser.uid).child(TTT).setValue(inviteId)
             .addOnSuccessListener {
@@ -196,6 +205,7 @@ class TicTacToeRepository {
             }
     }
 
+    /** Send a game Invite a friend **/
     fun sendInvite(gameId: String, friendId: String) {
         getUsername(currentUser.uid) {
             rootRef.child(USERS_PATH).child(friendId).child(Constant.INVITES).child(Constant.TTT)

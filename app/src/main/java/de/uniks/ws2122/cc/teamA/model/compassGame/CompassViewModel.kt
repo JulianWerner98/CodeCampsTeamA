@@ -46,6 +46,7 @@ class CompassViewModel : ViewModel() {
     var currentGame: CompassGame? = null
     var timerService: TimerService? = null
 
+    /**  Get three random locations **/
     fun getRandomLocation(compassActivity: CompassActivity, callback: (List<Feature>) -> Unit) {
         compassRepo.getApiObject(compassActivity, numberOfEmblems) {
             currentGame = CompassGame(ArrayList(it), null, null, null, null)
@@ -53,7 +54,8 @@ class CompassViewModel : ViewModel() {
         }
     }
 
-    fun getAngleToLocation(
+    /** calculate angle to location **/
+    private fun getAngleToLocation(
         compassActivity: CompassActivity,
         feature: Feature,
         callbackDegree: (Double) -> Unit
@@ -61,8 +63,8 @@ class CompassViewModel : ViewModel() {
         getLastLocation(compassActivity)
         getLocationCallback = {
             Log.d("Current Position", location!!.latitude.toString() + " " + location!!.longitude)
-            val x = 9.490193682869808  //location!!.longitude
-            val y = 51.31812310171641 //location!!.latitude
+            val x = location!!.longitude
+            val y = location!!.latitude
             val x2 = feature.geometry.coordinates[0]
             val y2 = feature.geometry.coordinates[1]
             val radian: Double = atan2(y2 - y, x2 - x)
@@ -72,6 +74,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** get current gps data **/
     fun getLastLocation(compassActivity: CompassActivity) {
         if (checkPermission(compassActivity)) {
             if (isLocationEnabled(compassActivity)) {
@@ -96,7 +99,8 @@ class CompassViewModel : ViewModel() {
         }
     }
 
-    fun checkPermission(compassActivity: CompassActivity): Boolean {
+    /** check if there are the correct permissions **/
+    private fun checkPermission(compassActivity: CompassActivity): Boolean {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(compassActivity)
         if (
@@ -114,7 +118,8 @@ class CompassViewModel : ViewModel() {
         return false
     }
 
-    fun requestPermission(compassActivity: CompassActivity) {
+    /** Request permissions **/
+    private fun requestPermission(compassActivity: CompassActivity) {
         ActivityCompat.requestPermissions(
             compassActivity,
             arrayOf(
@@ -125,7 +130,8 @@ class CompassViewModel : ViewModel() {
         )
     }
 
-    fun isLocationEnabled(compassActivity: CompassActivity): Boolean {
+    /** Check if location service is enabled at the device **/
+    private fun isLocationEnabled(compassActivity: CompassActivity): Boolean {
         var locationManager: LocationManager =
             compassActivity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
@@ -133,7 +139,8 @@ class CompassViewModel : ViewModel() {
         )
     }
 
-    fun newLocationData(compassActivity: CompassActivity) {
+    /** get new location data **/
+    private fun newLocationData(compassActivity: CompassActivity) {
         var locationRequest = LocationRequest()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.interval = 0
@@ -149,6 +156,7 @@ class CompassViewModel : ViewModel() {
 
     }
 
+    /** callback for new location **/
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             location = locationResult.lastLocation
@@ -156,6 +164,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** setup sensors **/
     fun setupSensors(compassActivity: CompassActivity, sensorCallback: (FloatArray) -> Unit) {
         this.sensorCallback = sensorCallback
         sensorManager = compassActivity.getSystemService(SENSOR_SERVICE) as SensorManager
@@ -167,6 +176,7 @@ class CompassViewModel : ViewModel() {
 
     }
 
+    /** start sensors **/
     fun startSensor() {
         sensorManager.registerListener(
             sensorEventListenerAccelrometer,
@@ -180,11 +190,13 @@ class CompassViewModel : ViewModel() {
         );
     }
 
+    /** stop sensors **/
     fun stopSensor() {
         sensorManager.unregisterListener(sensorEventListenerAccelrometer)
         sensorManager.unregisterListener(sensorEventListenerMagneticField);
     }
 
+    /** called if there is a new sensor value at acc **/
     val sensorEventListenerAccelrometer: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
             floatGravity = event.values
@@ -210,6 +222,8 @@ class CompassViewModel : ViewModel() {
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
+
+    /** called if there is a new sensor value at magnet field **/
     val sensorEventListenerMagneticField: SensorEventListener = object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
             floatGeoMagnetic = event.values
@@ -226,6 +240,7 @@ class CompassViewModel : ViewModel() {
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
     }
 
+    /** Get Game **/
     fun getGame(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         if (currentGame != null) {
             callback.invoke(currentGame)
@@ -236,6 +251,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** create game **/
     fun createGame(
         compassActivity: CompassActivity,
         appViewModel: AppViewModel,
@@ -250,6 +266,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** get next object **/
     fun nextObject(
         compassActivity: CompassActivity,
         currentObjectCount: Int,
@@ -258,6 +275,7 @@ class CompassViewModel : ViewModel() {
         getAngleToLocation(compassActivity, currentGame!!.objectList[currentObjectCount], callback)
     }
 
+    /** get Match Request **/
     fun getRequest(appViewModel: AppViewModel, callback: (CompassGame?) -> Unit) {
         compassRepo.getRequest(appViewModel) {
             currentGame = it
@@ -265,6 +283,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** listen to current game **/
     fun setListenerToGame(callback: (CompassGame?) -> Unit) {
         compassRepo.setListenerToGame(currentGame?.id) {
             if (it != null) {
@@ -275,6 +294,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** Start timer **/
     fun startTime(appViewModel: AppViewModel) {
         if (appViewModel.getUID() == currentGame!!.players[0]) {
             compassRepo.startTime(currentGame!!, "0")
@@ -284,6 +304,7 @@ class CompassViewModel : ViewModel() {
         compassRepo.setWinner(currentGame)
     }
 
+    /** surrender the game **/
     fun surrender(appViewModel: AppViewModel) {
         if (appViewModel.getUID() == currentGame!!.players[0]) {
             currentGame!!.winner = currentGame!!.players[1]
@@ -299,6 +320,7 @@ class CompassViewModel : ViewModel() {
 
     }
 
+    /** write end time **/
     fun endTime(appViewModel: AppViewModel) {
         if (appViewModel.getUID() == currentGame!!.players[0]) {
             compassRepo.endTime(currentGame!!, "0")
@@ -307,6 +329,7 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** check if there is a winner **/
     fun checkWinner() {
         if (currentGame != null) {
             if (currentGame!!.winner.isEmpty() || currentGame!!.winner.isBlank()) {
@@ -324,10 +347,12 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** leave game **/
     fun exitGame(appViewModel: AppViewModel) {
         compassRepo.exitGame(appViewModel, currentGame)
     }
 
+    /** create private game **/
     fun createPrivateGame(
         compassActivity: CompassActivity,
         appViewModel: AppViewModel,
@@ -342,14 +367,17 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** send invite to your friend **/
     fun sendInvite(gameId: String, friendId: String, uid: String) {
         compassRepo.sendInvite(gameId, friendId, uid)
     }
 
+    /** delete Request **/
     fun deleteRequest(callback: () -> Unit) {
         compassRepo.deleteRequest(callback)
     }
 
+    /** Join game **/
     fun joinGame(appViewModel: AppViewModel, gameId: String, callback: (CompassGame?) -> Unit) {
         compassRepo.joinGame(appViewModel, gameId) {
             currentGame = it
@@ -357,10 +385,12 @@ class CompassViewModel : ViewModel() {
         }
     }
 
+    /** delete game **/
     fun deleteGame(game: CompassGame, uid: String, callback: () -> Unit) {
         compassRepo.deleteGame(game, uid, callback)
     }
 
+    /** delete invite **/
     fun deleteInvite(uid: String, friendId: String, callback: () -> Unit) {
         compassRepo.deleteInvite(uid, friendId, callback)
     }
