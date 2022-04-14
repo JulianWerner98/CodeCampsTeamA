@@ -2,19 +2,14 @@ package de.uniks.ws2122.cc.teamA.friendlist
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import de.uniks.ws2122.cc.teamA.Constant
-import de.uniks.ws2122.cc.teamA.GameSelectActivity
-import de.uniks.ws2122.cc.teamA.TicTacToeActivity
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendProfileBinding
 import de.uniks.ws2122.cc.teamA.model.FriendListViewModel
-import de.uniks.ws2122.cc.teamA.repository.FriendInviteRepository
-import kotlinx.coroutines.*
 
 class FriendProfileActivity : AppCompatActivity() {
 

@@ -3,13 +3,9 @@ package de.uniks.ws2122.cc.teamA.friendlist
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import de.uniks.ws2122.cc.teamA.*
 import de.uniks.ws2122.cc.teamA.databinding.ActivityFriendGameInviteBinding
 import de.uniks.ws2122.cc.teamA.mentalArithmetic.MentalArithmeticActivity
-import de.uniks.ws2122.cc.teamA.model.MentalArithmetic
-import de.uniks.ws2122.cc.teamA.model.compassGame.CompassGame
-import de.uniks.ws2122.cc.teamA.repository.FriendInviteRepository
 
 class FriendGameInviteActivity : AppCompatActivity() {
     private lateinit var binding : ActivityFriendGameInviteBinding
